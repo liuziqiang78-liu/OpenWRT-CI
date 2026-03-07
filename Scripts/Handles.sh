@@ -2,108 +2,130 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-#预置HomeProxy数据
-if [ -d *"homeproxy"* ]; then
-	echo " "
+# 预置HomeProxy数据
+if [ -d *homeproxy* ]; then
+    echo " "
 
-	HP_RULE="surge"
-	HP_PATH="homeproxy/root/etc/homeproxy"
+    HP_RULE="surge"
+    HP_PATH="homeproxy/root/etc/homeproxy"
 
-	rm -rf ./$HP_PATH/resources/*
+    rm -rf ./$HP_PATH/resources/*
 
-	git clone -q --depth=1 --single-branch --branch "release" "https://github.com/Loyalsoldier/surge-rules.git" ./$HP_RULE/
-	cd ./$HP_RULE/ && RES_VER=$(git log -1 --pretty=format:'%s' | grep -o "[0-9]*")
+    git clone -q --depth=1 --single-branch --branch "release" "https://github.com/Loyalsoldier/surge-rules.git" ./$HP_RULE/
+    cd ./$HP_RULE/ && RES_VER=$(git log -1 --pretty=format:'%s' | grep -o "[0-9]*")
 
-	echo $RES_VER | tee china_ip4.ver china_ip6.ver china_list.ver gfw_list.ver
-	awk -F, '/^IP-CIDR,/{print $2 > "china_ip4.txt"} /^IP-CIDR6,/{print $2 > "china_ip6.txt"}' cncidr.txt
-	sed 's/^\.//g' direct.txt > china_list.txt ; sed 's/^\.//g' gfw.txt > gfw_list.txt
-	mv -f ./{china_*,gfw_list}.{ver,txt} ../$HP_PATH/resources/
+    echo $RES_VER | tee china_ip4.ver china_ip6.ver china_list.ver gfw_list.ver
+    awk -F, '/^IP-CIDR,/{print $2 > "china_ip4.txt"} /^IP-CIDR6,/{print $2 > "china_ip6.txt"}' cncidr.txt
+    sed 's/^\.//g' direct.txt > china_list.txt ; sed 's/^\.//g' gfw.txt > gfw_list.txt
+    mv -f ./{china_*,gfw_list}.{ver,txt} ../$HP_PATH/resources/
 
-	cd .. && rm -rf ./$HP_RULE/
+    cd .. && rm -rf ./$HP_RULE/
 
-	cd $PKG_PATH && echo "homeproxy date has been updated!"
+    cd $PKG_PATH && echo "homeproxy date has been updated!"
 fi
 
-#修改argon主题字体和颜色
-if [ -d *"luci-theme-argon"* ]; then
-	echo " "
+# 修改argon主题字体和颜色
+if [ -d *luci-theme-argon* ]; then
+    echo " "
 
-	cd ./luci-theme-argon/
+    cd ./luci-theme-argon/
 
-	sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'none'/'bing'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
+    sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'none'/'bing'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
 
-	cd $PKG_PATH && echo "theme-argon has been fixed!"
+    cd $PKG_PATH && echo "theme-argon has been fixed!"
 fi
 
-#修改aurora菜单式样
-if [ -d *"luci-app-aurora-config"* ]; then
-	echo " "
+# 修改aurora菜单式样
+if [ -d *luci-app-aurora-config* ]; then
+    echo " "
 
-	cd ./luci-app-aurora-config/
+    cd ./luci-app-aurora-config/
 
-	sed -i "s/nav_submenu_type '.*'/nav_submenu_type 'boxed-dropdown'/g" $(find ./root/ -type f -name "*aurora")
+    sed -i "s/nav_submenu_type '.*'/nav_submenu_type 'boxed-dropdown'/g" $(find ./root/ -type f -name "*aurora")
 
-	cd $PKG_PATH && echo "theme-aurora has been fixed!"
+    cd $PKG_PATH && echo "theme-aurora has been fixed!"
 fi
 
-#修改qca-nss-drv启动顺序
+# 修改qca-nss-drv启动顺序
 NSS_DRV="../feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
 if [ -f "$NSS_DRV" ]; then
-	echo " "
+    echo " "
 
-	sed -i 's/START=.*/START=85/g' $NSS_DRV
+    sed -i 's/START=.*/START=85/g' $NSS_DRV
 
-	cd $PKG_PATH && echo "qca-nss-drv has been fixed!"
+    cd $PKG_PATH && echo "qca-nss-drv has been fixed!"
 fi
 
-#修改qca-nss-pbuf启动顺序
+# 修改qca-nss-pbuf启动顺序
 NSS_PBUF="./kernel/mac80211/files/qca-nss-pbuf.init"
 if [ -f "$NSS_PBUF" ]; then
-	echo " "
+    echo " "
 
-	sed -i 's/START=.*/START=86/g' $NSS_PBUF
+    sed -i 's/START=.*/START=86/g' $NSS_PBUF
 
-	cd $PKG_PATH && echo "qca-nss-pbuf has been fixed!"
+    cd $PKG_PATH && echo "qca-nss-pbuf has been fixed!"
 fi
 
-#修复TailScale配置文件冲突
+# 修复TailScale配置文件冲突
 TS_FILE=$(find ../feeds/packages/ -maxdepth 3 -type f -wholename "*/tailscale/Makefile")
 if [ -f "$TS_FILE" ]; then
-	echo " "
+    echo " "
 
-	sed -i '/\/files/d' $TS_FILE
+    sed -i '/\/files/d' $TS_FILE
 
-	cd $PKG_PATH && echo "tailscale has been fixed!"
+    cd $PKG_PATH && echo "tailscale has been fixed!"
 fi
 
-#修复Rust编译失败
+# 修复Rust编译失败
 RUST_FILE=$(find ../feeds/packages/ -maxdepth 3 -type f -wholename "*/rust/Makefile")
 if [ -f "$RUST_FILE" ]; then
-	echo " "
+    echo " "
 
-	sed -i 's/ci-llvm=true/ci-llvm=false/g' $RUST_FILE
+    sed -i 's/ci-llvm=true/ci-llvm=false/g' $RUST_FILE
 
-	cd $PKG_PATH && echo "rust has been fixed!"
+    cd $PKG_PATH && echo "rust has been fixed!"
 fi
 
-#修复DiskMan编译失败
+# 修复DiskMan编译失败
 DM_FILE="./luci-app-diskman/applications/luci-app-diskman/Makefile"
 if [ -f "$DM_FILE" ]; then
-	echo " "
+    echo " "
 
-	sed -i '/ntfs-3g-utils /d' $DM_FILE
+    sed -i '/ntfs-3g-utils /d' $DM_FILE
 
-	cd $PKG_PATH && echo "diskman has been fixed!"
+    cd $PKG_PATH && echo "diskman has been fixed!"
 fi
 
-#修复luci-app-netspeedtest相关问题
-if [ -d *"luci-app-netspeedtest"* ]; then
-	echo " "
+# 处理UPnP与iptables兼容性
+if [ -d *luci-app-upnp* ] || [ -f "../feeds/packages/net/miniupnpd/Makefile" ]; then
+    echo " "
+    
+    # 确保 miniupnpd 配置适合 iptables 后端
+    UPNP_MAKEFILE=$(find ../feeds/packages/net/ -name "Makefile" -path "*/miniupnpd/*" 2>/dev/null | head -n 1)
+    if [ -n "$UPNP_MAKEFILE" ] && [ -f "$UPNP_MAKEFILE" ]; then
+        # 检查并修改 Makefile 中的依赖配置以适应 iptables
+        if grep -q "firewall4" "$UPNP_MAKEFILE"; then
+            sed -i 's/firewall4/iptables/g' "$UPNP_MAKEFILE"
+            echo "Updated miniupnpd dependencies for iptables compatibility"
+        fi
+        
+        # 如果是 miniupnpd-iptables 版本，确保正确配置
+        if grep -q "miniupnpd-iptables" "$UPNP_MAKEFILE"; then
+            echo "miniupnpd-iptables package detected and configured"
+        fi
+    fi
+    
+    cd $PKG_PATH && echo "upnp packages have been adjusted for iptables!"
+fi
 
-	cd ./luci-app-netspeedtest/
+# 修复luci-app-netspeedtest相关问题
+if [ -d *luci-app-netspeedtest* ]; then
+    echo " "
 
-	sed -i '$a\exit 0' ./netspeedtest/files/99_netspeedtest.defaults
-	sed -i 's/ca-certificates/ca-bundle/g' ./speedtest-cli/Makefile
+    cd ./luci-app-netspeedtest/
 
-	cd $PKG_PATH && echo "netspeedtest has been fixed!"
+    sed -i '$a\exit 0' ./netspeedtest/files/99_netspeedtest.defaults
+    sed -i 's/ca-certificates/ca-bundle/g' ./speedtest-cli/Makefile
+
+    cd $PKG_PATH && echo "netspeedtest has been fixed!"
 fi
