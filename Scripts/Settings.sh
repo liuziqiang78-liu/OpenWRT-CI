@@ -66,29 +66,54 @@ if [ -n "$WRT_PACKAGE" ]; then
     echo -e "$WRT_PACKAGE" >> ./.config
 fi
 
+# 根据目标架构动态设置软件源
+TARGET_ARCH=$(grep "^CONFIG_TARGET_BOARD=" .config | cut -d'=' -f2 | sed 's/"//g')
+
+# 默认使用 aarch64_cortex-a53 架构作为 fallback
+ARCH="aarch64_cortex-a53"
+
+# 根据目标平台确定正确的架构
+if [[ "${WRT_TARGET^^}" == *"X86"* ]]; then
+    ARCH="x86_64"
+elif [[ "${WRT_TARGET^^}" == *"ARMV7"* ]]; then
+    ARCH="arm_cortex-a15_neon-vfpv4"
+elif [[ "${WRT_TARGET^^}" == *"ARMV8"* ]]; then
+    ARCH="aarch64_cortex-a53"
+elif [[ "${WRT_TARGET^^}" == *"MIPS"* ]]; then
+    ARCH="mips_24kc"
+elif [[ "${WRT_TARGET^^}" == *"IPQ"* ]] || [[ "${WRT_TARGET^^}" == *"QUALCOMM"* ]]; then
+    ARCH="aarch64_generic"
+elif [[ "${WRT_TARGET^^}" == *"MEDIATEK"* ]]; then
+    ARCH="aarch64_cortex-a53"
+elif [[ "${WRT_TARGET^^}" == *"ROCKCHIP"* ]]; then
+    ARCH="aarch64_cortex-a53"
+fi
+
+echo "Detected target architecture: $ARCH for target ${WRT_TARGET}"
+
 # 替换软件源为Vsean镜像
 DISTFEEDS_CONF="./repositories.conf"
 if [ -f "$DISTFEEDS_CONF" ]; then
     echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/base/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/luci/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/packages/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/routing/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/base/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/luci/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/packages/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/routing/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF.new
     mv $DISTFEEDS_CONF.new $DISTFEEDS_CONF
-    echo "Updated package feeds to Vsean mirror sources"
+    echo "Updated package feeds to Vsean mirror sources for $ARCH architecture"
 else
     # 如果 repositories.conf 不存在，则尝试 distfeeds.conf 路径
     DISTFEEDS_CONF_ALT="./packagefeeds.conf"
     if [ -f "$DISTFEEDS_CONF_ALT" ]; then
         echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/base/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/luci/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/packages/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/routing/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/base/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/luci/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/packages/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/routing/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF_ALT.new
         mv $DISTFEEDS_CONF_ALT.new $DISTFEEDS_CONF_ALT
-        echo "Updated package feeds to Vsean mirror sources (alt path)"
+        echo "Updated package feeds to Vsean mirror sources for $ARCH architecture (alt path)"
     fi
 fi
 
