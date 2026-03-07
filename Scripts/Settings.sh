@@ -66,6 +66,32 @@ if [ -n "$WRT_PACKAGE" ]; then
     echo -e "$WRT_PACKAGE" >> ./.config
 fi
 
+# 替换软件源为Vsean镜像
+DISTFEEDS_CONF="./repositories.conf"
+if [ -f "$DISTFEEDS_CONF" ]; then
+    echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/base/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/luci/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/packages/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/routing/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony/" >> $DISTFEEDS_CONF.new
+    mv $DISTFEEDS_CONF.new $DISTFEEDS_CONF
+    echo "Updated package feeds to Vsean mirror sources"
+else
+    # 如果 repositories.conf 不存在，则尝试 distfeeds.conf 路径
+    DISTFEEDS_CONF_ALT="./packagefeeds.conf"
+    if [ -f "$DISTFEEDS_CONF_ALT" ]; then
+        echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/base/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/luci/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/packages/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/routing/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony/" >> $DISTFEEDS_CONF_ALT.new
+        mv $DISTFEEDS_CONF_ALT.new $DISTFEEDS_CONF_ALT
+        echo "Updated package feeds to Vsean mirror sources (alt path)"
+    fi
+fi
+
 # 高通平台调整
 DTS_PATH="./target/linux/qualcommax/dts/"
 if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
