@@ -3,48 +3,57 @@
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
 # 预置HomeProxy数据
-if [ -d *homeproxy* ]; then
-    echo " "
-
-    HP_RULE="surge"
-    HP_PATH="homeproxy/root/etc/homeproxy"
-
-    rm -rf ./$HP_PATH/resources/*
-
-    git clone -q --depth=1 --single-branch --branch "release" "https://github.com/Loyalsoldier/surge-rules.git" ./$HP_RULE/
-    cd ./$HP_RULE/ && RES_VER=$(git log -1 --pretty=format:'%s' | grep -o "[0-9]*")
-
-    echo $RES_VER | tee china_ip4.ver china_ip6.ver china_list.ver gfw_list.ver
-    awk -F, '/^IP-CIDR,/{print $2 > "china_ip4.txt"} /^IP-CIDR6,/{print $2 > "china_ip6.txt"}' cncidr.txt
-    sed 's/^\.//g' direct.txt > china_list.txt ; sed 's/^\.//g' gfw.txt > gfw_list.txt
-    mv -f ./{china_*,gfw_list}.{ver,txt} ../$HP_PATH/resources/
-
-    cd .. && rm -rf ./$HP_RULE/
-
-    cd $PKG_PATH && echo "homeproxy date has been updated!"
-fi
+for dir in */; do
+    if [[ "$dir" == *"homeproxy"* ]]; then
+        echo " "
+    
+        HP_RULE="surge"
+        HP_PATH="homeproxy/root/etc/homeproxy"
+    
+        rm -rf ./$HP_PATH/resources/*
+    
+        git clone -q --depth=1 --single-branch --branch "release" "https://github.com/Loyalsoldier/surge-rules.git" ./$HP_RULE/
+        cd ./$HP_RULE/ && RES_VER=$(git log -1 --pretty=format:'%s' | grep -o "[0-9]*")
+    
+        echo $RES_VER | tee china_ip4.ver china_ip6.ver china_list.ver gfw_list.ver
+        awk -F, '/^IP-CIDR,/{print $2 > "china_ip4.txt"} /^IP-CIDR6,/{print $2 > "china_ip6.txt"}' cncidr.txt
+        sed 's/^\.//g' direct.txt > china_list.txt ; sed 's/^\.//g' gfw.txt > gfw_list.txt
+        mv -f ./{china_*,gfw_list}.{ver,txt} ../$HP_PATH/resources/
+    
+        cd .. && rm -rf ./$HP_RULE/
+    
+        cd $PKG_PATH && echo "homeproxy date has been updated!"
+        break
+    fi
+done
 
 # 修改argon主题字体和颜色
-if [ -d *luci-theme-argon* ]; then
-    echo " "
-
-    cd ./luci-theme-argon/
-
-    sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'none'/'bing'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
-
-    cd $PKG_PATH && echo "theme-argon has been fixed!"
-fi
+for dir in */; do
+    if [[ "$dir" == *"luci-theme-argon"* ]]; then
+        echo " "
+    
+        cd ./luci-theme-argon/
+    
+        sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'none'/'bing'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
+    
+        cd $PKG_PATH && echo "theme-argon has been fixed!"
+        break
+    fi
+done
 
 # 修改aurora菜单式样
-if [ -d *luci-app-aurora-config* ]; then
-    echo " "
-
-    cd ./luci-app-aurora-config/
-
-    sed -i "s/nav_submenu_type '.*'/nav_submenu_type 'boxed-dropdown'/g" $(find ./root/ -type f -name "*aurora")
-
-    cd $PKG_PATH && echo "theme-aurora has been fixed!"
-fi
+for dir in */; do
+    if [[ "$dir" == *"luci-app-aurora-config"* ]]; then
+        echo " "
+    
+        cd ./luci-app-aurora-config/
+    
+        sed -i "s/nav_submenu_type '.*'/nav_submenu_type 'boxed-dropdown'/g" $(find ./root/ -type f -name "*aurora")
+    
+        cd $PKG_PATH && echo "theme-aurora has been fixed!"
+        break
+    fi
+done
 
 # 修改qca-nss-drv启动顺序
 NSS_DRV="../feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
@@ -97,29 +106,32 @@ if [ -f "$DM_FILE" ]; then
 fi
 
 # 处理UPnP与iptables兼容性
-if [ -d *luci-app-upnp* ] || [ -f "../feeds/packages/net/miniupnpd/Makefile" ]; then
-    echo " "
-    
-    # 确保 miniupnpd 配置适合 iptables 后端
-    UPNP_MAKEFILE=$(find ../feeds/packages/net/ -name "Makefile" -path "*/miniupnpd/*" 2>/dev/null | head -n 1)
-    if [ -n "$UPNP_MAKEFILE" ] && [ -f "$UPNP_MAKEFILE" ]; then
-        # 检查并修改 Makefile 中的依赖配置以适应 iptables
-        if grep -q "firewall4" "$UPNP_MAKEFILE"; then
-            sed -i 's/firewall4/iptables/g' "$UPNP_MAKEFILE"
-            echo "Updated miniupnpd dependencies for iptables compatibility"
+for dir in */; do
+    if [[ "$dir" == *"luci-app-upnp"* ]]; then
+        echo " "
+        
+        # 确保 miniupnpd 配置适合 iptables 后端
+        UPNP_MAKEFILE=$(find ../feeds/packages/net/ -name "Makefile" -path "*/miniupnpd/*" 2>/dev/null | head -n 1)
+        if [ -n "$UPNP_MAKEFILE" ] && [ -f "$UPNP_MAKEFILE" ]; then
+            # 检查并修改 Makefile 中的依赖配置以适应 iptables
+            if grep -q "firewall4" "$UPNP_MAKEFILE"; then
+                sed -i 's/firewall4/iptables/g' "$UPNP_MAKEFILE"
+                echo "Updated miniupnpd dependencies for iptables compatibility"
+            fi
+            
+            # 如果是 miniupnpd-iptables 版本，确保正确配置
+            if grep -q "miniupnpd-iptables" "$UPNP_MAKEFILE"; then
+                echo "miniupnpd-iptables package detected and configured"
+            fi
         fi
         
-        # 如果是 miniupnpd-iptables 版本，确保正确配置
-        if grep -q "miniupnpd-iptables" "$UPNP_MAKEFILE"; then
-            echo "miniupnpd-iptables package detected and configured"
-        fi
+        cd $PKG_PATH && echo "upnp packages have been adjusted for iptables!"
+        break
     fi
-    
-    cd $PKG_PATH && echo "upnp packages have been adjusted for iptables!"
-fi
+done
 
-# 修复luci-app-netspeedtest相关问题
-if [ -d *luci-app-netspeedtest* ]; then
+# 仅检查文件是否存在而不使用通配符目录检测
+if [ -d "./luci-app-netspeedtest" ] || [ -f "../feeds/luci/applications/luci-app-netspeedtest/Makefile" ]; then
     echo " "
 
     cd ./luci-app-netspeedtest/
