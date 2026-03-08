@@ -113,12 +113,6 @@ for dir in */; do
         # 确保 miniupnpd 配置适合 iptables 后端
         UPNP_MAKEFILE=$(find ../feeds/packages/net/ -name "Makefile" -path "*/miniupnpd/*" 2>/dev/null | head -n 1)
         if [ -n "$UPNP_MAKEFILE" ] && [ -f "$UPNP_MAKEFILE" ]; then
-            # 检查并修改 Makefile 中的依赖配置以适应 iptables
-            if grep -q "firewall4" "$UPNP_MAKEFILE"; then
-                sed -i 's/firewall4/iptables/g' "$UPNP_MAKEFILE"
-                echo "Updated miniupnpd dependencies for iptables compatibility"
-            fi
-            
             # 如果是 miniupnpd-iptables 版本，确保正确配置
             if grep -q "miniupnpd-iptables" "$UPNP_MAKEFILE"; then
                 echo "miniupnpd-iptables package detected and configured"

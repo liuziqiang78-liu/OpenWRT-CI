@@ -39,15 +39,8 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
-# 确保使用 iptables 而不是 firewall4(nftables)
-if [ -f "./package/network/config/firewall/files/firewall.config" ]; then
-    # 如果存在 firewall4，则禁用它并启用 iptables
-    sed -i 's/enabled\|1/disabled|0/g' ./package/network/config/firewall/files/firewall.config
-fi
-
 # 添加iptables相关配置
 echo "# 使用iptables作为防火墙后端" >> ./.config
-echo "# CONFIG_PACKAGE_firewall4 is not set" >> ./.config
 echo "CONFIG_PACKAGE_iptables=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> ./.config
