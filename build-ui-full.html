@@ -33,13 +33,25 @@
         .plugin-item:active { transform: scale(0.98); }
         .plugin-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
         .plugin-item input[type="checkbox"] { display: none; }
-        .plugin-name { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
-        .plugin-desc { font-size: 11px; color: #666; line-height: 1.3; }
+        .plugin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .plugin-name { font-weight: 600; font-size: 14px; flex: 1; }
+        .plugin-desc { font-size: 11px; color: #666; line-height: 1.3; margin-bottom: 8px; }
         .plugin-item.selected .plugin-desc { color: rgba(255,255,255,0.85); }
-        .checkmark { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border: 2px solid #e0e0e0; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; }
+        .checkmark { width: 20px; height: 20px; border: 2px solid #e0e0e0; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; }
         .plugin-item.selected .checkmark { background: #4CAF50; border-color: #4CAF50; color: white; }
         .checkmark::after { content: '✓'; font-size: 12px; font-weight: bold; display: none; }
         .plugin-item.selected .checkmark::after { display: block; }
+        .plugin-expand { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0; display: none; }
+        .plugin-item.expanded .plugin-expand { display: block; }
+        .plugin-expand-title { font-size: 11px; color: #667eea; font-weight: 600; margin-bottom: 6px; }
+        .plugin-expand-list { font-size: 10px; color: #666; line-height: 1.6; }
+        .plugin-expand-list strong { color: #333; }
+        .plugin-item.selected .plugin-expand-list { color: rgba(255,255,255,0.9); }
+        .plugin-item.selected .plugin-expand-list strong { color: white; }
+        .expand-indicator { font-size: 10px; color: #667eea; margin-top: 6px; text-align: center; }
+        .plugin-item.expanded .expand-indicator::before { content: '收起 ▲'; }
+        .plugin-item:not(.expanded) .expand-indicator::before { content: '展开 ▼'; }
+        .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
         .search-box { margin-bottom: 15px; position: sticky; top: 0; background: #f8f9fa; padding: 10px 0; z-index: 100; }
         .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
         .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
@@ -223,34 +235,34 @@
         // 完整插件数据库 (100+ 个)
         const PLUGINS = {
             proxy: [
-                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具'},
-                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端'},
-                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具'},
-                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版'},
-                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理'},
-                {name: 'Nikki', pkg: 'luci-app-nikki', desc: '代理工具'},
-                {name: 'Momo', pkg: 'luci-app-momo', desc: '代理工具'},
-                {name: 'FullCombo Shark!', pkg: 'luci-app-fc', desc: '全能代理'},
-                {name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理'},
-                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端'},
-                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端'}
+                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具', features: '支持多种协议、高性能转发、规则分流、日志记录'},
+                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端', features: '规则代理、节点切换、流量统计、订阅管理、Game 规则'},
+                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具', features: '多协议支持、自动切换、负载均衡、节点测试'},
+                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版', features: '新版架构、更好性能、更多协议、优化界面'},
+                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理', features: 'SS/SSR/Vmess/Trojan、规则分流、KCP 加速'},
+                {name: 'Nikki', pkg: 'luci-app-nikki', desc: '代理工具', features: '轻量级、多协议、规则分流、低资源占用'},
+                {name: 'Momo', pkg: 'luci-app-momo', desc: '代理工具', features: '简洁界面、快速连接、自动更新'},
+                {name: 'FullCombo Shark!', pkg: 'luci-app-fc', desc: '全能代理', features: '全能协议、一键配置、智能分流'},
+                {name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'Xray 核心、VLESS/Vmess、XTLS、Reality'},
+                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议、规则管理'},
+                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'v2ray 核心、Web 管理、多用户支持'}
             ],
             storage: [
-                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理'},
-                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具'},
-                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载'},
-                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载'},
-                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享'},
-                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器'},
-                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理'},
-                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务'},
-                {name: 'Aliyundrive', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘'},
-                {name: 'Clouddrive2', pkg: 'luci-app-clouddrive2', desc: '多云盘管理'},
-                {name: 'Cloudreve', pkg: 'luci-app-cloudreve', desc: '私有云盘'},
-                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘'},
-                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云'},
-                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步'},
-                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务器'}
+                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、挂载、S.M.A.R.T 检测、RAID'},
+                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载、多线程、远程控制器、Web 界面'},
+                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅、Web 控制、限速设置'},
+                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面、计划任务、自动做种'},
+                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享、权限管理、多用户访问'},
+                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、匿名访问、用户认证、带宽限制'},
+                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理', features: 'Web 文件管理、上传下载、在线预览、用户管理'},
+                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务', features: 'WebDAV 协议、远程访问、加密传输'},
+                {name: 'Aliyundrive', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘', features: '阿里云盘 WebDAV、挂载本地、在线播放'},
+                {name: 'Clouddrive2', pkg: 'luci-app-clouddrive2', desc: '多云盘管理', features: '支持 20+ 云盘、WebDAV、挂载本地、自动同步'},
+                {name: 'Cloudreve', pkg: 'luci-app-cloudreve', desc: '私有云盘', features: '私有云存储、多用户、分享链接、在线预览'},
+                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘', features: '在线办公、文件管理、协同编辑、权限控制'},
+                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问、数据备份'},
+                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步', features: '支持 50+ 云盘、同步备份、加密传输、定时任务'},
+                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务器', features: '媒体推送、智能电视播放、音乐流媒体'}
             ],
             network: [
                 {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网'},
@@ -351,16 +363,43 @@
                 const isSelected = selectedPlugins[plugin.pkg];
                 const item = document.createElement('div');
                 item.className = 'plugin-item' + (isSelected ? ' selected' : '');
-                item.onclick = () => togglePlugin(plugin.pkg, plugin.name);
+                item.dataset.pkg = plugin.pkg;
+                
                 item.innerHTML = `
-                    <div class="plugin-name">${plugin.name}</div>
+                    <div class="plugin-header" onclick="event.stopPropagation(); togglePlugin('${plugin.pkg}', '${plugin.name}')">
+                        <div class="plugin-name">${plugin.name}</div>
+                        <div class="checkmark"></div>
+                    </div>
                     <div class="plugin-desc">${plugin.desc}</div>
-                    <div class="checkmark"></div>
+                    <div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
+                    <div class="plugin-expand">
+                        <div class="plugin-expand-title">📦 包名：<strong>${plugin.pkg}</strong></div>
+                        <div class="plugin-expand-list">
+                            <strong>🔧 功能特性：</strong><br>
+                            ${plugin.features}
+                        </div>
+                    </div>
                 `;
+                
+                // 点击卡片展开/收起
+                item.onclick = (e) => {
+                    if (!e.target.closest('.expand-indicator')) {
+                        togglePlugin(plugin.pkg, plugin.name);
+                    }
+                };
+                
                 grid.appendChild(item);
             });
             
             updateCounts();
+        }
+        
+        // 展开/收起插件详情
+        function toggleExpand(pkg) {
+            const item = document.querySelector(`.plugin-item[data-pkg="${pkg}"]`);
+            if (item) {
+                item.classList.toggle('expanded');
+            }
         }
         
         // 切换插件
