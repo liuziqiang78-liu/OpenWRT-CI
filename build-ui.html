@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWRT 自定义构建 - 配置选择器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section h2::before {
+            content: '📦';
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .plugin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .plugin-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .plugin-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .plugin-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .plugin-item input[type="checkbox"] {
+            display: none;
+        }
+        
+        .plugin-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .plugin-version {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .plugin-item.selected .plugin-version {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: block;
+            width: 100%;
+            margin-top: 30px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .summary {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #667eea;
+        }
+        
+        .summary h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .summary-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .summary-value {
+            color: #333;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 3px;
+        }
+        
+        .help-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .version-select {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .plugin-item.selected + .version-select {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OpenWRT 自定义构建</h1>
+            <p>选择你的配置，一键编译专属固件</p>
+        </div>
+        
+        <div class="content">
+            <form id="buildForm">
+                <!-- OpenWRT 源码选择 -->
+                <div class="section">
+                    <h2>OpenWRT 源码</h2>
+                    
+                    <div class="form-group">
+                        <label for="wrt_source">源码仓库 *</label>
+                        <select id="wrt_source" name="wrt_source" required>
+                            <option value="VIKINGYFY/immortalwrt" selected>VIKINGYFY/immortalwrt (推荐)</option>
+                            <option value="immortalwrt/immortalwrt">immortalwrt/immortalwrt (官方)</option>
+                            <option value="LiBwrt/openwrt-6.x">LiBwrt/openwrt-6.x (6.x 内核)</option>
+                            <option value="qosmio/openwrt-ipq">qosmio/openwrt-ipq (高通优化)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wrt_branch">源码分支 *</label>
+                        <select id="wrt_branch" name="wrt_branch" required>
+                            <option value="main" selected>main (主分支)</option>
+                            <option value="owrt">owrt (OpenWRT)</option>
+                            <option value="master">master</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 目标平台 -->
+                <div class="section">
+                    <h2>目标平台</h2>
+                    
+                    <div class="form-group">
+                        <label for="target_platform">设备平台 *</label>
+                        <select id="target_platform" name="target_platform" required>
+                            <optgroup label="联发科 (MediaTek)">
+                                <option value="MEDIATEK" selected>MEDIATEK (小米/360/京东云等)</option>
+                            </optgroup>
+                            <optgroup label="瑞芯微 (Rockchip)">
+                                <option value="ROCKCHIP">ROCKCHIP (NanoPi/香橙派等)</option>
+                            </optgroup>
+                            <optgroup label="X86 平台">
+                                <option value="X86">X86 (PC/虚拟机)</option>
+                            </optgroup>
+                            <optgroup label="高通 (Qualcomm)">
+                                <option value="IPQ60XX-WIFI-YES">IPQ60XX (带 WiFi)</option>
+                                <option value="IPQ60XX-WIFI-NO">IPQ60XX (无 WiFi)</option>
+                                <option value="IPQ50XX-WIFI-YES">IPQ50XX (带 WiFi)</option>
+                                <option value="IPQ807X-WIFI-YES">IPQ807X (带 WiFi)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 科学上网插件 -->
+                <div class="section">
+                    <h2>科学上网插件</h2>
+                    
+                    <div class="plugin-grid">
+                        <div class="plugin-item" onclick="togglePlugin(this, 'homeproxy')">
+                            <input type="checkbox" name="proxy_plugins" value="homeproxy">
+                            <div class="plugin-name">🏠 HomeProxy</div>
+                            <div class="plugin-version">推荐版本：v1.9.5</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'openclash')">
+                            <input type="checkbox" name="proxy_plugins" value="openclash">
+                            <div class="plugin-name">⚡ OpenClash</div>
+                            <div class="plugin-version">推荐版本：v0.45.87</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'passwall')">
+                            <input type="checkbox" name="proxy_plugins" value="passwall">
+                            <div class="plugin-name">🌐 PassWall</div>
+                            <div class="plugin-version">推荐版本：v2.8.3</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'passwall2')">
+                            <input type="checkbox" name="proxy_plugins" value="passwall2">
+                            <div class="plugin-name">🌐 PassWall2</div>
+                            <div class="plugin-version">推荐版本：v1.5.2</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="proxy_versions">插件版本 (用逗号分隔，留空使用推荐版本)</label>
+                        <input type="text" id="proxy_versions" name="proxy_versions" 
+                               placeholder="例如：v1.9.5,v0.45.87">
+                        <div class="help-text">版本顺序需与选择的插件顺序一致</div>
+                    </div>
+                </div>
+                
+                <!-- 存储插件 -->
+                <div class="section">
+                    <h2>存储管理插件</h2>
+                    
+                    <div class="plugin-grid">
+                        <div class="plugin-item" onclick="togglePlugin(this, 'diskman')">
+                            <input type="checkbox" name="storage_plugins" value="diskman">
+                            <div class="plugin-name">💾 DiskMan</div>
+                            <div class="plugin-version">推荐版本：v0.5.0</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'samba4')">
+                            <input type="checkbox" name="storage_plugins" value="samba4">
+                            <div class="plugin-name">📁 Samba4</div>
+                            <div class="plugin-version">内置</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'aria2')">
+                            <input type="checkbox" name="storage_plugins" value="aria2">
+                            <div class="plugin-name">⬇️ Aria2</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'qbittorrent')">
+                            <input type="checkbox" name="storage_plugins" value="qbittorrent">
+                            <div class="plugin-name">📥 Qbittorrent</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 网络工具 -->
+                <div class="section">
+                    <h2>网络工具</h2>
+                    
+                    <div class="plugin-grid">
+                        <div class="plugin-item" onclick="togglePlugin(this, 'tailscale')">
+                            <input type="checkbox" name="network_plugins" value="tailscale">
+                            <div class="plugin-name">🔒 Tailscale</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'ddns-go')">
+                            <input type="checkbox" name="network_plugins" value="ddns-go">
+                            <div class="plugin-name">🌍 DDNS-GO</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'easytier')">
+                            <input type="checkbox" name="network_plugins" value="easytier">
+                            <div class="plugin-name">🚀 EasyTier</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                        
+                        <div class="plugin-item" onclick="togglePlugin(this, 'vnt')">
+                            <input type="checkbox" name="network_plugins" value="vnt">
+                            <div class="plugin-name">🔗 VNT</div>
+                            <div class="plugin-version">最新</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- UI 主题 -->
+                <div class="section">
+                    <h2>UI 主题</h2>
+                    
+                    <div class="form-group">
+                        <label for="theme">选择主题 *</label>
+                        <select id="theme" name="theme" required>
+                            <option value="argon" selected>🎨 Argon (推荐)</option>
+                            <option value="aurora">🌅 Aurora</option>
+                            <option value="kucat">🐱 Kucat</option>
+                            <option value="none">⚪ 默认主题</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 高级选项 -->
+                <div class="section">
+                    <h2>高级选项</h2>
+                    
+                    <div class="form-group">
+                        <label for="other_plugins">其他插件 (用逗号分隔)</label>
+                        <input type="text" id="other_plugins" name="other_plugins" 
+                               placeholder="例如：lucky,vnt,luci-app-vlmcsd">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="test_mode" id="test_mode" style="width: auto;">
+                            仅输出配置，不编译固件 (测试模式)
+                        </label>
+                        <div class="help-text">勾选后只生成配置文件，不编译固件</div>
+                    </div>
+                </div>
+                
+                <!-- 配置摘要 -->
+                <div class="summary" id="summary">
+                    <h3>📋 配置摘要</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">源码:</span>
+                        <span class="summary-value" id="summary-source">VIKINGYFY/immortalwrt</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">平台:</span>
+                        <span class="summary-value" id="summary-platform">MEDIATEK</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">主题:</span>
+                        <span class="summary-value" id="summary-theme">Argon</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">科学插件:</span>
+                        <span class="summary-value" id="summary-proxy">未选择</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">存储插件:</span>
+                        <span class="summary-value" id="summary-storage">未选择</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">网络工具:</span>
+                        <span class="summary-value" id="summary-network">未选择</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">🚀 开始编译</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 插件切换
+        function togglePlugin(element, pluginName) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+            }
+            
+            updateSummary();
+        }
+        
+        // 更新摘要
+        function updateSummary() {
+            const source = document.getElementById('wrt_source').value;
+            const platform = document.getElementById('target_platform').value;
+            const theme = document.getElementById('theme').value;
+            
+            const proxyPlugins = Array.from(document.querySelectorAll('input[name="proxy_plugins"]:checked'))
+                                      .map(cb => cb.value);
+            const storagePlugins = Array.from(document.querySelectorAll('input[name="storage_plugins"]:checked'))
+                                        .map(cb => cb.value);
+            const networkPlugins = Array.from(document.querySelectorAll('input[name="network_plugins"]:checked'))
+                                        .map(cb => cb.value);
+            
+            document.getElementById('summary-source').textContent = source;
+            document.getElementById('summary-platform').textContent = platform;
+            document.getElementById('summary-theme').textContent = theme;
+            
+            document.getElementById('summary-proxy').innerHTML = 
+                proxyPlugins.length > 0 ? 
+                proxyPlugins.map(p => `<span class="badge">${p}</span>`).join('') : '未选择';
+            
+            document.getElementById('summary-storage').innerHTML = 
+                storagePlugins.length > 0 ? 
+                storagePlugins.map(p => `<span class="badge">${p}</span>`).join('') : '未选择';
+            
+            document.getElementById('summary-network').innerHTML = 
+                networkPlugins.length > 0 ? 
+                networkPlugins.map(p => `<span class="badge">${p}</span>`).join('') : '未选择';
+        }
+        
+        // 监听表单变化
+        document.getElementById('buildForm').addEventListener('change', updateSummary);
+        
+        // 表单提交
+        document.getElementById('buildForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 收集表单数据
+            const formData = {
+                wrt_source: document.getElementById('wrt_source').value,
+                wrt_branch: document.getElementById('wrt_branch').value,
+                target_platform: document.getElementById('target_platform').value,
+                theme: document.getElementById('theme').value,
+                proxy_plugins: Array.from(document.querySelectorAll('input[name="proxy_plugins"]:checked'))
+                                   .map(cb => cb.value),
+                storage_plugins: Array.from(document.querySelectorAll('input[name="storage_plugins"]:checked'))
+                                     .map(cb => cb.value),
+                network_plugins: Array.from(document.querySelectorAll('input[name="network_plugins"]:checked'))
+                                     .map(cb => cb.value),
+                proxy_versions: document.getElementById('proxy_versions').value,
+                other_plugins: document.getElementById('other_plugins').value,
+                test_mode: document.getElementById('test_mode').checked
+            };
+            
+            // 生成 GitHub Actions 触发 URL
+            const repo = 'liuziqiang78-liu/OpenWRT-CI';
+            const workflow = 'Custom-Build.yml';
+            
+            // 显示确认对话框
+            const confirmMsg = `
+确认配置：
+
+源码：${formData.wrt_source}@${formData.wrt_branch}
+平台：${formData.target_platform}
+主题：${formData.theme}
+
+科学插件：${formData.proxy_plugins.join(', ') || '无'}
+存储插件：${formData.storage_plugins.join(', ') || '无'}
+网络工具：${formData.network_plugins.join(', ') || '无'}
+
+版本：${formData.proxy_versions || '推荐版本'}
+
+是否开始编译？
+            `;
+            
+            if (confirm(confirmMsg)) {
+                // 打开 GitHub Actions 页面
+                window.open(`https://github.com/${repo}/actions/workflows/${workflow}`, '_blank');
+                
+                alert('已打开 GitHub Actions 页面，请手动触发工作流并填写配置。\n\n未来版本将支持自动触发！');
+            }
+        });
+        
+        // 初始化摘要
+        updateSummary();
+    </script>
+</body>
+</html>
