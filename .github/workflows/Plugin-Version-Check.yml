@@ -1,0 +1,223 @@
+name: Plugin Version Check
+
+on:
+  # 每天早上 7 点检查
+  schedule:
+    - cron: '0 23 * * *'
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '检查模式 (check/update)'
+        required: false
+        default: 'check'
+        type: choice
+        options:
+          - check
+          - update
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install -g @octokit/rest
+          npm install -g jq
+
+      - name: Check Plugin Versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > check_versions.js << 'EOF'
+          const { Octokit } = require('@octokit/rest');
+          const fs = require('fs');
+
+          const octokit = new Octokit({
+            auth: process.env.GITHUB_TOKEN
+          });
+
+          // 从 VERSIONS.txt 读取配置
+          const versionsContent = fs.readFileSync('Config/VERSIONS.txt', 'utf-8');
+          const plugins = {};
+
+          versionsContent.split('\n').forEach(line => {
+            if (line.startsWith('#') || !line.includes('=')) return;
+            
+            const [name, value] = line.split('=');
+            const parts = value.trim().split('@');
+            const repo = parts[0];
+            const branch = parts[1];
+            const version = parts[2] || null;
+            
+            plugins[name.trim()] = { repo, branch, version };
+          });
+
+          async function checkPlugin(name, config) {
+            const [owner, repo] = config.repo.split('/');
+            
+            try {
+              // 获取最新 Release
+              let latestTag = null;
+              try {
+                const { data: release } = await octokit.repos.getLatestRelease({ owner, repo });
+                latestTag = release.tag_name;
+              } catch (e) {
+                // 没有 releases
+              }
+              
+              // 获取分支最新 Commit
+              const { data: branchData } = await octokit.repos.getBranch({ owner, repo, branch: config.branch });
+              const latestCommit = branchData.commit.sha;
+              const commitDate = new Date(branchData.commit.commit.author.date);
+              const daysAgo = Math.floor((Date.now() - commitDate.getTime()) / (1000 * 60 * 60 * 24));
+              
+              let status = 'latest';
+              let updateAvailable = false;
+              let suggestedVersion = config.version || latestCommit.substring(0, 7);
+              
+              // 检查是否有新版本
+              if (latestTag && config.version && config.version !== latestTag) {
+                status = 'update_available';
+                updateAvailable = true;
+                suggestedVersion = latestTag;
+              } else if (!config.version && daysAgo > 30) {
+                status = 'branch_outdated';
+                updateAvailable = true;
+              }
+              
+              return {
+                name,
+                repo: config.repo,
+                branch: config.branch,
+                currentVersion: config.version || 'branch-latest',
+                latestVersion: latestTag || latestCommit.substring(0, 7),
+                status,
+                updateAvailable,
+                suggestedVersion,
+                daysAgo
+              };
+            } catch (error) {
+              return {
+                name,
+                repo: config.repo,
+                branch: config.branch,
+                currentVersion: config.version || 'unknown',
+                latestVersion: 'unknown',
+                status: 'error',
+                updateAvailable: false,
+                suggestedVersion: null,
+                error: error.message,
+                daysAgo: -1
+              };
+            }
+          }
+
+          async function main() {
+            const results = [];
+            const updatesAvailable = [];
+            
+            console.log(`检查 ${Object.keys(plugins).length} 个插件...\n`);
+            
+            for (const [name, config] of Object.entries(plugins)) {
+              console.log(`Checking ${name}...`);
+              const result = await checkPlugin(name, config);
+              results.push(result);
+              
+              if (result.updateAvailable) {
+                updatesAvailable.push(result);
+              }
+              
+              // 避免 API 限流
+              await new Promise(r => setTimeout(r, 500));
+            }
+            
+            // 保存结果
+            fs.writeFileSync('plugin-versions.json', JSON.stringify(results, null, 2));
+            
+            // 生成报告
+            const reportFile = 'plugin-versions-report.md';
+            let md = `# 插件版本检查报告\n\n`;
+            md += `**生成时间**: ${new Date().toISOString().replace('T', ' ').substr(0, 19)}\n\n`;
+            
+            if (updatesAvailable.length > 0) {
+              md += `## ⚠️ 可更新的插件 (${updatesAvailable.length} 个)\n\n`;
+              md += `| 插件 | 当前版本 | 最新版本 | 建议操作 |\n`;
+              md += `|------|----------|----------|----------|\n`;
+              
+              for (const u of updatesAvailable) {
+                md += `| ${u.name} | ${u.currentVersion} | ${u.latestVersion} | 更新到 \`${u.suggestedVersion}\` |\n`;
+              }
+              
+              md += `\n`;
+            }
+            
+            md += `## 所有插件状态\n\n`;
+            md += `| 插件 | 仓库 | 当前版本 | 最新 | 状态 |\n`;
+            md += `|------|------|----------|------|------|\n`;
+            
+            for (const r of results) {
+              const statusEmoji = r.status === 'latest' ? '✅' : (r.status === 'error' ? '❌' : '📦');
+              md += `| ${r.name} | ${r.repo} | ${r.currentVersion} | ${r.latestVersion} | ${statusEmoji} ${r.status} |\n`;
+            }
+            
+            fs.writeFileSync(reportFile, md);
+            
+            // 输出摘要
+            console.log(`\n=== 摘要 ===`);
+            console.log(`总插件数：${results.length}`);
+            console.log(`可更新：${updatesAvailable.length}`);
+            console.log(`最新：${results.filter(r => r.status === 'latest').length}`);
+            console.log(`错误：${results.filter(r => r.status === 'error').length}`);
+            
+            // 如果有更新，创建 Issue
+            if (updatesAvailable.length > 0) {
+              console.log('\n发现可更新的插件，创建 Issue...');
+              
+              const issueBody = updatesAvailable.map(u => 
+                `- **${u.name}**: \`${u.currentVersion}\` → \`${u.latestVersion}\``
+              ).join('\n');
+              
+              console.log(`::set-output name=has_updates::true`);
+              console.log(`::set-output name=update_count::${updatesAvailable.length}`);
+              console.log(`::set-output name=issue_body::${issueBody.replace(/\n/g, '%0A')}`);
+            } else {
+              console.log('\n所有插件都是最新版本');
+              console.log(`::set-output name=has_updates::false`);
+            }
+          }
+
+          main().catch(console.error);
+          EOF
+          
+          node check_versions.js
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-version-report
+          path: |
+            plugin-versions.json
+            plugin-versions-report.md
+
+      - name: Create Issue if updates available
+        if: steps.check.outputs.has_updates == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: '📦 插件版本更新提醒 - ${{ steps.check.outputs.update_count }} 个插件可更新'
+          content-filepath: plugin-versions-report.md
+          labels: dependencies,version-update,automated
