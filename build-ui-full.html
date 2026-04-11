@@ -34,7 +34,7 @@
         .plugin-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
         .plugin-item input[type="checkbox"] { display: none; }
         .plugin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-        .plugin-name { font-weight: 600; font-size: 14px; flex: 1; }
+        .plugin-name { font-weight: 600; font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .plugin-desc { font-size: 11px; color: #666; line-height: 1.3; margin-bottom: 8px; }
         .plugin-item.selected .plugin-desc { color: rgba(255,255,255,0.85); }
         .checkmark { width: 20px; height: 20px; border: 2px solid #e0e0e0; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; }
@@ -721,8 +721,17 @@
             // 检查冲突
             if (selectedPlugins[pkg]) {
                 delete selectedPlugins[pkg];
+                
+                // 移除后重新检测剩余冲突
+                const remainingConflicts = checkConflicts(selectedPlugins);
+                if (remainingConflicts.length > 0) {
+                    console.warn('⚠️ 剩余冲突:', remainingConflicts);
+                }
             } else {
-                const conflicts = checkConflicts({...selectedPlugins, [pkg]: name});
+                // 临时添加检测
+                const tempPlugins = {...selectedPlugins, [pkg]: name};
+                const conflicts = checkConflicts(tempPlugins);
+                
                 if (conflicts.length > 0) {
                     alert('⚠️ 插件冲突检测：\n\n' + conflicts.join('\n') + '\n\n请取消冲突的插件后再选择');
                     return;
@@ -747,13 +756,20 @@
             return conflicts;
         }
         
-        // 获取所有插件（包含依赖，支持递归）
+        // 获取所有插件（包含依赖，支持递归，限制深度）
         function getAllPluginsWithDependencies() {
             const allPlugins = new Set();
             const dependencies = [];
             const visited = new Set();
             
-            function addWithDeps(pkg) {
+            function addWithDeps(pkg, depth = 0) {
+                const MAX_DEPTH = 10;
+                
+                if (depth > MAX_DEPTH) {
+                    console.warn(`⚠️ 依赖链过长：${pkg} (深度 ${depth})`);
+                    return;
+                }
+                
                 if (visited.has(pkg)) return;
                 visited.add(pkg);
                 allPlugins.add(pkg);
@@ -761,23 +777,38 @@
                 if (pluginDependencies[pkg]) {
                     pluginDependencies[pkg].forEach(dep => {
                         dependencies.push(`${pkg} → ${dep}`);
-                        addWithDeps(dep);  // 递归添加依赖的依赖
+                        addWithDeps(dep, depth + 1);
                     });
                 }
             }
             
             Object.keys(selectedPlugins).forEach(pkg => {
-                addWithDeps(pkg);
+                addWithDeps(pkg, 0);
             });
             
             return {plugins: allPlugins, dependencies};
         }
         
-        // 估算固件大小
+        // 估算固件大小（考虑架构）
         function estimateFirmwareSize() {
-            const {plugins} = getAllPluginsWithDependencies();
-            let totalSize = 80;  // 基础系统
+            const platform = document.getElementById('target_platform').value;
             
+            // 不同架构基础大小不同
+            const baseSizes = {
+                'X86': 100,
+                'ROCKCHIP': 80,
+                'MEDIATEK': 80,
+                'IPQ60XX-WIFI-YES': 70,
+                'IPQ60XX-WIFI-NO': 70,
+                'IPQ50XX-WIFI-YES': 60,
+                'IPQ50XX-WIFI-NO': 60,
+                'IPQ807X-WIFI-YES': 70,
+                'IPQ807X-WIFI-NO': 70
+            };
+            
+            let totalSize = baseSizes[platform] || 80;
+            
+            const {plugins} = getAllPluginsWithDependencies();
             plugins.forEach(pkg => {
                 totalSize += pluginSizes[pkg] || pluginSizes.default;
             });
@@ -812,10 +843,15 @@
             });
         }
         
-        // 全选当前分类
+        // 全选当前分类（检查架构兼容性）
         function selectAllCurrent() {
+            const currentPlatform = document.getElementById('target_platform').value;
+            
             PLUGINS[currentTab].forEach(plugin => {
-                selectedPlugins[plugin.pkg] = plugin.name;
+                const isCompatible = checkArchitecture(plugin, currentPlatform);
+                if (isCompatible) {
+                    selectedPlugins[plugin.pkg] = plugin.name;
+                }
             });
             renderPlugins(currentTab);
             updateSummary();
@@ -827,6 +863,7 @@
                 delete selectedPlugins[plugin.pkg];
             });
             renderPlugins(currentTab);
+            updateCounts();  // 确保计数更新
             updateSummary();
         }
         
@@ -890,6 +927,8 @@
         // 编译进度监控
         let buildMonitorInterval = null;
         let lastBuildId = null;
+        let consecutiveFailures = 0;
+        const MAX_FAILURES = 3;
         
         function startBuildMonitor() {
             // 每 10 秒检查一次编译状态
@@ -906,6 +945,8 @@
                             }
                         }
                     );
+                    
+                    consecutiveFailures = 0;  // 重置失败计数
                     
                     // 处理 API 限流
                     if (response.status === 403) {
@@ -934,10 +975,19 @@
                         showBuildProgress(run);
                     }
                 } catch (error) {
-                    console.error('❌ 编译监控失败:', error);
-                    // 不显示错误，避免打扰用户
+                    consecutiveFailures++;
+                    console.error(`❌ 编译监控失败 (${consecutiveFailures}/${MAX_FAILURES}):`, error);
+                    
+                    // 连续失败 3 次显示网络错误
+                    if (consecutiveFailures >= MAX_FAILURES) {
+                        console.error('❌ 连续 3 次监控失败，可能是网络问题');
+                        const progressEl = document.getElementById('build-progress');
+                        if (progressEl) {
+                            progressEl.innerHTML = '<div style="color: #ff6b6b;">⚠️ 网络连接失败，请检查网络</div>';
+                        }
+                    }
                 }
-            }, 10000);  // 改为 10 秒
+            }, 10000);  // 10 秒
         }
         
         function showBuildProgress(run) {
@@ -1019,7 +1069,7 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 filterPlugins();
-            }, 300);  // 300ms 防抖
+            }, 150);  // 150ms 更灵敏
         }
         
         // 搜索插件 - 跨分类搜索
