@@ -96,6 +96,38 @@
             border-color: #667eea;
         }
         
+        .plugin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .plugin-header h2 {
+            margin-bottom: 0;
+        }
+        
+        .plugin-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-small:hover {
+            background: #667eea;
+            color: white;
+        }
+        
         .plugin-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -110,6 +142,7 @@
             border: 2px solid #e0e0e0;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
         
         .plugin-item:hover {
@@ -119,18 +152,53 @@
         }
         
         .plugin-item.selected {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
         }
         
         .plugin-item input[type="checkbox"] {
             display: none;
         }
         
+        .plugin-item .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .plugin-item.selected .checkmark {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+        
+        .plugin-item .checkmark::after {
+            content: '✓';
+            font-size: 16px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .plugin-item.selected .checkmark::after {
+            display: block;
+        }
+        
         .plugin-name {
             font-weight: 600;
             margin-bottom: 5px;
+            padding-right: 30px;
         }
         
         .plugin-version {
@@ -139,7 +207,35 @@
         }
         
         .plugin-item.selected .plugin-version {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .plugin-count {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+        
+        .multi-select-tip {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .multi-select-tip p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #1976D2;
+        }
+        
+        .multi-select-tip p::before {
+            content: '💡 ';
         }
         
         .btn {
@@ -354,32 +450,46 @@
                 
                 <!-- 科学上网插件 -->
                 <div class="section">
-                    <h2>科学上网插件</h2>
+                    <div class="plugin-header">
+                        <h2>科学上网插件 <span class="plugin-count" id="proxy-count">已选 0 个</span></h2>
+                        <div class="plugin-actions">
+                            <button type="button" class="btn-small" onclick="selectAll('proxy_plugins')">全选</button>
+                            <button type="button" class="btn-small" onclick="deselectAll('proxy_plugins')">取消全选</button>
+                        </div>
+                    </div>
                     
                     <div class="plugin-grid">
                         <div class="plugin-item" onclick="togglePlugin(this, 'homeproxy')">
                             <input type="checkbox" name="proxy_plugins" value="homeproxy">
                             <div class="plugin-name">🏠 HomeProxy</div>
                             <div class="plugin-version">推荐版本：v1.9.5</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'openclash')">
                             <input type="checkbox" name="proxy_plugins" value="openclash">
                             <div class="plugin-name">⚡ OpenClash</div>
                             <div class="plugin-version">推荐版本：v0.45.87</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'passwall')">
                             <input type="checkbox" name="proxy_plugins" value="passwall">
                             <div class="plugin-name">🌐 PassWall</div>
                             <div class="plugin-version">推荐版本：v2.8.3</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'passwall2')">
                             <input type="checkbox" name="proxy_plugins" value="passwall2">
                             <div class="plugin-name">🌐 PassWall2</div>
                             <div class="plugin-version">推荐版本：v1.5.2</div>
+                            <div class="checkmark"></div>
                         </div>
+                    </div>
+                    
+                    <div class="multi-select-tip">
+                        <p>支持多选！可以同时选择多个插件，最多可选 4 个</p>
                     </div>
                     
                     <div class="form-group" style="margin-top: 20px;">
@@ -392,63 +502,91 @@
                 
                 <!-- 存储插件 -->
                 <div class="section">
-                    <h2>存储管理插件</h2>
+                    <div class="plugin-header">
+                        <h2>存储管理插件 <span class="plugin-count" id="storage-count">已选 0 个</span></h2>
+                        <div class="plugin-actions">
+                            <button type="button" class="btn-small" onclick="selectAll('storage_plugins')">全选</button>
+                            <button type="button" class="btn-small" onclick="deselectAll('storage_plugins')">取消全选</button>
+                        </div>
+                    </div>
                     
                     <div class="plugin-grid">
                         <div class="plugin-item" onclick="togglePlugin(this, 'diskman')">
                             <input type="checkbox" name="storage_plugins" value="diskman">
                             <div class="plugin-name">💾 DiskMan</div>
                             <div class="plugin-version">推荐版本：v0.5.0</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'samba4')">
                             <input type="checkbox" name="storage_plugins" value="samba4">
                             <div class="plugin-name">📁 Samba4</div>
                             <div class="plugin-version">内置</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'aria2')">
                             <input type="checkbox" name="storage_plugins" value="aria2">
                             <div class="plugin-name">⬇️ Aria2</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'qbittorrent')">
                             <input type="checkbox" name="storage_plugins" value="qbittorrent">
                             <div class="plugin-name">📥 Qbittorrent</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
+                    </div>
+                    
+                    <div class="multi-select-tip">
+                        <p>支持多选！可以同时选择多个插件，最多可选 4 个</p>
                     </div>
                 </div>
                 
                 <!-- 网络工具 -->
                 <div class="section">
-                    <h2>网络工具</h2>
+                    <div class="plugin-header">
+                        <h2>网络工具 <span class="plugin-count" id="network-count">已选 0 个</span></h2>
+                        <div class="plugin-actions">
+                            <button type="button" class="btn-small" onclick="selectAll('network_plugins')">全选</button>
+                            <button type="button" class="btn-small" onclick="deselectAll('network_plugins')">取消全选</button>
+                        </div>
+                    </div>
                     
                     <div class="plugin-grid">
                         <div class="plugin-item" onclick="togglePlugin(this, 'tailscale')">
                             <input type="checkbox" name="network_plugins" value="tailscale">
                             <div class="plugin-name">🔒 Tailscale</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'ddns-go')">
                             <input type="checkbox" name="network_plugins" value="ddns-go">
                             <div class="plugin-name">🌍 DDNS-GO</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'easytier')">
                             <input type="checkbox" name="network_plugins" value="easytier">
                             <div class="plugin-name">🚀 EasyTier</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
                         
                         <div class="plugin-item" onclick="togglePlugin(this, 'vnt')">
                             <input type="checkbox" name="network_plugins" value="vnt">
                             <div class="plugin-name">🔗 VNT</div>
                             <div class="plugin-version">最新</div>
+                            <div class="checkmark"></div>
                         </div>
+                    </div>
+                    
+                    <div class="multi-select-tip">
+                        <p>支持多选！可以同时选择多个插件，最多可选 4 个</p>
                     </div>
                 </div>
                 
@@ -537,7 +675,41 @@
                 element.classList.remove('selected');
             }
             
+            updatePluginCounts();
             updateSummary();
+        }
+        
+        // 全选
+        function selectAll(pluginType) {
+            const checkboxes = document.querySelectorAll(`input[name="${pluginType}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('selected');
+            });
+            updatePluginCounts();
+            updateSummary();
+        }
+        
+        // 取消全选
+        function deselectAll(pluginType) {
+            const checkboxes = document.querySelectorAll(`input[name="${pluginType}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('selected');
+            });
+            updatePluginCounts();
+            updateSummary();
+        }
+        
+        // 更新插件数量显示
+        function updatePluginCounts() {
+            const proxyCount = document.querySelectorAll('input[name="proxy_plugins"]:checked').length;
+            const storageCount = document.querySelectorAll('input[name="storage_plugins"]:checked').length;
+            const networkCount = document.querySelectorAll('input[name="network_plugins"]:checked').length;
+            
+            document.getElementById('proxy-count').textContent = `已选 ${proxyCount} 个`;
+            document.getElementById('storage-count').textContent = `已选 ${storageCount} 个`;
+            document.getElementById('network-count').textContent = `已选 ${networkCount} 个`;
         }
         
         // 更新摘要
@@ -602,7 +774,15 @@
         }
         
         // 监听表单变化
-        document.getElementById('buildForm').addEventListener('change', updateSummary);
+        document.getElementById('buildForm').addEventListener('change', function(e) {
+            if (e.target.name === 'proxy_plugins' || e.target.name === 'storage_plugins' || e.target.name === 'network_plugins') {
+                updatePluginCounts();
+            }
+            updateSummary();
+        });
+        
+        // 初始化插件数量
+        updatePluginCounts();
         
         // 监听 Token 输入
         document.getElementById('github_token').addEventListener('change', function(e) {
