@@ -1,0 +1,24 @@
+name: Build Notification
+
+on:
+  workflow_run:
+    workflows:
+      - "WRT-CORE"
+      - "OWRT-ALL"
+      - "QCA-ALL"
+    types: [completed]
+
+jobs:
+  notify-on-failure:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue on Build Failure
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: '🔴 编译失败通知 - ${{ github.event.workflow_run.name }}'
+          content-filepath: ${{ github.event.workflow_run.html_url }}
+          labels: |
+            build-failure
+            automated
+            priority-high

@@ -219,6 +219,41 @@ jobs:
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 
+            # 生成校验和
+            cd ./upload/
+            sha256sum *.* > SHA256SUMS.txt
+            md5sum *.* > MD5SUMS.txt
+            
+            # 生成固件信息
+            cat > FIRMWARE_INFO.md << EOF
+# 固件信息
+
+**编译时间**: ${WRT_DATE}
+**源码**: ${WRT_REPO}
+**分支**: ${WRT_BRANCH}
+**Commit**: ${WRT_HASH}
+**平台**: ${WRT_TARGET}
+**内核版本**: ${WRT_KVER}
+
+## 登录信息
+
+| 项目 | 值 |
+|------|-----|
+| IP 地址 | ${WRT_IP} |
+| 用户名 | root |
+| 密码 | ${WRT_PW} |
+| WiFi 名称 | ${WRT_SSID} |
+| WiFi 密码 | ${WRT_WORD} |
+
+## 插件列表
+
+${WRT_LIST}
+
+## 校验和
+
+详见 SHA256SUMS.txt 和 MD5SUMS.txt
+EOF
+
             make clean -j$(nproc)
           fi
 
