@@ -86,6 +86,16 @@ on:
         required: false
         type: string
       
+      # 防火墙选择
+      FIREWALL_TYPE:
+        description: '防火墙类型'
+        required: false
+        type: choice
+        options:
+          - firewall4
+          - iptables
+        default: 'firewall4'
+      
       # 路由器配置
       LAN_IP:
         description: '路由器默认 IP'

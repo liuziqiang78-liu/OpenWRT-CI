@@ -52,6 +52,8 @@
         .plugin-item.expanded .expand-indicator::before { content: '收起 ▲'; }
         .plugin-item:not(.expanded) .expand-indicator::before { content: '展开 ▼'; }
         .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
+        .plugin-item.disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
+        .plugin-item.disabled:hover { transform: none; box-shadow: none; }
         .search-box { margin-bottom: 15px; position: sticky; top: 0; background: #f8f9fa; padding: 10px 0; z-index: 100; }
         .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
         .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
@@ -200,6 +202,20 @@
                     </div>
                 </div>
                 
+                <!-- 防火墙选择 -->
+                <div class="section">
+                    <h2>🛡️ 防火墙选择</h2>
+                    
+                    <div class="form-group">
+                        <label>防火墙类型 *</label>
+                        <select id="firewall_type" required>
+                            <option value="firewall4" selected>🔥 Firewall4 (NFTables - 推荐)</option>
+                            <option value="iptables">📋 Iptables (传统兼容)</option>
+                        </select>
+                        <div class="help-text">Firewall4 性能更好，Iptables 兼容性更好</div>
+                    </div>
+                </div>
+                
                 <!-- 路由器配置 -->
                 <div class="section">
                     <h2>🔧 路由器配置</h2>
@@ -312,41 +328,42 @@
                 {name: 'Alist', pkg: 'luci-app-alist', desc: '文件列表程序', features: '多存储支持、WebDAV、在线播放、文件管理'}
             ],
             network: [
-                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连、加密传输、跨平台'},
-                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网、跨网访问、免费节点、Moon 服务器'},
-                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端、HTTP/TCP/UDP 穿透、HTTPS 支持'},
-                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端、多客户端管理、仪表盘'},
-                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析、自动更新、支持 20+ 服务商'},
-                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS、支持阿里云/腾讯云/Cloudflare、Web 界面'},
-                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告、缓存加速、DoH/DoT 加密'},
-                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、IP 优选、防污染、加速解析、自定义规则'},
-                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS、Web 服务、反向代理、IPv6 支持'},
-                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist、多存储支持、在线播放、WebDAV'},
-                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网、自动 NAT 穿透、低延迟'},
-                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议、高性能、低延迟、移动端支持'},
-                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端、SSL 加密、证书管理'},
-                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理、优先级设置、实时监控、智能限速'},
-                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理、自动速率调整、降低延迟'},
-                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时性能监控、图表展示、告警通知、历史数据'},
-                {name: 'FastNet', pkg: 'luci-app-fastnet', desc: '网络体检/测速', features: '网络诊断、速度测试、延迟检测、路由追踪'},
-                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计、历史数据、导出报表、实时监控'},
-                {name: 'NPC', pkg: 'luci-app-npc', desc: 'NPS 客户端', features: 'NPS 内网穿透、多协议支持、加密传输'},
-                {name: 'DDNSTO', pkg: 'luci-app-ddnsto', desc: '内网穿透', features: '免费内网穿透、HTTPS 访问、多线路'},
-                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动端口映射、UPnP、NAT-PMP、STUN'},
-                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发、SSL 加密、多路复用'},
-                {name: 'Thunder', pkg: 'luci-app-thunder', desc: '迅雷下载', features: '迅雷下载、远程下载、离线下载、云盘备份'},
-                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控限速', features: '实时流量、限速设置、设备管理、历史记录'},
-                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速、上下行控制、优先级设置'},
-                {name: 'My DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤、广告屏蔽、自定义规则、家长控制'},
-                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告、家长控制、隐私保护、统计报表'},
-                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告、视频广告过滤、网页净化'},
-                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别、行为管理、上网行为分析、时间控制'},
-                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口、负载均衡、故障转移、策略路由'},
-                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播、UDP 转 HTTP、节目单管理'},
-                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: 'Mesh 网络、无缝漫游、自动优化'},
-                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速、流量加速、NAT 加速、BBR 优化'},
-                {name: 'Btop', pkg: 'btop', desc: '性能监控', features: '系统监控、资源占用、进程管理、图表展示'},
-                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理、HTTPS 传输、低延迟'}
+                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连、加密传输、跨平台', arch: 'all'},
+                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网、跨网访问、免费节点、Moon 服务器', arch: 'all'},
+                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端、HTTP/TCP/UDP 穿透、HTTPS 支持', arch: 'all'},
+                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端、多客户端管理、仪表盘', arch: 'all'},
+                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析、自动更新、支持 20+ 服务商', arch: 'all'},
+                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS、支持阿里云/腾讯云/Cloudflare、Web 界面', arch: 'all'},
+                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告、缓存加速、DoH/DoT 加密', arch: 'all'},
+                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、IP 优选、防污染、加速解析、自定义规则', arch: 'all'},
+                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS、Web 服务、反向代理、IPv6 支持', arch: 'all'},
+                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist、多存储支持、在线播放、WebDAV', arch: 'all'},
+                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网、自动 NAT 穿透、低延迟', arch: 'all'},
+                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议、高性能、低延迟、移动端支持', arch: 'all'},
+                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端、SSL 加密、证书管理', arch: 'all'},
+                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理、优先级设置、实时监控、智能限速', arch: 'all'},
+                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理、自动速率调整、降低延迟', arch: 'all'},
+                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时性能监控、图表展示、告警通知、历史数据', arch: 'all'},
+                {name: 'FastNet', pkg: 'luci-app-fastnet', desc: '网络体检/测速', features: '网络诊断、速度测试、延迟检测、路由追踪', arch: 'all'},
+                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计、历史数据、导出报表、实时监控', arch: 'all'},
+                {name: 'NPC', pkg: 'luci-app-npc', desc: 'NPS 客户端', features: 'NPS 内网穿透、多协议支持、加密传输', arch: 'all'},
+                {name: 'DDNSTO', pkg: 'luci-app-ddnsto', desc: '内网穿透', features: '免费内网穿透、HTTPS 访问、多线路', arch: 'all'},
+                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动端口映射、UPnP、NAT-PMP、STUN', arch: 'all'},
+                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发、SSL 加密、多路复用', arch: 'all'},
+                {name: 'Thunder', pkg: 'luci-app-thunder', desc: '迅雷下载', features: '迅雷下载、远程下载、离线下载、云盘备份', arch: 'all'},
+                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控限速', features: '实时流量、限速设置、设备管理、历史记录', arch: 'all'},
+                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速、上下行控制、优先级设置', arch: 'all'},
+                {name: 'My DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤、广告屏蔽、自定义规则、家长控制', arch: 'all'},
+                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告、家长控制、隐私保护、统计报表', arch: 'all'},
+                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告、视频广告过滤、网页净化', arch: 'all'},
+                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别、行为管理、上网行为分析、时间控制', arch: 'all'},
+                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口、负载均衡、故障转移、策略路由', arch: 'all'},
+                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播、UDP 转 HTTP、节目单管理', arch: 'all'},
+                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: 'Mesh 网络、无缝漫游、自动优化', arch: 'all'},
+                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速、流量加速、NAT 加速、BBR 优化', arch: 'all'},
+                {name: 'Btop', pkg: 'btop', desc: '性能监控', features: '系统监控、资源占用、进程管理、图表展示', arch: 'all'},
+                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理、HTTPS 传输、低延迟', arch: 'all'},
+                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 容器管理', features: '容器管理、镜像管理、网络管理、卷管理', arch: 'x86-rockchip-mediatek'}
             ],
             theme: [
                 {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果、多种配色、自定义背景、响应式设计'},
@@ -409,39 +426,79 @@
             const grid = document.getElementById('plugin-grid');
             grid.innerHTML = '';
             
+            const currentPlatform = document.getElementById('target_platform').value;
+            
             PLUGINS[category].forEach(plugin => {
                 const isSelected = selectedPlugins[plugin.pkg];
+                const isCompatible = checkArchitecture(plugin, currentPlatform);
                 const item = document.createElement('div');
-                item.className = 'plugin-item' + (isSelected ? ' selected' : '');
+                item.className = 'plugin-item' + (isSelected ? ' selected' : '') + (!isCompatible ? ' disabled' : '');
                 item.dataset.pkg = plugin.pkg;
                 
+                const archWarning = !isCompatible ? '<div style="font-size: 9px; color: #ff6b6b; margin-top: 4px;">⚠️ 不支持当前架构</div>' : '';
+                
                 item.innerHTML = `
-                    <div class="plugin-header" onclick="event.stopPropagation(); togglePlugin('${plugin.pkg}', '${plugin.name}')">
-                        <div class="plugin-name">${plugin.name}</div>
+                    <div class="plugin-header" onclick="event.stopPropagation(); ${isCompatible ? `togglePlugin('${plugin.pkg}', '${plugin.name}')` : ''}">
+                        <div class="plugin-name">${plugin.name} ${!isCompatible ? '⚠️' : ''}</div>
                         <div class="checkmark"></div>
                     </div>
                     <div class="plugin-desc">${plugin.desc}</div>
-                    <div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
+                    ${archWarning}
+                    ${isCompatible ? `<div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
                     <div class="plugin-expand">
                         <div class="plugin-expand-title">📦 包名：<strong>${plugin.pkg}</strong></div>
                         <div class="plugin-expand-list">
                             <strong>🔧 功能特性：</strong><br>
-                            ${plugin.features}
+                            ${plugin.features || '暂无详细信息'}
                         </div>
-                    </div>
+                        <div class="plugin-expand-list" style="margin-top: 6px;">
+                            <strong>📁 分类：</strong> ${getCategoryName(category)}
+                        </div>
+                        <div class="plugin-expand-list" style="margin-top: 6px;">
+                            <strong>💾 架构：</strong> ${getArchName(plugin.arch || 'all')}
+                        </div>
+                    </div>` : ''}
                 `;
                 
-                // 点击卡片展开/收起
-                item.onclick = (e) => {
-                    if (!e.target.closest('.expand-indicator')) {
-                        togglePlugin(plugin.pkg, plugin.name);
-                    }
-                };
+                if (isCompatible) {
+                    item.onclick = (e) => {
+                        if (!e.target.closest('.expand-indicator')) {
+                            togglePlugin(plugin.pkg, plugin.name);
+                        }
+                    };
+                }
                 
                 grid.appendChild(item);
             });
             
             updateCounts();
+        }
+        
+        // 检查架构兼容性
+        function checkArchitecture(plugin, platform) {
+            const arch = plugin.arch || 'all';
+            if (arch === 'all') return true;
+            
+            const archMap = {
+                'x86': ['X86'],
+                'rockchip': ['ROCKCHIP'],
+                'mediatek': ['MEDIATEK'],
+                'x86-rockchip-mediatek': ['X86', 'ROCKCHIP', 'MEDIATEK']
+            };
+            
+            return archMap[arch]?.includes(platform) || false;
+        }
+        
+        // 获取架构名称
+        function getArchName(arch) {
+            const names = {
+                'all': '✅ 所有架构',
+                'x86': '💻 X86',
+                'rockchip': '🔷 ROCKCHIP',
+                'mediatek': '📱 MEDIATEK',
+                'x86-rockchip-mediatek': '💻🔷📱 X86/ROCKCHIP/MEDIATEK'
+            };
+            return names[arch] || arch;
         }
         
         // 展开/收起插件详情
@@ -514,6 +571,11 @@
         // 监听路由器配置变化
         ['lan_ip', 'login_username', 'wifi_ssid', 'wifi_password'].forEach(id => {
             document.getElementById(id).addEventListener('input', updateSummary);
+        });
+        
+        // 监听平台变化，重新渲染插件（检查架构兼容性）
+        document.getElementById('target_platform').addEventListener('change', function() {
+            renderPlugins(currentTab);
         });
         
         // 搜索插件 - 跨分类搜索
@@ -650,6 +712,7 @@
 源码：${document.getElementById('wrt_source').value}
 分支：${document.getElementById('wrt_branch').value}
 平台：${document.getElementById('target_platform').value}
+防火墙：${document.getElementById('firewall_type').value === 'firewall4' ? 'Firewall4 (NFTables)' : 'Iptables'}
 主题：${document.getElementById('theme').value}
 
 【路由器配置】
@@ -680,6 +743,7 @@ WiFi 密码：${document.getElementById('wifi_password').value}
                     WRT_SOURCE: document.getElementById('wrt_source').value,
                     WRT_BRANCH: document.getElementById('wrt_branch').value,
                     TARGET_PLATFORM: document.getElementById('target_platform').value,
+                    FIREWALL_TYPE: document.getElementById('firewall_type').value,
                     THEME: document.getElementById('theme').value,
                     PROXY_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.proxy.find(p => p.pkg === pkg)).join(','),
                     STORAGE_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.storage.find(p => p.pkg === pkg)).join(','),
