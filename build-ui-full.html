@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWRT 自定义构建 - 完整插件版</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 30px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea; }
+        .section h2 { color: #333; margin-bottom: 20px; font-size: 1.5em; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; }
+        .plugin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .plugin-tab { padding: 10px 20px; background: white; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .plugin-tab:hover { background: #667eea; color: white; }
+        .plugin-tab.active { background: #667eea; color: white; }
+        .plugin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .plugin-item { background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0; cursor: pointer; transition: all 0.3s; position: relative; }
+        .plugin-item:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2); }
+        .plugin-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
+        .plugin-item input[type="checkbox"] { display: none; }
+        .plugin-name { font-weight: 600; margin-bottom: 5px; }
+        .plugin-desc { font-size: 0.85em; color: #666; }
+        .plugin-item.selected .plugin-desc { color: rgba(255,255,255,0.8); }
+        .checkmark { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border: 2px solid #e0e0e0; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; }
+        .plugin-item.selected .checkmark { background: #4CAF50; border-color: #4CAF50; color: white; }
+        .checkmark::after { content: '✓'; font-weight: bold; display: none; }
+        .plugin-item.selected .checkmark::after { display: block; }
+        .search-box { margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 8px; font-size: 16px; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 30px; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .status-box { padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .status-box.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .status-box.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .badge { display: inline-block; padding: 5px 12px; background: #667eea; color: white; border-radius: 20px; font-size: 0.85em; margin: 3px; }
+        .plugin-count { background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; margin-left: 10px; }
+        .select-all-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .btn-small { padding: 8px 16px; font-size: 14px; border-radius: 6px; border: 2px solid #667eea; background: white; color: #667eea; cursor: pointer; }
+        .btn-small:hover { background: #667eea; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OpenWRT 自定义构建</h1>
+            <p>支持 100+ 插件，来自 openwrt.ai</p>
+        </div>
+        
+        <div class="content">
+            <form id="buildForm">
+                <!-- GitHub Token -->
+                <div class="section">
+                    <h2>🔑 GitHub Token 配置</h2>
+                    <div class="form-group">
+                        <label>Personal Access Token (PAT)</label>
+                        <input type="password" id="github_token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+                        <div style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 6px;">
+                            ✅ <strong>自动保存</strong>：输入 Token 后会自动保存
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- OpenWRT 源码 -->
+                <div class="section">
+                    <h2>OpenWRT 源码</h2>
+                    <div class="form-group">
+                        <label>源码仓库 *</label>
+                        <select id="wrt_source" required>
+                            <option value="VIKINGYFY/immortalwrt" selected>VIKINGYFY/immortalwrt (推荐)</option>
+                            <option value="immortalwrt/immortalwrt">immortalwrt/immortalwrt (官方)</option>
+                            <option value="LiBwrt/openwrt-6.x">LiBwrt/openwrt-6.x (6.x 内核)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>源码分支 *</label>
+                        <select id="wrt_branch" required>
+                            <option value="main" selected>main</option>
+                            <option value="owrt">owrt</option>
+                            <option value="master">master</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 目标平台 -->
+                <div class="section">
+                    <h2>目标平台</h2>
+                    <div class="form-group">
+                        <label>设备平台 *</label>
+                        <select id="target_platform" required>
+                            <option value="MEDIATEK" selected>MEDIATEK (联发科)</option>
+                            <option value="ROCKCHIP">ROCKCHIP (瑞芯微)</option>
+                            <option value="X86">X86 (PC/虚拟机)</option>
+                            <option value="IPQ60XX-WIFI-YES">IPQ60XX (带 WiFi)</option>
+                            <option value="IPQ60XX-WIFI-NO">IPQ60XX (无 WiFi)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 插件选择 -->
+                <div class="section">
+                    <h2>📦 插件选择 <span class="plugin-count" id="total-count">已选 0 个</span></h2>
+                    
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="filterPlugins()">
+                    </div>
+                    
+                    <!-- 分类标签 -->
+                    <div class="plugin-tabs">
+                        <div class="plugin-tab active" onclick="switchTab('proxy')">🔐 科学上网 (11)</div>
+                        <div class="plugin-tab" onclick="switchTab('storage')">💾 存储管理 (15)</div>
+                        <div class="plugin-tab" onclick="switchTab('network')">🌐 网络工具 (40+)</div>
+                        <div class="plugin-tab" onclick="switchTab('theme')">🎨 主题 (13)</div>
+                        <div class="plugin-tab" onclick="switchTab('system')">🔧 系统工具 (20+)</div>
+                    </div>
+                    
+                    <!-- 全选栏 -->
+                    <div class="select-all-bar">
+                        <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
+                        <button type="button" class="btn-small" onclick="deselectAllCurrent()">取消全选</button>
+                        <span id="category-count" style="color: #666;">已选 0 个</span>
+                    </div>
+                    
+                    <!-- 插件网格 -->
+                    <div id="plugin-grid" class="plugin-grid"></div>
+                </div>
+                
+                <!-- 主题选择 -->
+                <div class="section">
+                    <h2>UI 主题</h2>
+                    <div class="form-group">
+                        <label>选择主题 *</label>
+                        <select id="theme" required>
+                            <option value="argon" selected>🎨 Argon (推荐)</option>
+                            <option value="aurora">🌅 Aurora</option>
+                            <option value="kucat">🐱 Kucat</option>
+                            <option value="material">Material</option>
+                            <option value="none">⚪ 默认主题</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 高级选项 -->
+                <div class="section">
+                    <h2>高级选项</h2>
+                    <div class="form-group">
+                        <label>其他插件 (用空格分隔包名)</label>
+                        <input type="text" id="other_plugins" placeholder="例如：luci-app-vlmcsd automount btop">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="test_mode" style="width: auto;">
+                            仅输出配置，不编译固件 (测试模式)
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 配置摘要 -->
+                <div class="section" id="summary">
+                    <h3>📋 配置摘要</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div><strong>源码:</strong> <span id="summary-source">VIKINGYFY/immortalwrt</span></div>
+                        <div><strong>平台:</strong> <span id="summary-platform">MEDIATEK</span></div>
+                        <div><strong>主题:</strong> <span id="summary-theme">Argon</span></div>
+                        <div><strong>已选插件:</strong> <span id="summary-plugins">0 个</span></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">🚀 开始编译</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 完整插件数据库 (100+ 个)
+        const PLUGINS = {
+            proxy: [
+                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具'},
+                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端'},
+                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具'},
+                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版'},
+                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理'},
+                {name: 'Nikki', pkg: 'luci-app-nikki', desc: '代理工具'},
+                {name: 'Momo', pkg: 'luci-app-momo', desc: '代理工具'},
+                {name: 'FullCombo Shark!', pkg: 'luci-app-fc', desc: '全能代理'},
+                {name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理'},
+                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端'},
+                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端'}
+            ],
+            storage: [
+                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理'},
+                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具'},
+                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载'},
+                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载'},
+                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享'},
+                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器'},
+                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理'},
+                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务'},
+                {name: 'Aliyundrive', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘'},
+                {name: 'Clouddrive2', pkg: 'luci-app-clouddrive2', desc: '多云盘管理'},
+                {name: 'Cloudreve', pkg: 'luci-app-cloudreve', desc: '私有云盘'},
+                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘'},
+                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云'},
+                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步'},
+                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务器'}
+            ],
+            network: [
+                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网'},
+                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透'},
+                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端'},
+                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端'},
+                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS'},
+                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS'},
+                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发'},
+                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS'},
+                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具'},
+                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表'},
+                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网'},
+                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN'},
+                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN'},
+                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制'},
+                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制'},
+                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测'},
+                {name: 'FastNet', pkg: 'luci-app-fastnet', desc: '网络体检/测速'},
+                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计'},
+                {name: 'NPC', pkg: 'luci-app-npc', desc: 'NPS 客户端'},
+                {name: 'DDNSTO', pkg: 'luci-app-ddnsto', desc: '内网穿透'},
+                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射'},
+                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发'},
+                {name: 'Thunder', pkg: 'luci-app-thunder', desc: '迅雷下载'},
+                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控限速'},
+                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速'},
+                {name: 'My DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告'},
+                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告'},
+                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告'},
+                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤'},
+                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡'},
+                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手'},
+                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网'},
+                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速'},
+                {name: 'Btop', pkg: 'btop', desc: '性能监控'},
+                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具'}
+            ],
+            theme: [
+                {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题'},
+                {name: 'Aurora', pkg: 'luci-theme-aurora', desc: '极光主题'},
+                {name: 'Kucat', pkg: 'luci-theme-kucat', desc: '可爱主题'},
+                {name: 'Material', pkg: 'luci-theme-material', desc: 'Material 设计'},
+                {name: 'Material3', pkg: 'luci-theme-material3', desc: 'Material3'},
+                {name: 'Design', pkg: 'luci-theme-design', desc: 'neobird 改版'},
+                {name: 'Alpha', pkg: 'luci-theme-alpha', desc: 'Alpha 主题'},
+                {name: 'Spectra', pkg: 'luci-theme-spectra', desc: 'Spectra 主题'},
+                {name: 'Routerich', pkg: 'luci-theme-routerich', desc: 'Routerich 主题'},
+                {name: 'Lightblue', pkg: 'luci-theme-lightblue', desc: '浅蓝主题'},
+                {name: 'OpenWrt2020', pkg: 'luci-theme-openwrt-2020', desc: 'OpenWrt2020'},
+                {name: 'OpenWrt', pkg: 'luci-theme-openwrt', desc: '经典主题'},
+                {name: 'Teleofis', pkg: 'luci-theme-teleofis', desc: 'Teleofis 主题'}
+            ],
+            system: [
+                {name: 'TTYD', pkg: 'luci-app-ttyd', desc: '网页终端'},
+                {name: 'Automount', pkg: 'automount', desc: '自动挂载'},
+                {name: 'HD-Idle', pkg: 'luci-app-hd-idle', desc: '硬盘休眠'},
+                {name: 'PartExp', pkg: 'luci-app-partexp', desc: '分区扩容'},
+                {name: 'AccessControl', pkg: 'luci-app-accesscontrol-plus', desc: '访问控制'},
+                {name: 'ParentControl', pkg: 'luci-app-parentcontrol', desc: '家长控制'},
+                {name: 'TimeControl', pkg: 'luci-app-nft-timecontrol', desc: '上网时间控制'},
+                {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi'},
+                {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划'},
+                {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务'},
+                {name: 'TimedReboot', pkg: 'luci-app-timedreboot', desc: '定时重启'},
+                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测重启'},
+                {name: 'TimeWOL', pkg: 'luci-app-timewol', desc: '网络唤醒'},
+                {name: 'ARPBind', pkg: 'luci-app-arpbind', desc: 'ARP 绑定'},
+                {name: 'HomeAssistant', pkg: 'luci-app-homeassistant', desc: '智能家居'},
+                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务器'},
+                {name: 'CUPS', pkg: 'luci-app-cupsd', desc: '打印服务'},
+                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控'},
+                {name: 'SubConverter', pkg: 'luci-app-subconverter', desc: '订阅转换'},
+                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书'},
+                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2'},
+                {name: 'WeChatPush', pkg: 'luci-app-wechatpush', desc: '通知推送'},
+                {name: 'UnblockNeteaseMusic', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云'},
+                {name: 'TVHelper', pkg: 'tvhelper', desc: '盒子助手'},
+                {name: 'Store', pkg: 'luci-app-store', desc: 'iStore 补充'}
+            ]
+        };
+        
+        let currentTab = 'proxy';
+        let selectedPlugins = {};
+        
+        // 初始化
+        function init() {
+            loadToken();
+            renderPlugins('proxy');
+        }
+        
+        // 渲染插件
+        function renderPlugins(category) {
+            const grid = document.getElementById('plugin-grid');
+            grid.innerHTML = '';
+            
+            PLUGINS[category].forEach(plugin => {
+                const isSelected = selectedPlugins[plugin.pkg];
+                const item = document.createElement('div');
+                item.className = 'plugin-item' + (isSelected ? ' selected' : '');
+                item.onclick = () => togglePlugin(plugin.pkg, plugin.name);
+                item.innerHTML = `
+                    <div class="plugin-name">${plugin.name}</div>
+                    <div class="plugin-desc">${plugin.desc}</div>
+                    <div class="checkmark"></div>
+                `;
+                grid.appendChild(item);
+            });
+            
+            updateCounts();
+        }
+        
+        // 切换插件
+        function togglePlugin(pkg, name) {
+            if (selectedPlugins[pkg]) {
+                delete selectedPlugins[pkg];
+            } else {
+                selectedPlugins[pkg] = name;
+            }
+            renderPlugins(currentTab);
+            updateSummary();
+        }
+        
+        // 切换标签
+        function switchTab(category) {
+            currentTab = category;
+            document.querySelectorAll('.plugin-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.onclick.toString().includes(category));
+            });
+            renderPlugins(category);
+        }
+        
+        // 全选当前分类
+        function selectAllCurrent() {
+            PLUGINS[currentTab].forEach(plugin => {
+                selectedPlugins[plugin.pkg] = plugin.name;
+            });
+            renderPlugins(currentTab);
+            updateSummary();
+        }
+        
+        // 取消全选
+        function deselectAllCurrent() {
+            PLUGINS[currentTab].forEach(plugin => {
+                delete selectedPlugins[plugin.pkg];
+            });
+            renderPlugins(currentTab);
+            updateSummary();
+        }
+        
+        // 更新计数
+        function updateCounts() {
+            const currentCount = PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length;
+            const totalCount = Object.keys(selectedPlugins).length;
+            
+            document.getElementById('category-count').textContent = `已选 ${currentCount} 个`;
+            document.getElementById('total-count').textContent = `已选 ${totalCount} 个`;
+        }
+        
+        // 更新摘要
+        function updateSummary() {
+            const count = Object.keys(selectedPlugins).length;
+            document.getElementById('summary-plugins').textContent = `${count} 个插件`;
+        }
+        
+        // 搜索插件
+        function filterPlugins() {
+            const search = document.getElementById('plugin-search').value.toLowerCase();
+            const items = document.querySelectorAll('.plugin-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.plugin-name').textContent.toLowerCase();
+                const desc = item.querySelector('.plugin-desc').textContent.toLowerCase();
+                item.style.display = (name.includes(search) || desc.includes(search)) ? 'block' : 'none';
+            });
+        }
+        
+        // Token 管理
+        function loadToken() {
+            const token = localStorage.getItem('github_token');
+            if (token) {
+                document.getElementById('github_token').value = token;
+            }
+        }
+        
+        function saveToken(token) {
+            if (token) {
+                localStorage.setItem('github_token', token);
+            }
+        }
+        
+        document.getElementById('github_token').addEventListener('input', function(e) {
+            saveToken(e.target.value.trim());
+        });
+        
+        // 表单提交
+        document.getElementById('buildForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const token = document.getElementById('github_token').value.trim();
+            
+            if (!token) {
+                alert('请先配置 GitHub Token！');
+                return;
+            }
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            saveToken(token);
+            
+            const confirmMsg = `
+确认配置：
+
+源码：${document.getElementById('wrt_source').value}
+平台：${document.getElementById('target_platform').value}
+主题：${document.getElementById('theme').value}
+
+已选插件：${Object.keys(selectedPlugins).length} 个
+
+是否开始编译？
+            `;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span>正在触发编译...';
+            
+            const apiEndpoint = `https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/dispatches`;
+            
+            const requestBody = {
+                ref: 'main',
+                inputs: {
+                    WRT_SOURCE: document.getElementById('wrt_source').value,
+                    WRT_BRANCH: document.getElementById('wrt_branch').value,
+                    TARGET_PLATFORM: document.getElementById('target_platform').value,
+                    THEME: document.getElementById('theme').value,
+                    PROXY_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.proxy.find(p => p.pkg === pkg)).join(','),
+                    STORAGE_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.storage.find(p => p.pkg === pkg)).join(','),
+                    NETWORK_TOOL: Object.keys(selectedPlugins).filter(pkg => PLUGINS.network.find(p => p.pkg === pkg)).join(','),
+                    OTHER_PLUGIN: document.getElementById('other_plugins').value,
+                    TEST_MODE: document.getElementById('test_mode').checked.toString()
+                }
+            };
+            
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (response.status === 401) throw new Error('Token 无效或已过期');
+                if (response.status === 403) throw new Error('Token 权限不足');
+                if (response.status === 404) throw new Error('工作流不存在');
+                if (!response.ok) throw new Error(`GitHub API 错误：${response.status}`);
+                
+                submitBtn.innerHTML = '✅ 编译已触发！';
+                window.open('https://github.com/liuziqiang78-liu/OpenWRT-CI/actions', '_blank');
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '🚀 开始编译';
+                }, 3000);
+                
+            } catch (error) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🚀 开始编译';
+                alert('❌ 触发失败：' + error.message);
+            }
+        });
+        
+        function validateForm() {
+            const required = ['github_token', 'wrt_source', 'wrt_branch', 'target_platform', 'theme'];
+            for (const id of required) {
+                if (!document.getElementById(id).value) {
+                    alert(`请填写必填项`);
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // 启动
+        init();
+    </script>
+</body>
+</html>
