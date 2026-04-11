@@ -86,6 +86,37 @@ on:
         required: false
         type: string
       
+      # 路由器配置
+      LAN_IP:
+        description: '路由器默认 IP'
+        required: false
+        type: string
+        default: '192.168.1.1'
+      
+      LOGIN_USERNAME:
+        description: '登录用户名'
+        required: false
+        type: string
+        default: 'root'
+      
+      LOGIN_PASSWORD:
+        description: '登录密码'
+        required: false
+        type: string
+        default: ''
+      
+      WIFI_SSID:
+        description: 'WiFi 名称'
+        required: false
+        type: string
+        default: 'OpenWrt'
+      
+      WIFI_PASSWORD:
+        description: 'WiFi 密码'
+        required: false
+        type: string
+        default: '12345678'
+      
       # 仅输出配置
       TEST_MODE:
         description: '仅输出配置，不编译固件'

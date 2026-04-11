@@ -200,6 +200,41 @@
                     </div>
                 </div>
                 
+                <!-- 路由器配置 -->
+                <div class="section">
+                    <h2>🔧 路由器配置</h2>
+                    
+                    <div class="form-group">
+                        <label>路由器默认 IP *</label>
+                        <input type="text" id="lan_ip" value="192.168.1.1" placeholder="192.168.1.1">
+                        <div class="help-text">默认：192.168.1.1</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>登录用户名 *</label>
+                        <input type="text" id="login_username" value="root" placeholder="root">
+                        <div class="help-text">默认：root</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>登录密码</label>
+                        <input type="password" id="login_password" value="" placeholder="留空表示无密码">
+                        <div class="help-text">建议设置密码以保护路由器安全</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>WiFi 名称 *</label>
+                        <input type="text" id="wifi_ssid" value="OpenWrt" placeholder="OpenWrt">
+                        <div class="help-text">默认：OpenWrt</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>WiFi 密码 *</label>
+                        <input type="password" id="wifi_password" value="12345678" placeholder="12345678">
+                        <div class="help-text">默认：12345678 (建议修改)</div>
+                    </div>
+                </div>
+                
                 <!-- 高级选项 -->
                 <div class="section">
                     <h2>高级选项</h2>
@@ -223,6 +258,16 @@
                         <div><strong>平台:</strong> <span id="summary-platform">MEDIATEK</span></div>
                         <div><strong>主题:</strong> <span id="summary-theme">Argon</span></div>
                         <div><strong>已选插件:</strong> <span id="summary-plugins">0 个</span></div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #667eea;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">🔧 路由器配置</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px;">
+                            <div><strong>默认 IP:</strong> <span id="summary-lan-ip">192.168.1.1</span></div>
+                            <div><strong>用户名:</strong> <span id="summary-username">root</span></div>
+                            <div><strong>WiFi 名称:</strong> <span id="summary-wifi-ssid">OpenWrt</span></div>
+                            <div><strong>WiFi 密码:</strong> <span id="summary-wifi-password">12345678</span></div>
+                        </div>
                     </div>
                 </div>
                 
@@ -458,7 +503,18 @@
         function updateSummary() {
             const count = Object.keys(selectedPlugins).length;
             document.getElementById('summary-plugins').textContent = `${count} 个插件`;
+            
+            // 更新路由器配置摘要
+            document.getElementById('summary-lan-ip').textContent = document.getElementById('lan_ip').value || '192.168.1.1';
+            document.getElementById('summary-username').textContent = document.getElementById('login_username').value || 'root';
+            document.getElementById('summary-wifi-ssid').textContent = document.getElementById('wifi_ssid').value || 'OpenWrt';
+            document.getElementById('summary-wifi-password').textContent = document.getElementById('wifi_password').value || '12345678';
         }
+        
+        // 监听路由器配置变化
+        ['lan_ip', 'login_username', 'wifi_ssid', 'wifi_password'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateSummary);
+        });
         
         // 搜索插件
         function filterPlugins() {
@@ -511,10 +567,20 @@
             const confirmMsg = `
 确认配置：
 
+【源码配置】
 源码：${document.getElementById('wrt_source').value}
+分支：${document.getElementById('wrt_branch').value}
 平台：${document.getElementById('target_platform').value}
 主题：${document.getElementById('theme').value}
 
+【路由器配置】
+默认 IP: ${document.getElementById('lan_ip').value}
+用户名：${document.getElementById('login_username').value}
+密码：${document.getElementById('login_password').value || '无'}
+WiFi 名称：${document.getElementById('wifi_ssid').value}
+WiFi 密码：${document.getElementById('wifi_password').value}
+
+【插件配置】
 已选插件：${Object.keys(selectedPlugins).length} 个
 
 是否开始编译？
@@ -539,6 +605,11 @@
                     PROXY_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.proxy.find(p => p.pkg === pkg)).join(','),
                     STORAGE_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.storage.find(p => p.pkg === pkg)).join(','),
                     NETWORK_TOOL: Object.keys(selectedPlugins).filter(pkg => PLUGINS.network.find(p => p.pkg === pkg)).join(','),
+                    LAN_IP: document.getElementById('lan_ip').value,
+                    LOGIN_USERNAME: document.getElementById('login_username').value,
+                    LOGIN_PASSWORD: document.getElementById('login_password').value,
+                    WIFI_SSID: document.getElementById('wifi_ssid').value,
+                    WIFI_PASSWORD: document.getElementById('wifi_password').value,
                     OTHER_PLUGIN: document.getElementById('other_plugins').value,
                     TEST_MODE: document.getElementById('test_mode').checked.toString()
                 }
