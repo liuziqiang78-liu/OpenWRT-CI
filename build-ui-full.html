@@ -516,16 +516,95 @@
             document.getElementById(id).addEventListener('input', updateSummary);
         });
         
-        // 搜索插件
+        // 搜索插件 - 跨分类搜索
         function filterPlugins() {
-            const search = document.getElementById('plugin-search').value.toLowerCase();
-            const items = document.querySelectorAll('.plugin-item');
+            const search = document.getElementById('plugin-search').value.toLowerCase().trim();
             
-            items.forEach(item => {
-                const name = item.querySelector('.plugin-name').textContent.toLowerCase();
-                const desc = item.querySelector('.plugin-desc').textContent.toLowerCase();
-                item.style.display = (name.includes(search) || desc.includes(search)) ? 'block' : 'none';
+            // 如果没有搜索内容，重新渲染当前分类
+            if (!search) {
+                renderPlugins(currentTab);
+                return;
+            }
+            
+            // 搜索所有分类
+            const allPlugins = [];
+            ['proxy', 'storage', 'network', 'theme', 'system'].forEach(category => {
+                PLUGINS[category].forEach(plugin => {
+                    const matchName = plugin.name.toLowerCase().includes(search);
+                    const matchDesc = plugin.desc.toLowerCase().includes(search);
+                    const matchPkg = plugin.pkg.toLowerCase().includes(search);
+                    const matchFeatures = plugin.features && plugin.features.toLowerCase().includes(search);
+                    
+                    if (matchName || matchDesc || matchPkg || matchFeatures) {
+                        allPlugins.push({...plugin, category: category});
+                    }
+                });
             });
+            
+            // 渲染搜索结果
+            const grid = document.getElementById('plugin-grid');
+            grid.innerHTML = '';
+            
+            if (allPlugins.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;"><p style="font-size: 18px;">😕 未找到匹配的插件</p><p>试试搜索其他关键词，如 "代理"、"下载"、"DNS" 等</p></div>';
+                document.getElementById('category-count').textContent = '已选 0 个';
+                document.getElementById('total-count').textContent = `已选 ${Object.keys(selectedPlugins).length} 个`;
+                return;
+            }
+            
+            // 更新标签显示
+            document.querySelectorAll('.plugin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            allPlugins.forEach(plugin => {
+                const isSelected = selectedPlugins[plugin.pkg];
+                const item = document.createElement('div');
+                item.className = 'plugin-item' + (isSelected ? ' selected' : '');
+                item.dataset.pkg = plugin.pkg;
+                
+                item.innerHTML = `
+                    <div class="plugin-header" onclick="event.stopPropagation(); togglePlugin('${plugin.pkg}', '${plugin.name}')">
+                        <div class="plugin-name">${plugin.name}</div>
+                        <div class="checkmark"></div>
+                    </div>
+                    <div class="plugin-desc">${plugin.desc}</div>
+                    <div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
+                    <div class="plugin-expand">
+                        <div class="plugin-expand-title">📦 包名：<strong>${plugin.pkg}</strong></div>
+                        <div class="plugin-expand-list">
+                            <strong>🔧 功能特性：</strong><br>
+                            ${plugin.features || '暂无详细信息'}
+                        </div>
+                        <div class="plugin-expand-list" style="margin-top: 6px;">
+                            <strong>📁 分类：</strong> ${getCategoryName(plugin.category)}
+                        </div>
+                    </div>
+                `;
+                
+                item.onclick = (e) => {
+                    if (!e.target.closest('.expand-indicator')) {
+                        togglePlugin(plugin.pkg, plugin.name);
+                    }
+                };
+                
+                grid.appendChild(item);
+            });
+            
+            updateCounts();
+            updateSummary();
+        }
+        
+        // 获取分类中文名
+        function getCategoryName(category) {
+            const names = {
+                'proxy': '🔐 科学上网',
+                'storage': '💾 存储管理',
+                'network': '🌐 网络工具',
+                'theme': '🎨 主题',
+                'system': '🔧 系统工具'
+            };
+            return names[category] || category;
         }
         
         // Token 管理
