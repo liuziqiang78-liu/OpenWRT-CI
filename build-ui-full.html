@@ -25,7 +25,7 @@
         .form-group select:focus, .form-group input:focus { outline: none; border-color: #667eea; }
         .plugin-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
         .plugin-tabs::-webkit-scrollbar { display: none; }
-        .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; user-select: none; -webkit-user-select: none; }
+        .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; user-select: none; -webkit-user-select: none; pointer-events: auto; touch-action: manipulation; }
         .plugin-tab:active { transform: scale(0.95); }
         .plugin-tab.active { background: #667eea; color: white; }
         .plugin-tab:hover { background: #f8f9fa; }
@@ -95,7 +95,8 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        .search-box { margin-bottom: 15px; position: sticky; top: 0; background: #f8f9fa; padding: 10px 0; z-index: 100; }
+        .search-box { margin-bottom: 15px; position: relative; background: #f8f9fa; padding: 10px 0; }
+        .plugin-tabs { position: relative; z-index: 10; }
         .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
         .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
         .btn:active { transform: scale(0.98); }
@@ -820,6 +821,7 @@
         
         // 切换标签
         function switchTab(category) {
+            console.log('🏷️ 切换分类:', category);
             currentTab = category;
             
             // 清空搜索框
@@ -827,7 +829,9 @@
             
             // 更新标签激活状态
             document.querySelectorAll('.plugin-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.category === category);
+                const isActive = tab.dataset.category === category;
+                tab.classList.toggle('active', isActive);
+                console.log(`标签 ${tab.dataset.category}: ${isActive ? '激活' : '未激活'}`);
             });
             
             renderPlugins(category);
