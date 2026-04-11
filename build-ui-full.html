@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
@@ -54,6 +54,12 @@
         .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
         .plugin-item.disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
         .plugin-item.disabled:hover { transform: none; box-shadow: none; }
+        
+        /* 编译进度弹窗 - 移动端优化 */
+        #build-progress {
+            bottom: max(20px, env(safe-area-inset-bottom));
+            right: max(20px, env(safe-area-inset-right));
+        }
         
         /* 加载动画优化 */
         @keyframes fadeIn {
@@ -202,12 +208,12 @@
                     </div>
                     
                     <!-- 分类标签 -->
-                    <div class="plugin-tabs">
-                        <div class="plugin-tab active" onclick="switchTab('proxy')">🔐 科学上网 (12)</div>
-                        <div class="plugin-tab" onclick="switchTab('storage')">💾 存储管理 (16)</div>
-                        <div class="plugin-tab" onclick="switchTab('network')">🌐 网络工具 (35)</div>
-                        <div class="plugin-tab" onclick="switchTab('theme')">🎨 主题 (13)</div>
-                        <div class="plugin-tab" onclick="switchTab('system')">🔧 系统工具 (28)</div>
+                    <div class="plugin-tabs" id="plugin-tabs">
+                        <div class="plugin-tab active" data-category="proxy">🔐 科学上网 (<span class="count">12</span>)</div>
+                        <div class="plugin-tab" data-category="storage">💾 存储管理 (<span class="count">16</span>)</div>
+                        <div class="plugin-tab" data-category="network">🌐 网络工具 (<span class="count">36</span>)</div>
+                        <div class="plugin-tab" data-category="theme">🎨 主题 (<span class="count">13</span>)</div>
+                        <div class="plugin-tab" data-category="system">🔧 系统工具 (<span class="count">28</span>)</div>
                     </div>
                     
                     <!-- 全选栏 -->
@@ -555,7 +561,6 @@
             'luci-app-turboacc': 3,
             'btop': 3,
             'luci-app-dockerman': 50,
-            'naiveproxy': 5,
             
             // 主题
             'luci-theme-argon': 3,
@@ -609,8 +614,18 @@
         // 初始化
         function init() {
             loadToken();
+            updateTabCounts();  // 更新标签计数
             renderPlugins('proxy');
             startBuildMonitor();
+            
+            // 页面卸载时清理定时器
+            window.addEventListener('beforeunload', () => {
+                if (buildMonitorInterval) {
+                    clearInterval(buildMonitorInterval);
+                    buildMonitorInterval = null;
+                    console.log('🧹 清理编译监控定时器');
+                }
+            });
         }
         
         // 渲染插件
@@ -774,10 +789,27 @@
         // 切换标签
         function switchTab(category) {
             currentTab = category;
+            
+            // 清空搜索框
+            document.getElementById('plugin-search').value = '';
+            
+            // 更新标签激活状态
             document.querySelectorAll('.plugin-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.onclick.toString().includes(category));
+                tab.classList.toggle('active', tab.dataset.category === category);
             });
+            
             renderPlugins(category);
+        }
+        
+        // 更新标签计数
+        function updateTabCounts() {
+            Object.keys(PLUGINS).forEach(category => {
+                const count = PLUGINS[category].length;
+                const tab = document.querySelector(`.plugin-tab[data-category="${category}"]`);
+                if (tab) {
+                    tab.querySelector('.count').textContent = count;
+                }
+            });
         }
         
         // 全选当前分类
@@ -953,6 +985,13 @@
                         <a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank" style="color: #667eea; font-size: 12px;">下载固件 →</a>
                     </div>
                 `;
+                
+                // 清除定时器
+                if (buildMonitorInterval) {
+                    clearInterval(buildMonitorInterval);
+                    buildMonitorInterval = null;
+                }
+                
                 setTimeout(() => progressElement.remove(), 10000);
             } else if (conclusion === 'failure') {
                 progressElement.innerHTML = `
@@ -963,6 +1002,13 @@
                         <a href="${run.html_url}" target="_blank" style="color: #667eea; font-size: 12px;">查看日志 →</a>
                     </div>
                 `;
+                
+                // 清除定时器
+                if (buildMonitorInterval) {
+                    clearInterval(buildMonitorInterval);
+                    buildMonitorInterval = null;
+                }
+                
                 setTimeout(() => progressElement.remove(), 10000);
             }
         }
@@ -1068,17 +1114,28 @@
             return names[category] || category;
         }
         
-        // Token 管理
+        // Token 管理（简单加密）
         function loadToken() {
-            const token = localStorage.getItem('github_token');
-            if (token) {
-                document.getElementById('github_token').value = token;
+            const encrypted = localStorage.getItem('github_token');
+            if (encrypted) {
+                try {
+                    const token = atob(encrypted);  // Base64 解码
+                    document.getElementById('github_token').value = token;
+                } catch (e) {
+                    console.error('Token 解密失败:', e);
+                    localStorage.removeItem('github_token');
+                }
             }
         }
         
         function saveToken(token) {
             if (token) {
-                localStorage.setItem('github_token', token);
+                try {
+                    const encrypted = btoa(token);  // Base64 编码
+                    localStorage.setItem('github_token', encrypted);
+                } catch (e) {
+                    console.error('Token 加密失败:', e);
+                }
             }
         }
         
