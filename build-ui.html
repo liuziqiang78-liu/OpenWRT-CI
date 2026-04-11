@@ -952,16 +952,16 @@
             const requestBody = {
                 ref: 'main',
                 inputs: {
-                    wrt_source: formData.wrt_source,
-                    wrt_branch: formData.wrt_branch,
-                    target_platform: formData.target_platform,
-                    theme: formData.theme,
-                    proxy_plugins: formData.proxy_plugins.join(','),
-                    storage_plugins: formData.storage_plugins.join(','),
-                    network_plugins: formData.network_plugins.join(','),
-                    proxy_versions: formData.proxy_versions,
-                    other_plugins: formData.other_plugins,
-                    test_mode: formData.test_mode.toString()
+                    WRT_SOURCE: formData.wrt_source,
+                    WRT_BRANCH: formData.wrt_branch,
+                    TARGET_PLATFORM: formData.target_platform,
+                    THEME: formData.theme,
+                    PROXY_PLUGIN: formData.proxy_plugins.join(','),
+                    STORAGE_PLUGIN: formData.storage_plugins.join(','),
+                    NETWORK_TOOL: formData.network_plugins.join(','),
+                    PROXY_VERSION: formData.proxy_versions,
+                    OTHER_PLUGIN: formData.other_plugins,
+                    TEST_MODE: formData.test_mode.toString()
                 }
             };
             
