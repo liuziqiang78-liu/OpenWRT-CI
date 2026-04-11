@@ -103,12 +103,16 @@ jobs:
               const daysAgo = Math.floor((Date.now() - lastCommit.getTime()) / (1000 * 60 * 60 * 24));
               
               let status = '✅ HEALTHY';
+              let statusText = '健康';
               if (repoData.archived) {
                 status = '⚠️ ARCHIVED';
+                statusText = '已归档';
               } else if (daysAgo > 365) {
                 status = '⚠️ STALE';
+                statusText = `超过 1 年未更新 (${daysAgo}天)`;
               } else if (daysAgo > 180) {
                 status = '⚠️ OLD';
+                statusText = `超过半年未更新 (${daysAgo}天)`;
               }
               
               return {
@@ -116,6 +120,7 @@ jobs:
                 repo: config.repo,
                 branch: config.branch,
                 status,
+                statusText,
                 stars: repoData.stargazers_count,
                 forks: repoData.forks_count,
                 lastCommit: branchData.commit.commit.author.date,
@@ -126,7 +131,8 @@ jobs:
                 name,
                 repo: config.repo,
                 branch: config.branch,
-                status: `❌ ERROR: ${error.message}`,
+                status: `❌ ERROR`,
+                statusText: `错误：${error.message}`,
                 stars: 'N/A',
                 forks: 'N/A',
                 lastCommit: 'N/A',
@@ -138,10 +144,22 @@ jobs:
           async function main() {
             const results = [];
             
+            console.log('\n🔍 开始检查依赖仓库...\n');
+            
             for (const [name, config] of Object.entries(repos)) {
-              console.log(`Checking ${name}...`);
+              console.log(`📦 检查：${name} (${config.repo}@${config.branch})`);
               const result = await checkRepo(name, config);
               results.push(result);
+              
+              // 显示状态
+              if (result.status === '✅ HEALTHY') {
+                console.log(`   ✓ 状态：健康\n`);
+              } else if (result.status.startsWith('⚠️')) {
+                console.log(`   ⚠ 状态：${result.status}\n`);
+              } else {
+                console.log(`   ✗ 状态：${result.status}\n`);
+              }
+              
               // 避免 API 限流
               await new Promise(r => setTimeout(r, 500));
             }
@@ -173,16 +191,22 @@ jobs:
             fs.writeFileSync('report.md', md);
             
             // 输出摘要
-            console.log(`\n=== 摘要 ===`);
-            console.log(`总仓库数：${results.length}`);
-            console.log(`健康：${healthy}`);
-            console.log(`警告：${warning}`);
-            console.log(`严重：${critical}`);
+            console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            console.log('📊 检查完成！摘要如下：\n');
+            console.log(`   总仓库数：${results.length}`);
+            console.log(`   ✅ 健康：${healthy}`);
+            console.log(`   ⚠️  警告：${warning}`);
+            console.log(`   ❌ 严重：${critical}`);
+            console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
             
             // 如果有严重问题，设置退出码
             if (critical > 0) {
-              console.log('\n⚠️ 发现严重问题!');
+              console.log('❌ 发现严重问题！请查看报告！\n');
               process.exit(1);
+            } else if (warning > 0) {
+              console.log('⚠️  发现警告信息，建议检查！\n');
+            } else {
+              console.log('✅ 所有依赖仓库状态正常！\n');
             }
           }
 
