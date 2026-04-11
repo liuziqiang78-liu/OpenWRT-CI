@@ -1,0 +1,7 @@
+# NanoPi R4S 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s=y
+
+# 设备特定包
+CONFIG_DEVICE_PACKAGES_friendlyarm_nanopi-r4s="kmod-usb3 kmod-usb-net-rtl8152"

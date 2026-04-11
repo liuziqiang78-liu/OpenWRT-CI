@@ -1,0 +1,7 @@
+# 京东云 RE-CP-03 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_jdcloud_re-cp-03=y
+
+# 设备特定包
+CONFIG_DEVICE_PACKAGES_jdcloud_re-cp-03="kmod-mt7915e kmod-mt7916-firmware"

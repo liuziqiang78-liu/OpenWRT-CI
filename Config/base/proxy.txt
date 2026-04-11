@@ -1,0 +1,18 @@
+# 科学上网插件配置
+# 可选模块
+
+# HomeProxy
+CONFIG_PACKAGE_luci-app-homeproxy=y
+
+# PassWall
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_luci-app-passwall2=y
+
+# OpenClash
+CONFIG_PACKAGE_luci-app-openclash=y
+
+# 其他代理
+CONFIG_PACKAGE_luci-app-ssr-plus=y
+CONFIG_PACKAGE_luci-app-vssr=y
+
+# 注意：使用时选择其中一个或几个，避免冲突

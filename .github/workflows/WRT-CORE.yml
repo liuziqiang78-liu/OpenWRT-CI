@@ -86,9 +86,12 @@ jobs:
       - name: Initialization Values
         run: |
           echo "WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
+          echo "WRT_DATE_FULL=$(TZ=UTC-8 date +"%Y%m%d-%H%M")" >> $GITHUB_ENV
           echo "WRT_MARK=${GITHUB_REPOSITORY%%/*}" >> $GITHUB_ENV
           echo "WRT_INFO=${WRT_SOURCE%%/*}" >> $GITHUB_ENV
           echo "WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt)" >> $GITHUB_ENV
+          echo "WRT_DEVICE=$(grep -m 1 -oP 'CONFIG_TARGET_DEVICE_[a-z]+_[a-z]+_DEVICE_\K[a-zA-Z0-9_-]+' ./Config/$WRT_CONFIG.txt | head -1)" >> $GITHUB_ENV
+          echo "WRT_VERSION=v$(TZ-UTC-8 date +%Y.%m.%d)" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
@@ -202,6 +205,7 @@ jobs:
         run: |
           cd ./wrt/ && mkdir ./upload/
 
+          # 标准化命名：[平台]-[设备]-[版本]-[日期].bin
           cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
@@ -213,7 +217,14 @@ jobs:
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
-              NEW_FILE="$WRT_INFO"-"$WRT_BRANCH"-"$NAME"-"$WRT_DATE"."$EXT"
+              
+              # 新命名格式：[平台]-[设备]-[版本]-[日期]-[时间].bin
+              if [ -n "$WRT_DEVICE" ]; then
+                NEW_FILE="${WRT_INFO}-${WRT_DEVICE}-${WRT_VERSION}-${WRT_DATE_FULL}.${EXT}"
+              else
+                NEW_FILE="${WRT_INFO}-${WRT_TARGET}-${WRT_VERSION}-${WRT_DATE_FULL}.${EXT}"
+              fi
+              
               mv -f $FILE ./upload/$NEW_FILE
             done
 

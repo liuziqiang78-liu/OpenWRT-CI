@@ -1,0 +1,26 @@
+# 存储管理配置
+# 可选模块
+
+# DiskMan
+CONFIG_PACKAGE_luci-app-diskman=y
+CONFIG_PACKAGE_luci-app-hd-idle=y
+
+# Samba
+CONFIG_PACKAGE_luci-app-samba4=y
+CONFIG_PACKAGE_samba36-server=y
+
+# FTP
+CONFIG_PACKAGE_vsftpd=y
+CONFIG_PACKAGE_vsftpd-tls=y
+
+# ARIA2 下载
+CONFIG_PACKAGE_aria2=y
+CONFIG_PACKAGE_luci-app-aria2=y
+CONFIG_PACKAGE_ariang=y
+
+# Qbittorrent
+CONFIG_PACKAGE_luci-app-qbittorrent=y
+
+# 文件管理
+CONFIG_PACKAGE_luci-app-filebrowser=y
+CONFIG_PACKAGE_luci-app-quickfile=y

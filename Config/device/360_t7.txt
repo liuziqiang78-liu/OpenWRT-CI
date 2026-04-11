@@ -1,0 +1,7 @@
+# 360 T7 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_qihoo_360t7=y
+
+# 设备特定包
+CONFIG_DEVICE_PACKAGES_qihoo_360t7="kmod-mt7915e kmod-mt7916-firmware"
