@@ -25,9 +25,10 @@
         .form-group select:focus, .form-group input:focus { outline: none; border-color: #667eea; }
         .plugin-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
         .plugin-tabs::-webkit-scrollbar { display: none; }
-        .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; }
+        .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; user-select: none; -webkit-user-select: none; }
         .plugin-tab:active { transform: scale(0.95); }
         .plugin-tab.active { background: #667eea; color: white; }
+        .plugin-tab:hover { background: #f8f9fa; }
         .plugin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
         .plugin-item { background: white; padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0; cursor: pointer; transition: all 0.3s; position: relative; }
         .plugin-item:active { transform: scale(0.98); }
@@ -209,11 +210,11 @@
                     
                     <!-- 分类标签 -->
                     <div class="plugin-tabs" id="plugin-tabs">
-                        <div class="plugin-tab active" data-category="proxy">🔐 科学上网 (<span class="count">12</span>)</div>
-                        <div class="plugin-tab" data-category="storage">💾 存储管理 (<span class="count">16</span>)</div>
-                        <div class="plugin-tab" data-category="network">🌐 网络工具 (<span class="count">36</span>)</div>
-                        <div class="plugin-tab" data-category="theme">🎨 主题 (<span class="count">13</span>)</div>
-                        <div class="plugin-tab" data-category="system">🔧 系统工具 (<span class="count">28</span>)</div>
+                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
+                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">36</span>)</div>
+                        <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
+                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
                     </div>
                     
                     <!-- 全选栏 -->
