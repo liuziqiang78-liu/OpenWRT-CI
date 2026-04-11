@@ -1,0 +1,383 @@
+name: Custom Build
+
+on:
+  # 手动触发 - 可定制配置
+  workflow_dispatch:
+    inputs:
+      # OpenWRT 源码选择
+      WRT_SOURCE:
+        description: 'OpenWRT 源码'
+        required: true
+        type: choice
+        options:
+          - immortalwrt/immortalwrt
+          - VIKINGYFY/immortalwrt
+          - LiBwrt/openwrt-6.x
+          - qosmio/openwrt-ipq
+        default: 'VIKINGYFY/immortalwrt'
+      
+      # 源码分支
+      WRT_BRANCH:
+        description: '源码分支'
+        required: true
+        default: 'main'
+        type: string
+      
+      # 目标平台
+      TARGET_PLATFORM:
+        description: '目标平台'
+        required: true
+        type: choice
+        options:
+          - MEDIATEK
+          - ROCKCHIP
+          - X86
+          - IPQ50XX-WIFI-YES
+          - IPQ50XX-WIFI-NO
+          - IPQ60XX-WIFI-YES
+          - IPQ60XX-WIFI-NO
+          - IPQ807X-WIFI-YES
+          - IPQ807X-WIFI-NO
+        default: 'MEDIATEK'
+      
+      # 科学上网插件
+      PROXY_PLUGIN:
+        description: '科学上网插件 (可多选，用逗号分隔)'
+        required: false
+        type: string
+        placeholder: 'homeproxy,openclash,passwall'
+      
+      # 科学上网插件版本
+      PROXY_VERSION:
+        description: '科学上网插件版本 (留空使用最新)'
+        required: false
+        type: string
+        placeholder: 'v1.9.5,v0.45.87,v2.8.3'
+      
+      # 存储插件
+      STORAGE_PLUGIN:
+        description: '存储插件 (可多选，用逗号分隔)'
+        required: false
+        type: string
+        placeholder: 'diskman,samba4,aria2,qbittorrent'
+      
+      # 网络工具
+      NETWORK_TOOL:
+        description: '网络工具 (可多选，用逗号分隔)'
+        required: false
+        type: string
+        placeholder: 'tailscale,ddns-go,easytier,vnt'
+      
+      # 主题
+      THEME:
+        description: 'UI 主题'
+        required: false
+        type: choice
+        options:
+          - argon
+          - aurora
+          - kucat
+          - none
+        default: 'argon'
+      
+      # 其他插件
+      OTHER_PLUGIN:
+        description: '其他插件 (用逗号分隔)'
+        required: false
+        type: string
+      
+      # 仅输出配置
+      TEST_MODE:
+        description: '仅输出配置，不编译固件'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  # 解析插件配置
+  parse-config:
+    runs-on: ubuntu-latest
+    outputs:
+      plugin-list: ${{ steps.parse.outputs.plugin-list }}
+      plugin-versions: ${{ steps.parse.outputs.plugin-versions }}
+      config-file: ${{ steps.parse.outputs.config-file }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Parse Plugin Configuration
+        id: parse
+        run: |
+          # 解析插件列表
+          PROXY_LIST="${{ inputs.PROXY_PLUGIN }}"
+          STORAGE_LIST="${{ inputs.STORAGE_PLUGIN }}"
+          NETWORK_LIST="${{ inputs.NETWORK_TOOL }}"
+          OTHER_LIST="${{ inputs.OTHER_PLUGIN }}"
+          
+          # 合并所有插件
+          ALL_PLUGINS=""
+          if [ -n "$PROXY_LIST" ]; then
+            ALL_PLUGINS="$PROXY_LIST"
+          fi
+          if [ -n "$STORAGE_LIST" ]; then
+            if [ -n "$ALL_PLUGINS" ]; then
+              ALL_PLUGINS="$ALL_PLUGINS,$STORAGE_LIST"
+            else
+              ALL_PLUGINS="$STORAGE_LIST"
+            fi
+          fi
+          if [ -n "$NETWORK_LIST" ]; then
+            if [ -n "$ALL_PLUGINS" ]; then
+              ALL_PLUGINS="$ALL_PLUGINS,$NETWORK_LIST"
+            else
+              ALL_PLUGINS="$NETWORK_LIST"
+            fi
+          fi
+          if [ -n "$OTHER_LIST" ]; then
+            if [ -n "$ALL_PLUGINS" ]; then
+              ALL_PLUGINS="$ALL_PLUGINS,$OTHER_LIST"
+            else
+              ALL_PLUGINS="$OTHER_LIST"
+            fi
+          fi
+          
+          echo "plugin-list=$ALL_PLUGINS" >> $GITHUB_OUTPUT
+          echo "plugin-versions=${{ inputs.PROXY_VERSION }}" >> $GITHUB_OUTPUT
+          echo "config-file=${{ inputs.TARGET_PLATFORM }}" >> $GITHUB_OUTPUT
+          
+          echo "插件列表：$ALL_PLUGINS"
+          echo "插件版本：${{ inputs.PROXY_VERSION }}"
+          echo "配置文件：${{ inputs.TARGET_PLATFORM }}"
+
+  # 自定义编译
+  custom-build:
+    needs: parse-config
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Projects
+        uses: actions/checkout@v4
+
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E apt -yqq purge firefox
+          sudo -E apt -yqq update
+          sudo -E apt -yqq full-upgrade
+          sudo -E apt -yqq autoremove --purge
+          sudo -E apt -yqq autoclean
+          sudo -E apt -yqq clean
+          sudo -E apt -yqq install dos2unix python3-netifaces libfuse-dev jq
+          sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          sudo -E systemctl daemon-reload
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
+
+          sudo mkdir -p /mnt/build_wrt
+          sudo chown $USER:$USER /mnt/build_wrt
+          sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
+
+      - name: Clone OpenWRT Source
+        run: |
+          echo "源码：${{ inputs.WRT_SOURCE }}"
+          echo "分支：${{ inputs.WRT_BRANCH }}"
+          
+          git clone --depth=1 --single-branch --branch ${{ inputs.WRT_BRANCH }} \
+            https://github.com/${{ inputs.WRT_SOURCE }}.git ./wrt/
+          
+          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+
+      - name: Update Feeds
+        run: |
+          cd ./wrt/
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Install Custom Plugins
+        env:
+          PLUGIN_LIST: ${{ needs.parse-config.outputs.plugin-list }}
+          PLUGIN_VERSIONS: ${{ needs.parse-config.outputs.plugin-versions }}
+        run: |
+          cd ./wrt/package/
+          
+          # 解析插件列表
+          if [ -n "$PLUGIN_LIST" ]; then
+            IFS=',' read -ra PLUGINS <<< "$PLUGIN_LIST"
+            
+            for PLUGIN in "${PLUGINS[@]}"; do
+              echo "安装插件：$PLUGIN"
+              
+              # 根据插件名称克隆对应的仓库
+              case $PLUGIN in
+                openclash)
+                  git clone --depth=1 https://github.com/vernesong/OpenClash.git
+                  ;;
+                passwall)
+                  git clone --depth=1 https://github.com/Openwrt-Passwall/openwrt-passwall.git
+                  ;;
+                passwall2)
+                  git clone --depth=1 https://github.com/Openwrt-Passwall/openwrt-passwall2.git
+                  ;;
+                homeproxy)
+                  git clone --depth=1 https://github.com/VIKINGYFY/homeproxy.git
+                  ;;
+                diskman)
+                  git clone --depth=1 https://github.com/lisaac/luci-app-diskman.git
+                  ;;
+                tailscale)
+                  git clone --depth=1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community.git
+                  ;;
+                ddns-go)
+                  git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git
+                  ;;
+                aria2)
+                  git clone --depth=1 https://github.com/sbwml/luci-app-aria2.git
+                  ;;
+                qbittorrent)
+                  git clone --depth=1 https://github.com/sbwml/luci-app-qbittorrent.git
+                  ;;
+                easytier)
+                  git clone --depth=1 https://github.com/EasyTier/luci-app-easytier.git
+                  ;;
+                vnt)
+                  git clone --depth=1 https://github.com/lmq8267/luci-app-vnt.git
+                  ;;
+                samba4)
+                  echo "CONFIG_PACKAGE_luci-app-samba4=y" >> ../../.config
+                  ;;
+                *)
+                  echo "未知插件：$PLUGIN，跳过"
+                  ;;
+              esac
+            done
+          fi
+          
+          # 安装主题
+          THEME="${{ inputs.THEME }}"
+          if [ "$THEME" = "argon" ]; then
+            git clone --depth=1 https://github.com/sbwml/luci-theme-argon.git
+          elif [ "$THEME" = "aurora" ]; then
+            git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora.git
+          elif [ "$THEME" = "kucat" ]; then
+            git clone --depth=1 https://github.com/sirpdboy/luci-theme-kucat.git
+          fi
+
+      - name: Generate Configuration
+        run: |
+          cd ./wrt/
+          
+          # 使用基础配置
+          cat $GITHUB_WORKSPACE/Config/${{ needs.parse-config.outputs.config-file }}.txt > .config
+          cat $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+          
+          # 添加用户自定义配置
+          echo "# 自定义插件配置" >> .config
+          
+          # 启用已安装的插件
+          for DIR in ./package/*/; do
+            if [ -d "$DIR" ]; then
+              PLUGIN_NAME=$(basename $DIR)
+              echo "CONFIG_PACKAGE_${PLUGIN_NAME}=y" >> .config
+              echo "启用插件：${PLUGIN_NAME}"
+            fi
+          done
+          
+          make defconfig -j$(nproc)
+
+      - name: Show Configuration
+        run: |
+          echo "======================================"
+          echo "编译配置信息"
+          echo "======================================"
+          echo "源码：${{ inputs.WRT_SOURCE }}"
+          echo "分支：${{ inputs.WRT_BRANCH }}"
+          echo "平台：${{ inputs.TARGET_PLATFORM }}"
+          echo "主题：${{ inputs.THEME }}"
+          echo "插件列表：${{ needs.parse-config.outputs.plugin-list }}"
+          echo "插件版本：${{ needs.parse-config.outputs.plugin-versions }}"
+          echo "======================================"
+          
+          # 显示配置摘要
+          echo ""
+          echo "已启用的主要插件:"
+          grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | head -20
+
+      - name: Download Packages
+        if: inputs.TEST_MODE == false
+        run: |
+          cd ./wrt/
+          make download -j$(nproc) V=s
+
+      - name: Compile Firmware
+        if: inputs.TEST_MODE == false
+        run: |
+          cd ./wrt/
+          make -j$(nproc) IGNORE_ERRORS=1 BUILD_LOG=1 || make -j1 V=s
+
+      - name: Package Firmware
+        if: inputs.TEST_MODE == false
+        run: |
+          cd ./wrt/ && mkdir ./upload/
+          
+          # 保存配置
+          cp -f ./.config ./upload/Custom-Config-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M).txt
+          
+          # 重命名固件
+          for FILE in $(find ./bin/targets/ -type f -iname "*.bin" -o -iname "*.img.gz"); do
+            cp -f $FILE ./upload/
+          done
+          
+          # 生成校验和
+          cd ./upload/
+          sha256sum *.* > SHA256SUMS.txt
+          md5sum *.* > MD5SUMS.txt
+          
+          # 生成固件信息
+          cat > FIRMWARE_INFO.md << EOF
+          # 自定义编译固件信息
+          
+          **编译时间**: $(date '+%Y-%m-%d %H:%M:%S')
+          **源码**: ${{ inputs.WRT_SOURCE }}
+          **分支**: ${{ inputs.WRT_BRANCH }}
+          **平台**: ${{ inputs.TARGET_PLATFORM }}
+          **主题**: ${{ inputs.THEME }}
+          
+          ## 插件列表
+          
+          ${{ needs.parse-config.outputs.plugin-list }}
+          
+          ## 校验和
+          
+          详见 SHA256SUMS.txt 和 MD5SUMS.txt
+          EOF
+
+      - name: Upload Firmware
+        if: inputs.TEST_MODE == false
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)
+          files: ./wrt/upload/*.*
+          body_path: ./wrt/upload/FIRMWARE_INFO.md
+          generate_release_notes: true
+
+      - name: Upload Configuration (Test Mode)
+        if: inputs.TEST_MODE == true
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: Custom-Config-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)
+          files: ./wrt/.config
+          body: |
+            ## 自定义配置文件
+            
+            **生成时间**: $(date '+%Y-%m-%d %H:%M:%S')
+            **源码**: ${{ inputs.WRT_SOURCE }}
+            **平台**: ${{ inputs.TARGET_PLATFORM }}
+            
+            此配置文件可用于手动编译。
