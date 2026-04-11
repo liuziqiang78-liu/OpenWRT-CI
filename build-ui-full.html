@@ -451,11 +451,22 @@
         
         // 插件冲突检测
         const pluginConflicts = [
+            // 客户端冲突
             ['luci-app-openclash', 'luci-app-clash', 'Clash 客户端'],
-            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
-            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
             ['luci-app-ssr-plus', 'luci-app-shadowsocks-libev', 'SS 客户端'],
-            ['firewall4', 'iptables', '防火墙类型']
+            
+            // 版本冲突
+            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
+            
+            // 功能冲突
+            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
+            ['firewall4', 'iptables', '防火墙类型'],
+            
+            // 资源冲突（需要大量内存）
+            ['luci-app-dockerman', 'luci-app-qbittorrent', '内存密集型 (建议 1GB+ RAM)'],
+            
+            // DNS 冲突
+            ['luci-app-mosdns', 'luci-app-smartdns', 'DNS 转发器']
         ];
         
         // 插件依赖关系
@@ -472,19 +483,127 @@
             'luci-app-vlmcsd': ['vlmcsd']
         };
         
-        // 插件大小估算 (MB)
+        // 插件大小估算 (MB) - 更完整的列表
         const pluginSizes = {
+            // 科学上网
             'luci-app-openclash': 15,
-            'luci-app-dockerman': 50,
             'luci-app-passwall': 12,
-            'luci-app-mosdns': 8,
-            'luci-app-adguardhome': 10,
-            'luci-app-qbittorrent': 20,
+            'luci-app-passwall2': 12,
+            'luci-app-homeproxy': 10,
+            'luci-app-ssr-plus': 8,
+            'luci-app-nikki': 10,
+            'luci-app-momo': 8,
+            'luci-app-fc': 15,
+            'luci-app-xray': 12,
+            'luci-app-nekobox': 10,
+            'luci-app-v2raya': 12,
+            'luci-app-v2ray-server': 12,
+            'luci-app-shadowsocks-libev': 6,
+            'naiveproxy': 5,
+            
+            // 存储管理
             'luci-app-diskman': 5,
-            'luci-app-samba4': 8,
             'luci-app-aria2': 6,
+            'luci-app-qbittorrent': 20,
+            'luci-app-transmission': 15,
+            'luci-app-samba4': 8,
+            'luci-app-vsftpd': 5,
+            'luci-app-filebrowser': 8,
+            'luci-app-webdav': 5,
+            'luci-app-aliyundrive-webdav': 6,
+            'luci-app-clouddrive2': 8,
+            'luci-app-cloudreve': 10,
+            'luci-app-kodexplorer': 12,
+            'luci-app-linkease': 8,
+            'luci-app-rclone': 10,
+            'luci-app-minidlna': 6,
+            'luci-app-alist': 8,
+            
+            // 网络工具
             'luci-app-tailscale-community': 10,
-            'default': 5  // 默认大小
+            'luci-app-zerotier': 8,
+            'luci-app-frpc': 5,
+            'luci-app-frps': 5,
+            'luci-app-ddns': 3,
+            'luci-app-ddns-go': 4,
+            'luci-app-mosdns': 8,
+            'luci-app-smartdns': 6,
+            'luci-app-lucky': 8,
+            'luci-app-openlist2': 10,
+            'luci-app-easytier': 6,
+            'luci-app-wireguard': 5,
+            'luci-app-openvpn-server-client': 8,
+            'luci-app-qosmate': 4,
+            'luci-app-sqm-autorate': 4,
+            'luci-app-netdata': 12,
+            'luci-app-fastnet': 5,
+            'luci-app-nlbwmon': 4,
+            'luci-app-npc': 6,
+            'luci-app-ddnsto': 5,
+            'luci-app-natmap': 3,
+            'luci-app-socat': 4,
+            'luci-app-thunder': 15,
+            'luci-app-bandix': 4,
+            'luci-app-eqosplus': 3,
+            'luci-app-my-dnsfilter': 3,
+            'luci-app-adguardhome': 10,
+            'luci-app-adbyby-plus': 5,
+            'luci-app-oaf': 5,
+            'luci-app-mwan3': 4,
+            'luci-app-iptvhelper': 3,
+            'luci-app-easymesh': 4,
+            'luci-app-turboacc': 3,
+            'btop': 3,
+            'luci-app-dockerman': 50,
+            'naiveproxy': 5,
+            
+            // 主题
+            'luci-theme-argon': 3,
+            'luci-theme-aurora': 3,
+            'luci-theme-kucat': 3,
+            'luci-theme-material': 2,
+            'luci-theme-material3': 2,
+            'luci-theme-design': 3,
+            'luci-theme-alpha': 2,
+            'luci-theme-spectra': 3,
+            'luci-theme-routerich': 3,
+            'luci-theme-lightblue': 2,
+            'luci-theme-openwrt-2020': 2,
+            'luci-theme-openwrt': 2,
+            'luci-theme-teleofis': 2,
+            
+            // 系统工具
+            'luci-app-ttyd': 2,
+            'automount': 2,
+            'luci-app-hd-idle': 1,
+            'luci-app-partexp': 2,
+            'luci-app-accesscontrol-plus': 3,
+            'luci-app-parentcontrol': 3,
+            'luci-app-nft-timecontrol': 3,
+            'luci-app-guest-wifi': 2,
+            'luci-app-wifischedule': 2,
+            'luci-app-taskplan': 2,
+            'luci-app-timedreboot': 1,
+            'luci-app-watchcat': 2,
+            'luci-app-timewol': 2,
+            'luci-app-arpbind': 2,
+            'luci-app-homeassistant': 15,
+            'luci-app-vlmcsd': 3,
+            'luci-app-cupsd': 8,
+            'luci-app-snmpd': 4,
+            'luci-app-subconverter': 5,
+            'luci-app-acme': 4,
+            'luci-app-airplay2': 5,
+            'luci-app-wechatpush': 3,
+            'luci-app-unblockneteasemusic': 4,
+            'tvhelper': 3,
+            'luci-app-store': 5,
+            'luci-app-uugamebooster': 8,
+            'luci-app-oaf': 5,
+            'luci-app-istore': 5,
+            
+            // 默认大小
+            'default': 7
         };
         
         // 初始化
@@ -613,20 +732,27 @@
             return conflicts;
         }
         
-        // 获取所有插件（包含依赖）
+        // 获取所有插件（包含依赖，支持递归）
         function getAllPluginsWithDependencies() {
-            const allPlugins = new Set(Object.keys(selectedPlugins));
+            const allPlugins = new Set();
             const dependencies = [];
+            const visited = new Set();
             
-            Object.keys(selectedPlugins).forEach(pkg => {
+            function addWithDeps(pkg) {
+                if (visited.has(pkg)) return;
+                visited.add(pkg);
+                allPlugins.add(pkg);
+                
                 if (pluginDependencies[pkg]) {
                     pluginDependencies[pkg].forEach(dep => {
-                        if (!allPlugins.has(dep)) {
-                            allPlugins.add(dep);
-                            dependencies.push(`${pkg} → ${dep}`);
-                        }
+                        dependencies.push(`${pkg} → ${dep}`);
+                        addWithDeps(dep);  // 递归添加依赖的依赖
                     });
                 }
+            }
+            
+            Object.keys(selectedPlugins).forEach(pkg => {
+                addWithDeps(pkg);
             });
             
             return {plugins: allPlugins, dependencies};
@@ -634,14 +760,15 @@
         
         // 估算固件大小
         function estimateFirmwareSize() {
-            let totalSize = 80;  // 基础系统
             const {plugins} = getAllPluginsWithDependencies();
+            let totalSize = 80;  // 基础系统
             
             plugins.forEach(pkg => {
                 totalSize += pluginSizes[pkg] || pluginSizes.default;
             });
             
-            return totalSize;
+            // 添加 10% 缓冲
+            return Math.ceil(totalSize * 1.1);
         }
         
         // 切换标签
@@ -730,27 +857,55 @@
         
         // 编译进度监控
         let buildMonitorInterval = null;
+        let lastBuildId = null;
         
         function startBuildMonitor() {
-            // 每 30 秒检查一次编译状态
+            // 每 10 秒检查一次编译状态
             buildMonitorInterval = setInterval(async () => {
+                const token = localStorage.getItem('github_token');
+                
                 try {
-                    const response = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1', {
-                        headers: {
-                            'Accept': 'application/vnd.github.v3+json'
+                    const response = await fetch(
+                        'https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1',
+                        {
+                            headers: {
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Authorization': token ? `token ${token}` : ''
+                            }
                         }
-                    });
+                    );
                     
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.total_count > 0) {
-                            showBuildProgress(data.workflow_runs[0]);
+                    // 处理 API 限流
+                    if (response.status === 403) {
+                        console.warn('⚠️ GitHub API 限流，稍后重试');
+                        const progressEl = document.getElementById('build-progress');
+                        if (progressEl) {
+                            progressEl.innerHTML = '<div style="color: #ff6b6b;">⚠️ API 限流，请稍后查看</div>';
                         }
+                        return;
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    if (data.total_count > 0) {
+                        const run = data.workflow_runs[0];
+                        
+                        // 检测新的编译任务
+                        if (lastBuildId !== run.id) {
+                            lastBuildId = run.id;
+                            console.log('🆕 检测到新编译任务:', run.id);
+                        }
+                        
+                        showBuildProgress(run);
                     }
                 } catch (error) {
-                    // 忽略错误，静默失败
+                    console.error('❌ 编译监控失败:', error);
+                    // 不显示错误，避免打扰用户
                 }
-            }, 30000);
+            }, 10000);  // 改为 10 秒
         }
         
         function showBuildProgress(run) {
