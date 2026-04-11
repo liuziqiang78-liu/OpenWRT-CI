@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install -g @octokit/rest
+          npm install @octokit/rest
           npm install -g jq
 
       - name: Check Dependencies
@@ -205,4 +205,7 @@ jobs:
         with:
           title: '⚠️ 依赖仓库检查发现严重问题'
           content-filepath: report.md
-          labels: dependencies,automated
+          labels: |
+            dependencies
+            automated
+            priority-high
