@@ -54,6 +54,40 @@
         .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
         .plugin-item.disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
         .plugin-item.disabled:hover { transform: none; box-shadow: none; }
+        
+        /* 加载动画优化 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .plugin-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* 按钮点击反馈 */
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* 输入框焦点动画 */
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 骨架屏加载 */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
         .search-box { margin-bottom: 15px; position: sticky; top: 0; background: #f8f9fa; padding: 10px 0; z-index: 100; }
         .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
         .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
@@ -164,7 +198,7 @@
                     
                     <!-- 搜索框 -->
                     <div class="search-box">
-                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="filterPlugins()">
+                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件...（支持跨分类搜索）" oninput="debounceSearch()">
                     </div>
                     
                     <!-- 分类标签 -->
@@ -415,10 +449,49 @@
         let currentTab = 'proxy';
         let selectedPlugins = {};
         
+        // 插件冲突检测
+        const pluginConflicts = [
+            ['luci-app-openclash', 'luci-app-clash', 'Clash 客户端'],
+            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
+            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
+            ['luci-app-ssr-plus', 'luci-app-shadowsocks-libev', 'SS 客户端'],
+            ['firewall4', 'iptables', '防火墙类型']
+        ];
+        
+        // 插件依赖关系
+        const pluginDependencies = {
+            'luci-app-dockerman': ['docker', 'dockerd', 'cgroupfs-mount'],
+            'luci-app-openclash': ['coreutils', 'curl', 'dnsmasq-full', 'ca-bundle'],
+            'luci-app-mosdns': ['mosdns'],
+            'luci-app-adguardhome': ['adguardhome'],
+            'luci-app-qbittorrent': ['qbittorrent', 'libtorrent-rasterbar'],
+            'luci-app-transmission': ['transmission-daemon'],
+            'luci-app-vsftpd': ['vsftpd'],
+            'luci-app-minidlna': ['minidlna'],
+            'luci-app-wireguard': ['wireguard-tools'],
+            'luci-app-vlmcsd': ['vlmcsd']
+        };
+        
+        // 插件大小估算 (MB)
+        const pluginSizes = {
+            'luci-app-openclash': 15,
+            'luci-app-dockerman': 50,
+            'luci-app-passwall': 12,
+            'luci-app-mosdns': 8,
+            'luci-app-adguardhome': 10,
+            'luci-app-qbittorrent': 20,
+            'luci-app-diskman': 5,
+            'luci-app-samba4': 8,
+            'luci-app-aria2': 6,
+            'luci-app-tailscale-community': 10,
+            'default': 5  // 默认大小
+        };
+        
         // 初始化
         function init() {
             loadToken();
             renderPlugins('proxy');
+            startBuildMonitor();
         }
         
         // 渲染插件
@@ -511,13 +584,64 @@
         
         // 切换插件
         function togglePlugin(pkg, name) {
+            // 检查冲突
             if (selectedPlugins[pkg]) {
                 delete selectedPlugins[pkg];
             } else {
+                const conflicts = checkConflicts({...selectedPlugins, [pkg]: name});
+                if (conflicts.length > 0) {
+                    alert('⚠️ 插件冲突检测：\n\n' + conflicts.join('\n') + '\n\n请取消冲突的插件后再选择');
+                    return;
+                }
                 selectedPlugins[pkg] = name;
             }
             renderPlugins(currentTab);
             updateSummary();
+        }
+        
+        // 检查插件冲突
+        function checkConflicts(plugins) {
+            const conflicts = [];
+            const selectedPkgs = Object.keys(plugins);
+            
+            pluginConflicts.forEach(([pkg1, pkg2, desc]) => {
+                if (selectedPkgs.includes(pkg1) && selectedPkgs.includes(pkg2)) {
+                    conflicts.push(`❌ ${desc}冲突：${pkg1} 和 ${pkg2} 不能同时安装`);
+                }
+            });
+            
+            return conflicts;
+        }
+        
+        // 获取所有插件（包含依赖）
+        function getAllPluginsWithDependencies() {
+            const allPlugins = new Set(Object.keys(selectedPlugins));
+            const dependencies = [];
+            
+            Object.keys(selectedPlugins).forEach(pkg => {
+                if (pluginDependencies[pkg]) {
+                    pluginDependencies[pkg].forEach(dep => {
+                        if (!allPlugins.has(dep)) {
+                            allPlugins.add(dep);
+                            dependencies.push(`${pkg} → ${dep}`);
+                        }
+                    });
+                }
+            });
+            
+            return {plugins: allPlugins, dependencies};
+        }
+        
+        // 估算固件大小
+        function estimateFirmwareSize() {
+            let totalSize = 80;  // 基础系统
+            const {plugins} = getAllPluginsWithDependencies();
+            
+            plugins.forEach(pkg => {
+                totalSize += pluginSizes[pkg] || pluginSizes.default;
+            });
+            
+            return totalSize;
         }
         
         // 切换标签
@@ -558,14 +682,40 @@
         
         // 更新摘要
         function updateSummary() {
-            const count = Object.keys(selectedPlugins).length;
-            document.getElementById('summary-plugins').textContent = `${count} 个插件`;
+            const {plugins, dependencies} = getAllPluginsWithDependencies();
+            const firmwareSize = estimateFirmwareSize();
+            const conflicts = checkConflicts(selectedPlugins);
+            
+            // 更新插件计数
+            document.getElementById('summary-plugins').textContent = `${Object.keys(selectedPlugins).length} 个插件 (含依赖共 ${plugins.size} 个)`;
             
             // 更新路由器配置摘要
             document.getElementById('summary-lan-ip').textContent = document.getElementById('lan_ip').value || '192.168.1.1';
             document.getElementById('summary-username').textContent = document.getElementById('login_username').value || 'root';
             document.getElementById('summary-wifi-ssid').textContent = document.getElementById('wifi_ssid').value || 'OpenWrt';
             document.getElementById('summary-wifi-password').textContent = document.getElementById('wifi_password').value || '12345678';
+            
+            // 更新固件大小估算
+            let sizeElement = document.getElementById('summary-firmware-size');
+            if (!sizeElement) {
+                sizeElement = document.createElement('div');
+                sizeElement.id = 'summary-firmware-size';
+                sizeElement.style.marginTop = '15px';
+                sizeElement.style.padding = '10px';
+                sizeElement.style.background = '#e8f5e9';
+                sizeElement.style.borderRadius = '6px';
+                document.querySelector('#summary > div').appendChild(sizeElement);
+            }
+            
+            const sizeStatus = firmwareSize > 64 ? '⚠️ 较大' : (firmwareSize > 48 ? '⚠️ 中等' : '✅ 合适');
+            sizeElement.innerHTML = `
+                <strong>💾 固件大小估算：</strong>
+                <span style="color: ${firmwareSize > 64 ? '#ff6b6b' : '#4CAF50'}">
+                    ${firmwareSize} MB ${sizeStatus}
+                </span>
+                ${dependencies.length > 0 ? `<br><strong>📦 自动添加依赖：</strong> ${dependencies.length} 个` : ''}
+                ${conflicts.length > 0 ? `<br><strong style="color: #ff6b6b">⚠️ 检测到 ${conflicts.length} 个冲突</strong>` : ''}
+            `;
         }
         
         // 监听路由器配置变化
@@ -578,6 +728,99 @@
             renderPlugins(currentTab);
         });
         
+        // 编译进度监控
+        let buildMonitorInterval = null;
+        
+        function startBuildMonitor() {
+            // 每 30 秒检查一次编译状态
+            buildMonitorInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1', {
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.total_count > 0) {
+                            showBuildProgress(data.workflow_runs[0]);
+                        }
+                    }
+                } catch (error) {
+                    // 忽略错误，静默失败
+                }
+            }, 30000);
+        }
+        
+        function showBuildProgress(run) {
+            let progressElement = document.getElementById('build-progress');
+            if (!progressElement) {
+                progressElement = document.createElement('div');
+                progressElement.id = 'build-progress';
+                progressElement.style.position = 'fixed';
+                progressElement.style.bottom = '20px';
+                progressElement.style.right = '20px';
+                progressElement.style.background = 'white';
+                progressElement.style.padding = '15px';
+                progressElement.style.borderRadius = '10px';
+                progressElement.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+                progressElement.style.zIndex = '1000';
+                progressElement.style.maxWidth = '300px';
+                document.body.appendChild(progressElement);
+            }
+            
+            const status = run.status;
+            const conclusion = run.conclusion;
+            
+            if (status === 'in_progress') {
+                progressElement.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 10px;"></div>
+                        <strong>编译中...</strong>
+                    </div>
+                    <div style="background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 8px; width: 50%;"></div>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                        运行时间：${Math.floor((Date.now() - new Date(run.created_at).getTime()) / 60000)} 分钟
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <a href="${run.html_url}" target="_blank" style="color: #667eea; font-size: 12px;">查看详情 →</a>
+                    </div>
+                `;
+            } else if (conclusion === 'success') {
+                progressElement.innerHTML = `
+                    <div style="color: #4CAF50;">
+                        <strong>✅ 编译成功！</strong>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank" style="color: #667eea; font-size: 12px;">下载固件 →</a>
+                    </div>
+                `;
+                setTimeout(() => progressElement.remove(), 10000);
+            } else if (conclusion === 'failure') {
+                progressElement.innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        <strong>❌ 编译失败</strong>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <a href="${run.html_url}" target="_blank" style="color: #667eea; font-size: 12px;">查看日志 →</a>
+                    </div>
+                `;
+                setTimeout(() => progressElement.remove(), 10000);
+            }
+        }
+        
+        // 搜索防抖
+        let searchTimeout = null;
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterPlugins();
+            }, 300);  // 300ms 防抖
+        }
+        
         // 搜索插件 - 跨分类搜索
         function filterPlugins() {
             const search = document.getElementById('plugin-search').value.toLowerCase().trim();
@@ -585,6 +828,7 @@
             // 如果没有搜索内容，重新渲染当前分类
             if (!search) {
                 renderPlugins(currentTab);
+                document.getElementById('category-count').textContent = `已选 ${PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length} 个`;
                 return;
             }
             
@@ -699,11 +943,23 @@
                 return;
             }
             
+            // 最终冲突检测
+            const finalConflicts = checkConflicts(selectedPlugins);
+            if (finalConflicts.length > 0) {
+                alert('❌ 检测到插件冲突：\n\n' + finalConflicts.join('\n\n') + '\n\n请解决冲突后再编译');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🚀 开始编译';
+                return;
+            }
+            
             if (!validateForm()) {
                 return;
             }
             
             saveToken(token);
+            
+            const {plugins, dependencies} = getAllPluginsWithDependencies();
+            const firmwareSize = estimateFirmwareSize();
             
             const confirmMsg = `
 确认配置：
@@ -724,6 +980,9 @@ WiFi 密码：${document.getElementById('wifi_password').value}
 
 【插件配置】
 已选插件：${Object.keys(selectedPlugins).length} 个
+含依赖：${plugins.size} 个
+自动添加依赖：${dependencies.length} 个
+预计固件大小：${firmwareSize} MB
 
 是否开始编译？
             `;
