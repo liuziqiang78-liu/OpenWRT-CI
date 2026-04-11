@@ -165,6 +165,13 @@
             transform: translateY(0);
         }
         
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         .summary {
             background: #fff;
             padding: 25px;
@@ -214,16 +221,53 @@
             margin-top: 5px;
         }
         
-        .version-select {
-            margin-top: 10px;
-            padding: 10px;
-            background: white;
+        .token-section {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .status-box {
+            padding: 15px;
             border-radius: 8px;
+            margin-top: 20px;
             display: none;
         }
         
-        .plugin-item.selected + .version-select {
+        .status-box.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
             display: block;
+        }
+        
+        .status-box.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        
+        .status-box.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -236,6 +280,28 @@
         
         <div class="content">
             <form id="buildForm">
+                <!-- GitHub Token 配置 -->
+                <div class="section token-section">
+                    <h2>🔑 GitHub Token 配置</h2>
+                    
+                    <div class="form-group">
+                        <label for="github_token">Personal Access Token (PAT)</label>
+                        <input type="password" id="github_token" name="github_token" 
+                               placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                        <div class="help-text">
+                            🔗 <a href="https://github.com/settings/tokens" target="_blank">创建 Token</a> | 
+                            需要权限：<code>repo</code>, <code>workflow</code>
+                        </div>
+                        <div class="help-text">
+                            💾 Token 仅存储在本地浏览器，不会上传到服务器
+                        </div>
+                    </div>
+                    
+                    <div id="token-status" class="status-box info">
+                        ⚠️ 首次使用需要配置 GitHub Token
+                    </div>
+                </div>
+                
                 <!-- OpenWRT 源码选择 -->
                 <div class="section">
                     <h2>OpenWRT 源码</h2>
@@ -449,12 +515,17 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn">🚀 开始编译</button>
+                <button type="submit" class="btn" id="submitBtn">🚀 开始编译</button>
             </form>
         </div>
     </div>
     
     <script>
+        // 配置常量
+        const GITHUB_OWNER = 'liuziqiang78-liu';
+        const GITHUB_REPO = 'OpenWRT-CI';
+        const WORKFLOW_FILE = 'Custom-Build.yml';
+        
         // 插件切换
         function togglePlugin(element, pluginName) {
             const checkbox = element.querySelector('input[type="checkbox"]');
@@ -499,15 +570,54 @@
                 networkPlugins.map(p => `<span class="badge">${p}</span>`).join('') : '未选择';
         }
         
+        // 检查 Token 状态
+        function checkTokenStatus() {
+            const token = localStorage.getItem('github_token');
+            const statusBox = document.getElementById('token-status');
+            
+            if (token) {
+                statusBox.className = 'status-box success';
+                statusBox.innerHTML = '✅ GitHub Token 已配置';
+                return true;
+            } else {
+                statusBox.className = 'status-box info';
+                statusBox.innerHTML = '⚠️ 首次使用需要配置 GitHub Token';
+                return false;
+            }
+        }
+        
+        // 加载保存的 Token
+        function loadToken() {
+            const token = localStorage.getItem('github_token');
+            if (token) {
+                document.getElementById('github_token').value = token;
+            }
+            checkTokenStatus();
+        }
+        
+        // 保存 Token
+        function saveToken(token) {
+            localStorage.setItem('github_token', token);
+            checkTokenStatus();
+        }
+        
         // 监听表单变化
         document.getElementById('buildForm').addEventListener('change', updateSummary);
         
+        // 监听 Token 输入
+        document.getElementById('github_token').addEventListener('change', function(e) {
+            saveToken(e.target.value.trim());
+        });
+        
         // 表单提交
-        document.getElementById('buildForm').addEventListener('submit', function(e) {
+        document.getElementById('buildForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
             
             // 收集表单数据
             const formData = {
+                github_token: document.getElementById('github_token').value.trim(),
                 wrt_source: document.getElementById('wrt_source').value,
                 wrt_branch: document.getElementById('wrt_branch').value,
                 target_platform: document.getElementById('target_platform').value,
@@ -523,9 +633,14 @@
                 test_mode: document.getElementById('test_mode').checked
             };
             
-            // 生成 GitHub Actions 触发 URL
-            const repo = 'liuziqiang78-liu/OpenWRT-CI';
-            const workflow = 'Custom-Build.yml';
+            // 验证 Token
+            if (!formData.github_token) {
+                alert('❌ 请先配置 GitHub Token！\n\n创建步骤：\n1. 访问 https://github.com/settings/tokens\n2. 点击 "Generate new token (classic)"\n3. 勾选 repo 和 workflow 权限\n4. 生成并复制 Token\n5. 粘贴到上方输入框');
+                return;
+            }
+            
+            // 保存 Token
+            saveToken(formData.github_token);
             
             // 显示确认对话框
             const confirmMsg = `
@@ -544,16 +659,88 @@
 是否开始编译？
             `;
             
-            if (confirm(confirmMsg)) {
-                // 打开 GitHub Actions 页面
-                window.open(`https://github.com/${repo}/actions/workflows/${workflow}`, '_blank');
-                
-                alert('已打开 GitHub Actions 页面，请手动触发工作流并填写配置。\n\n未来版本将支持自动触发！');
+            if (!confirm(confirmMsg)) {
+                return;
             }
-        });
+            
+            // 禁用按钮
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span>正在触发编译...';
+            
+            // 准备 API 请求
+            const apiEndpoint = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
+            
+            const requestBody = {
+                ref: 'main',
+                inputs: {
+                    wrt_source: formData.wrt_source,
+                    wrt_branch: formData.wrt_branch,
+                    target_platform: formData.target_platform,
+                    theme: formData.theme,
+                    proxy_plugins: formData.proxy_plugins.join(','),
+                    storage_plugins: formData.storage_plugins.join(','),
+                    network_plugins: formData.network_plugins.join(','),
+                    proxy_versions: formData.proxy_versions,
+                    other_plugins: formData.other_plugins,
+                    test_mode: formData.test_mode.toString()
+                }
+            };
+            
+            try {
+                // 调用 GitHub API
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${formData.github_token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (response.ok) {
+                    // 成功
+                    submitBtn.innerHTML = '✅ 编译已触发！';
+                    
+                    const statusBox = document.createElement('div');
+                    statusBox.className = 'status-box success';
+                    statusBox.innerHTML = `
+                        <strong>✅ 编译已成功触发！</strong><br><br>
+                        查看进度：<a href="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions" target="_blank">GitHub Actions</a><br><br>
+                        编译时间：约 30-60 分钟<br>
+                        完成后会在 Releases 页面发布固件
+                    `;
+                    document.getElementById('summary').after(statusBox);
+                    
+                    // 打开 Actions 页面
+                    window.open(`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions`, '_blank');
+                } else {
+                    // 失败
+                    const error = await response.json();
+                    throw new Error(error.message || '触发失败');
+                }
+            } catch (error) {
+                // 错误处理
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🚀 开始编译';
+                
+                const statusBox = document.createElement('div');
+                statusBox.className = 'status-box error';
+                statusBox.innerHTML = `
+                    <strong>❌ 触发失败：</strong><br>
+                    ${error.message}<br><br>
+                    可能原因：<br>
+                    1. Token 权限不足（需要 repo 和 workflow 权限）<br>
+                    2. Token 已过期<br>
+                    3. 仓库未启用 Actions<br>
+                    4. 网络问题
+                `;
+                document.getElementById('summary').after(statusBox);
+            }
+        };
         
-        // 初始化摘要
-        updateSummary();
+        // 初始化
+        loadToken();
     </script>
 </body>
 </html>
