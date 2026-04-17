@@ -262,6 +262,29 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: Check available Chinese language packages
+        run: |
+          cd ./wrt/
+          echo "🔍 检查可用的中文语言包..."
+          echo ""
+          echo "搜索 luci-i18n 包..."
+          find ./feeds -name "Makefile" -type f | xargs grep -l "luci-i18n" | head -10 | while read file; do
+            PKG_NAME=$(grep -o "PKG_NAME:=.*" "$file" | cut -d: -f2 | tr -d ' ')
+            echo "找到包: $PKG_NAME"
+          done || true
+          
+          echo ""
+          echo "搜索中文语言包 (zh-cn, zh_Hans)..."
+          find ./feeds -name "Makefile" -type f | xargs grep -i "zh-cn\|zh_Hans" 2>/dev/null | head -20 | while read line; do
+            echo "$line"
+          done || echo "未找到中文语言包信息"
+          
+          echo ""
+          echo "列出 feeds/luci 中的语言包..."
+          ls -la ./feeds/luci/ 2>/dev/null || echo "feeds/luci 目录不存在"
+          
+          echo "✅ 语言包检查完成"
+
       - name: Install Custom Plugins
         env:
           PLUGIN_LIST: ${{ needs.parse-config.outputs.plugin-list }}

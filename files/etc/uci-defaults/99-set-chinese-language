@@ -1,17 +1,81 @@
 #!/bin/sh
 
 # Set Chinese language as default for Luci
-uci batch << EOF
+# This script runs on first boot to configure Chinese language
+
+LOG_FILE="/tmp/set-chinese-language.log"
+echo "Starting Chinese language configuration at $(date)" > $LOG_FILE
+
+# Wait for system to be ready
+sleep 3
+
+# Method 1: Set via uci if luci config exists
+if [ -f /etc/config/luci ]; then
+    echo "Method 1: Setting language via uci" >> $LOG_FILE
+    uci batch << EOF 2>> $LOG_FILE
 set luci.main.lang=zh_cn
 set luci.main.mediaurlbase=/luci-static/argon
 commit luci
 EOF
+    
+    if [ $? -eq 0 ]; then
+        echo "Success: Luci language set to zh_cn via uci" >> $LOG_FILE
+    else
+        echo "Warning: Failed to set Luci language via uci" >> $LOG_FILE
+    fi
+else
+    echo "Warning: /etc/config/luci not found" >> $LOG_FILE
+fi
 
-# Also set system locale to Chinese if possible
-[ -f /etc/config/system ] && {
-  uci set system.@system[0].zonename='Asia/Shanghai'
-  uci set system.@system[0].timezone='CST-8'
-  uci commit system
-}
+# Method 2: Set via environment variable
+echo "Method 2: Setting language via environment" >> $LOG_FILE
+echo 'export LUCI_LANG=zh_cn' >> /etc/profile
+echo 'export LANG=zh_CN.UTF-8' >> /etc/profile
+echo 'export LANGUAGE=zh_CN:zh' >> /etc/profile
+
+# Method 3: Create default config if missing
+if [ ! -f /etc/config/luci ]; then
+    echo "Method 3: Creating default luci config" >> $LOG_FILE
+    cat > /etc/config/luci << 'EOF'
+config core 'main'
+        option lang 'zh_cn'
+        option mediaurlbase '/luci-static/argon'
+
+config extern 'flash_keep'
+        option uci '/etc/config/'
+        option dropbear '/etc/dropbear/'
+        option openvpn '/etc/openvpn/'
+        option passwd '/etc/passwd'
+        option opkg '/etc/opkg.conf'
+        option firewall '/etc/firewall.user'
+        option uploads '/lib/uci/upload/'
+EOF
+    echo "Created default /etc/config/luci with Chinese language" >> $LOG_FILE
+fi
+
+# Set system timezone to China
+echo "Setting system timezone to Asia/Shanghai" >> $LOG_FILE
+if [ -f /etc/config/system ]; then
+    uci set system.@system[0].zonename='Asia/Shanghai'
+    uci set system.@system[0].timezone='CST-8'
+    uci commit system
+    echo "System timezone set to Asia/Shanghai" >> $LOG_FILE
+else
+    echo "timezone 'CST-8'" > /etc/TZ
+    echo "Fallback: Set timezone via /etc/TZ" >> $LOG_FILE
+fi
+
+# Verify Chinese language packages are installed
+echo "Checking Chinese language packages:" >> $LOG_FILE
+opkg list-installed | grep -i "zh-cn\|zh_CN\|i18n.*zh" >> $LOG_FILE 2>/dev/null || echo "No Chinese language packages found" >> $LOG_FILE
+
+# Set permissions
+chmod 644 /etc/config/luci 2>/dev/null || true
+
+echo "Chinese language configuration completed at $(date)" >> $LOG_FILE
+echo "Log saved to: $LOG_FILE"
+
+# Cleanup - remove this script after successful run
+rm -f /etc/uci-defaults/99-set-chinese-language
 
 exit 0
