@@ -1,0 +1,5 @@
+# Set Chinese locale as default
+LANG=zh_CN.UTF-8
+LANGUAGE=zh_CN:zh
+LC_ALL=zh_CN.UTF-8
+LUCI_LANG=zh_cn
