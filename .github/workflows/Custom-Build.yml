@@ -299,8 +299,12 @@ jobs:
             for PLUGIN in "${PLUGINS[@]}"; do
               echo "安装插件：$PLUGIN"
               
+              # 清理插件名称（移除可能的 luci-app- 前缀）
+              CLEAN_PLUGIN=$(echo "$PLUGIN" | sed -e 's/^luci-app-//' -e 's/^luci-//')
+              echo "清理后插件名称：$CLEAN_PLUGIN"
+              
               # 根据插件名称克隆对应的仓库
-              case $PLUGIN in
+              case $CLEAN_PLUGIN in
                 openclash)
                   git clone --depth=1 https://github.com/vernesong/OpenClash.git
                   ;;
@@ -348,14 +352,23 @@ jobs:
                   ;;
                 *)
                   echo "未知插件：$PLUGIN，尝试通用克隆..."
-                  # 尝试通用仓库模式
-                  if git clone --depth=1 "https://github.com/sbwml/luci-app-${PLUGIN}.git" 2>/dev/null; then
-                    echo "✅ 通用克隆成功: luci-app-${PLUGIN}"
-                  elif git clone --depth=1 "https://github.com/sirpdboy/luci-app-${PLUGIN}.git" 2>/dev/null; then
-                    echo "✅ 通用克隆成功 (sirpdboy): luci-app-${PLUGIN}"
+                  # 确定配置选项名称（确保有 luci-app- 前缀）
+                  if [[ "$PLUGIN" =~ ^luci-app- ]]; then
+                    CONFIG_NAME="$PLUGIN"
+                  elif [[ "$PLUGIN" =~ ^luci- ]]; then
+                    CONFIG_NAME="app-${PLUGIN}"
                   else
-                    echo "⚠️  无法克隆插件 ${PLUGIN}，尝试直接添加配置"
-                    echo "CONFIG_PACKAGE_luci-app-${PLUGIN}=y" >> ../../.config
+                    CONFIG_NAME="luci-app-${PLUGIN}"
+                  fi
+                  
+                  # 尝试通用仓库模式（使用清理后的名称）
+                  if git clone --depth=1 "https://github.com/sbwml/luci-app-${CLEAN_PLUGIN}.git" 2>/dev/null; then
+                    echo "✅ 通用克隆成功: luci-app-${CLEAN_PLUGIN}"
+                  elif git clone --depth=1 "https://github.com/sirpdboy/luci-app-${CLEAN_PLUGIN}.git" 2>/dev/null; then
+                    echo "✅ 通用克隆成功 (sirpdboy): luci-app-${CLEAN_PLUGIN}"
+                  else
+                    echo "⚠️  无法克隆插件 ${CLEAN_PLUGIN}，尝试直接添加配置"
+                    echo "CONFIG_PACKAGE_${CONFIG_NAME}=y" >> ../../.config
                   fi
                   ;;
               esac
