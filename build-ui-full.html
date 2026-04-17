@@ -614,8 +614,82 @@
         };
         
         // 初始化
+        // 加载上次配置
+        function loadConfig() {
+            try {
+                const saved = localStorage.getItem('openwrt-ci-last-config');
+                if (!saved) return;
+                
+                const config = JSON.parse(saved);
+                
+                // 恢复表单字段
+                const fields = [
+                    'wrt_source', 'wrt_branch', 'target_platform',
+                    'firewall_type', 'theme', 'lan_ip',
+                    'login_username', 'login_password', 'wifi_ssid',
+                    'wifi_password', 'other_plugins', 'test_mode'
+                ];
+                
+                fields.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element && config[id] !== undefined) {
+                        if (element.type === 'checkbox') {
+                            element.checked = config[id];
+                        } else {
+                            element.value = config[id];
+                        }
+                    }
+                });
+                
+                // 恢复选中的插件
+                if (config.selectedPlugins) {
+                    selectedPlugins = config.selectedPlugins;
+                    updateTabCounts();
+                    renderPlugins(currentTab);
+                }
+                
+                console.log('✅ 已加载上次配置');
+            } catch (e) {
+                console.warn('加载配置失败:', e);
+            }
+        }
+        
+        // 保存当前配置
+        function saveConfig() {
+            try {
+                const config = {
+                    selectedPlugins: {...selectedPlugins}
+                };
+                
+                // 保存表单字段
+                const fields = [
+                    'wrt_source', 'wrt_branch', 'target_platform',
+                    'firewall_type', 'theme', 'lan_ip',
+                    'login_username', 'login_password', 'wifi_ssid',
+                    'wifi_password', 'other_plugins', 'test_mode'
+                ];
+                
+                fields.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            config[id] = element.checked;
+                        } else {
+                            config[id] = element.value;
+                        }
+                    }
+                });
+                
+                localStorage.setItem('openwrt-ci-last-config', JSON.stringify(config));
+                console.log('✅ 配置已保存');
+            } catch (e) {
+                console.warn('保存配置失败:', e);
+            }
+        }
+        
         function init() {
             loadToken();
+            loadConfig();  // 加载上次配置
             updateTabCounts();  // 更新标签计数
             renderPlugins('proxy');
             startBuildMonitor();
@@ -1301,6 +1375,7 @@ WiFi 密码：${document.getElementById('wifi_password').value}
                 if (!response.ok) throw new Error(`GitHub API 错误：${response.status}`);
                 
                 submitBtn.innerHTML = '✅ 编译已触发！';
+                saveConfig();  // 保存当前配置
                 window.open('https://github.com/liuziqiang78-liu/OpenWRT-CI/actions', '_blank');
                 
                 setTimeout(() => {
