@@ -330,6 +330,29 @@ jobs:
             fi
           done
           
+          # 添加中文语言支持
+          echo "# 中文语言支持" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+          
+          # 为已启用的插件添加对应的中文语言包
+          echo "CONFIG_PACKAGE_luci-i18n-autoreboot-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-netspeedtest-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-upnp-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-cpufreq-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-aria2-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-uhttpd-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-diskman-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-hd-idle-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-lucky-zh-cn=y" >> .config
+          
+          # 设置默认语言环境为中文
+          echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
+          echo "CONFIG_DEFAULT_luci-i18n-base-zh-cn=y" >> .config
+          
           make defconfig -j$(nproc)
 
       - name: Show Configuration
