@@ -335,10 +335,28 @@ jobs:
                   git clone --depth=1 https://github.com/lmq8267/luci-app-vnt.git
                   ;;
                 samba4)
+                  # samba4 可能在 feeds 中已存在，但为了确保添加 luci 界面
                   echo "CONFIG_PACKAGE_luci-app-samba4=y" >> ../../.config
+                  # 尝试克隆 luci-app-samba4（如果存在）
+                  git clone --depth=1 https://github.com/sbwml/luci-app-samba4.git 2>/dev/null || echo "luci-app-samba4 仓库可能不存在，依赖 feeds 中的 samba4"
+                  ;;
+                webdav)
+                  git clone --depth=1 https://github.com/sbwml/luci-app-webdav.git
+                  ;;
+                lucky)
+                  git clone --depth=1 https://github.com/sbwml/luci-app-lucky.git
                   ;;
                 *)
-                  echo "未知插件：$PLUGIN，跳过"
+                  echo "未知插件：$PLUGIN，尝试通用克隆..."
+                  # 尝试通用仓库模式
+                  if git clone --depth=1 "https://github.com/sbwml/luci-app-${PLUGIN}.git" 2>/dev/null; then
+                    echo "✅ 通用克隆成功: luci-app-${PLUGIN}"
+                  elif git clone --depth=1 "https://github.com/sirpdboy/luci-app-${PLUGIN}.git" 2>/dev/null; then
+                    echo "✅ 通用克隆成功 (sirpdboy): luci-app-${PLUGIN}"
+                  else
+                    echo "⚠️  无法克隆插件 ${PLUGIN}，尝试直接添加配置"
+                    echo "CONFIG_PACKAGE_luci-app-${PLUGIN}=y" >> ../../.config
+                  fi
                   ;;
               esac
             done
@@ -420,8 +438,14 @@ jobs:
           
           # 显示配置摘要
           echo ""
-          echo "已启用的主要插件:"
-          grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | head -20
+          echo "📦 已启用的主要插件:"
+          grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | sort
+          
+          echo ""
+          echo "🔍 插件配置详细状态:"
+          echo "总数: $(grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | wc -l) 个插件"
+          echo "被禁用的插件:"
+          grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=n" | sort | head -10
           
           echo ""
           echo "🌐 语言包配置状态:"
