@@ -302,97 +302,111 @@ jobs:
               echo ".config 文件已存在"
           fi
           
+          # 检查插件仓库映射文件
+          echo "检查插件仓库映射文件..."
+          REPO_MAP="$GITHUB_WORKSPACE/plugin-repos.json"
+          if [ ! -f "$REPO_MAP" ]; then
+              echo "❌ 插件仓库映射文件不存在: $REPO_MAP"
+              exit 1
+          fi
+          
           # 解析插件列表
           if [ -n "$PLUGIN_LIST" ]; then
             IFS=',' read -ra PLUGINS <<< "$PLUGIN_LIST"
             
             for PLUGIN in "${PLUGINS[@]}"; do
-              echo "安装插件：$PLUGIN"
+              echo "=== 处理插件: $PLUGIN ==="
               
               # 清理插件名称（移除可能的 luci-app- 前缀）
               CLEAN_PLUGIN=$(echo "$PLUGIN" | sed -e 's/^luci-app-//' -e 's/^luci-//')
-              echo "清理后插件名称：$CLEAN_PLUGIN"
               
-              # 根据插件名称克隆对应的仓库
-              case $CLEAN_PLUGIN in
-                openclash)
-                  git clone --depth=1 https://github.com/vernesong/OpenClash.git
-                  ;;
-                passwall)
-                  git clone --depth=1 https://github.com/Openwrt-Passwall/openwrt-passwall.git
-                  ;;
-                passwall2)
-                  git clone --depth=1 https://github.com/Openwrt-Passwall/openwrt-passwall2.git
-                  ;;
-                homeproxy)
-                  git clone --depth=1 https://github.com/VIKINGYFY/homeproxy.git
-                  ;;
-                diskman)
-                  git clone --depth=1 https://github.com/lisaac/luci-app-diskman.git
-                  ;;
-                tailscale)
-                  git clone --depth=1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community.git
-                  ;;
-                ddns-go)
-                  git clone --depth=1 https://github.com/sirpdboy/luci-app-ddns-go.git
-                  ;;
-                aria2)
-                  git clone --depth=1 https://github.com/sbwml/luci-app-aria2.git
-                  ;;
-                qbittorrent)
-                  git clone --depth=1 https://github.com/sbwml/luci-app-qbittorrent.git
-                  ;;
-                easytier)
-                  git clone --depth=1 https://github.com/EasyTier/luci-app-easytier.git
-                  ;;
-                vnt)
-                  git clone --depth=1 https://github.com/lmq8267/luci-app-vnt.git
-                  ;;
-                samba4)
-                  # samba4 可能在 feeds 中已存在，但为了确保添加 luci 界面
-                  echo "CONFIG_PACKAGE_luci-app-samba4=y" >> ../.config
-                  # 尝试克隆 luci-app-samba4（如果存在）
-                  git clone --depth=1 https://github.com/sbwml/luci-app-samba4.git 2>/dev/null || echo "luci-app-samba4 仓库可能不存在，依赖 feeds 中的 samba4"
-                  ;;
-                webdav)
-                  git clone --depth=1 https://github.com/sbwml/luci-app-webdav.git
-                  ;;
-                lucky)
-                  git clone --depth=1 https://github.com/sbwml/luci-app-lucky.git
-                  ;;
-                *)
-                  echo "未知插件：$PLUGIN，尝试通用克隆..."
-                  # 确定配置选项名称（确保有 luci-app- 前缀）
-                  if [[ "$PLUGIN" =~ ^luci-app- ]]; then
-                    CONFIG_NAME="$PLUGIN"
-                  elif [[ "$PLUGIN" =~ ^luci- ]]; then
-                    CONFIG_NAME="app-${PLUGIN}"
-                  else
-                    CONFIG_NAME="luci-app-${PLUGIN}"
-                  fi
+              # 从映射文件获取仓库地址
+              REPO_URL=$(jq -r --arg pkg "$PLUGIN" '.[$pkg]' "$REPO_MAP" 2>/dev/null || echo "")
+              
+              if [ -z "$REPO_URL" ] || [ "$REPO_URL" = "null" ]; then
+                echo "⚠️  插件 $PLUGIN 没有仓库映射，尝试通用克隆..."
+                
+                # 确定配置选项名称（确保有 luci-app- 前缀）
+                if [[ "$PLUGIN" =~ ^luci-app- ]]; then
+                  CONFIG_NAME="$PLUGIN"
+                elif [[ "$PLUGIN" =~ ^luci- ]]; then
+                  CONFIG_NAME="app-${PLUGIN}"
+                else
+                  CONFIG_NAME="luci-app-${PLUGIN}"
+                fi
+                
+                # 尝试通用仓库模式（使用清理后的名称）
+                GENERIC_PATTERNS=$(jq -r '.generic_patterns[]' "$REPO_MAP" 2>/dev/null)
+                CLONED=false
+                
+                for pattern in $GENERIC_PATTERNS; do
+                  REPO_URL=$(echo "$pattern" | sed "s/{plugin}/$CLEAN_PLUGIN/g")
+                  echo "尝试通用地址: $REPO_URL"
                   
-                  # 尝试通用仓库模式（使用清理后的名称）
-                  if git clone --depth=1 "https://github.com/sbwml/luci-app-${CLEAN_PLUGIN}.git" 2>/dev/null; then
-                    echo "✅ 通用克隆成功: luci-app-${CLEAN_PLUGIN}"
-                  elif git clone --depth=1 "https://github.com/sirpdboy/luci-app-${CLEAN_PLUGIN}.git" 2>/dev/null; then
-                    echo "✅ 通用克隆成功 (sirpdboy): luci-app-${CLEAN_PLUGIN}"
-                  else
-                    echo "⚠️  无法克隆插件 ${CLEAN_PLUGIN}，尝试直接添加配置"
-                    echo "CONFIG_PACKAGE_${CONFIG_NAME}=y" >> ../.config
+                  if git clone --depth=1 "$REPO_URL" 2>/dev/null; then
+                    echo "✅ 通用克隆成功: $PLUGIN"
+                    CLONED=true
+                    break
                   fi
-                  ;;
-              esac
+                done
+                
+                if [ "$CLONED" = false ]; then
+                  echo "⚠️  无法克隆插件 ${PLUGIN}，尝试直接添加配置"
+                  echo "CONFIG_PACKAGE_${CONFIG_NAME}=y" >> ../.config
+                fi
+              else
+                echo "仓库地址: $REPO_URL"
+                
+                # 特殊处理 samba4（可能在 feeds 中已存在）
+                if [[ "$PLUGIN" =~ samba4 ]]; then
+                  echo "CONFIG_PACKAGE_${PLUGIN}=y" >> ../.config
+                  git clone --depth=1 "$REPO_URL" 2>/dev/null || echo "samba4 仓库可能不存在，依赖 feeds 中的 samba4"
+                else
+                  # 克隆仓库
+                  if git clone --depth=1 "$REPO_URL"; then
+                    echo "✅ 克隆成功: $PLUGIN"
+                  else
+                    echo "❌ 克隆失败: $PLUGIN"
+                    echo "CONFIG_PACKAGE_${PLUGIN}=y" >> ../.config
+                  fi
+                fi
+              fi
+              
+              echo ""
             done
+          else
+            echo "⚠️  没有插件需要安装"
           fi
           
           # 安装主题
           THEME="${{ inputs.THEME }}"
-          if [ "$THEME" = "argon" ]; then
-            git clone --depth=1 https://github.com/sbwml/luci-theme-argon.git
-          elif [ "$THEME" = "aurora" ]; then
-            git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora.git
-          elif [ "$THEME" = "kucat" ]; then
-            git clone --depth=1 https://github.com/sirpdboy/luci-theme-kucat.git
+          if [ -n "$THEME" ]; then
+            echo "=== 安装主题: $THEME ==="
+            
+            # 从映射文件获取主题仓库地址
+            THEME_PKG="luci-theme-${THEME}"
+            THEME_REPO=$(jq -r --arg pkg "$THEME_PKG" '.[$pkg]' "$REPO_MAP" 2>/dev/null || echo "")
+            
+            if [ -z "$THEME_REPO" ] || [ "$THEME_REPO" = "null" ]; then
+              echo "⚠️  无法获取主题 $THEME 的仓库地址，使用默认地址"
+              case "$THEME" in
+                "argon")
+                  git clone --depth=1 https://github.com/sbwml/luci-theme-argon.git
+                  ;;
+                "aurora")
+                  git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora.git
+                  ;;
+                "kucat")
+                  git clone --depth=1 https://github.com/sirpdboy/luci-app-kucat.git 2>/dev/null || git clone --depth=1 https://github.com/sirpdboy/luci-theme-kucat.git
+                  ;;
+                *)
+                  echo "⚠️  未知主题: $THEME"
+                  ;;
+              esac
+            else
+              echo "主题仓库地址: $THEME_REPO"
+              git clone --depth=1 "$THEME_REPO" || echo "主题克隆失败"
+            fi
           fi
 
       - name: Generate Configuration
