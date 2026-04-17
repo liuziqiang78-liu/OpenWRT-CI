@@ -235,6 +235,27 @@ jobs:
           
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+      - name: Add Chinese language configuration files
+        run: |
+          echo "添加中文语言配置文件..."
+          cd ./wrt/
+          
+          # 复制自定义文件到 OpenWRT 文件系统
+          if [ -d "$GITHUB_WORKSPACE/files" ]; then
+            echo "复制自定义文件..."
+            cp -rf $GITHUB_WORKSPACE/files/* ./files/
+            
+            # 确保脚本可执行
+            if [ -f "./files/etc/uci-defaults/99-set-chinese-language" ]; then
+              chmod +x ./files/etc/uci-defaults/99-set-chinese-language
+              echo "已设置中文语言配置脚本"
+            fi
+          else
+            echo "⚠️ 自定义文件目录不存在，跳过"
+          fi
+          
+          echo "✅ 中文配置文件添加完成"
+
       - name: Update Feeds
         run: |
           cd ./wrt/
