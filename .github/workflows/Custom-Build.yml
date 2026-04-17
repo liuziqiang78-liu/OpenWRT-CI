@@ -351,11 +351,20 @@ jobs:
             fi
           done
           
-          # 添加中文语言支持
-          echo "# 中文语言支持" >> .config
+          make defconfig -j$(nproc)
+          
+          echo ""
+          echo "🔧 添加中文语言支持..."
+          
+          # 在 defconfig 后添加中文语言包（防止被覆盖）
+          # 首先尝试添加基础中文语言包
           echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
           
-          # 为已启用的插件添加对应的中文语言包
+          # 尝试添加其他可能的中文语言包
+          echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+          
+          # 添加插件的中文语言包
           echo "CONFIG_PACKAGE_luci-i18n-autoreboot-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-netspeedtest-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y" >> .config
@@ -369,12 +378,9 @@ jobs:
           echo "CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-lucky-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-easytier-zh-cn=y" >> .config
           
-          # 设置默认语言环境为中文
-          echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
-          echo "CONFIG_DEFAULT_luci-i18n-base-zh-cn=y" >> .config
-          
-          make defconfig -j$(nproc)
+          echo "✅ 中文语言配置已添加"
 
       - name: Show Configuration
         run: |
@@ -393,6 +399,15 @@ jobs:
           echo ""
           echo "已启用的主要插件:"
           grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | head -20
+          
+          echo ""
+          echo "🌐 语言包配置状态:"
+          echo "中文语言包:"
+          grep -E "CONFIG_PACKAGE_luci-i18n.*(zh-cn|zh_Hans)" ./wrt/.config | grep "=y" | sort || echo "未找到中文语言包配置"
+          
+          echo ""
+          echo "📋 完整配置中的语言相关设置:"
+          grep -i "lang\|locale\|language\|i18n" ./wrt/.config | head -15 || true
 
 
 
