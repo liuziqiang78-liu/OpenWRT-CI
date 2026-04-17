@@ -350,10 +350,19 @@ jobs:
           echo "已启用的主要插件:"
           grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | head -20
 
-      - name: Fix hostapd compile error (he_mu_edca)
+
+
+      - name: Download Packages
+        if: inputs.TEST_MODE == false
+        run: |
+          cd ./wrt/
+          make download -j$(nproc) V=s
+
+      - name: Fix hostapd compile error (after download)
+        if: inputs.TEST_MODE == false
         run: |
           echo "======================================"
-          echo "🔧 修复 hostapd 编译错误"
+          echo "🔧 修复 hostapd 编译错误 (下载后修复)"
           echo "======================================"
           echo "错误信息: 'struct hostapd_config' has no member named 'he_mu_edca'"
           echo "修复方法: 添加条件编译守卫 #ifdef CONFIG_IEEE80211AX"
@@ -361,26 +370,21 @@ jobs:
           
           cd ./wrt/
           
-          # 方法1: 查找并直接修改 hostapd.c
+          # 方法1: 查找并直接修改 hostapd.c (现在应该已经下载)
           echo ""
           echo "🔍 查找 hostapd.c 文件..."
-          HOSTAPD_PATHS=(
-            "./build_dir/target-aarch64_cortex-a53_musl/hostapd-wpad-full-openssl/hostapd-*/src/ap/hostapd.c"
-            "./package/network/services/hostapd/files/src/ap/hostapd.c"
-            "./feeds/packages/net/hostapd/files/src/ap/hostapd.c"
-          )
+          # 在 build_dir 中查找最新的 hostapd 目录
+          HOSTAPD_DIR=$(find ./build_dir -type d -name "hostapd-*" -o -name "hostapd-wpad-*" | grep -v ".backup" | head -1)
+          if [ -n "$HOSTAPD_DIR" ]; then
+            echo "找到 hostapd 目录: $HOSTAPD_DIR"
+            HOSTAPD_FOUND=$(find "$HOSTAPD_DIR" -name "hostapd.c" -type f | head -1)
+          else
+            # 备用查找路径
+            HOSTAPD_FOUND=$(find . -type f -name "hostapd.c" -path "*/hostapd-*" -o -path "*/hostapd-wpad-*" | grep -v ".backup" | head -1)
+          fi
           
-          HOSTAPD_FOUND=""
-          for pattern in "${HOSTAPD_PATHS[@]}"; do
-            found_path=$(find . -path "$pattern" -type f 2>/dev/null | head -1)
-            if [ -n "$found_path" ] && [ -f "$found_path" ]; then
-              HOSTAPD_FOUND="$found_path"
-              echo "✅ 找到文件: $HOSTAPD_FOUND"
-              break
-            fi
-          done
-          
-          if [ -n "$HOSTAPD_FOUND" ]; then
+          if [ -n "$HOSTAPD_FOUND" ] && [ -f "$HOSTAPD_FOUND" ]; then
+            echo "✅ 找到文件: $HOSTAPD_FOUND"
             echo "📝 备份原文件..."
             BACKUP_PATH="${HOSTAPD_FOUND}.backup.$(date +%s)"
             cp "$HOSTAPD_FOUND" "$BACKUP_PATH"
@@ -399,7 +403,7 @@ jobs:
               echo "⚠️  未找到需要修复的行，可能文件结构不同"
             fi
           else
-            echo "⚠️  未找到 hostapd.c 文件"
+            echo "⚠️  未找到 hostapd.c 文件，使用配置修复"
           fi
           
           # 方法2: 在配置中启用 802.11ax（确保编译通过）
@@ -428,14 +432,8 @@ jobs:
           
           echo ""
           echo "======================================"
-          echo "✅ 修复步骤完成"
+          echo "✅ 修复步骤完成，继续编译..."
           echo "======================================"
-
-      - name: Download Packages
-        if: inputs.TEST_MODE == false
-        run: |
-          cd ./wrt/
-          make download -j$(nproc) V=s
 
       - name: Compile Firmware
         if: inputs.TEST_MODE == false
@@ -446,6 +444,9 @@ jobs:
       - name: Package Firmware
         if: inputs.TEST_MODE == false
         run: |
+          # 设置环境变量用于发布标签
+          echo "TAG_NAME=Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+          
           cd ./wrt/ && mkdir ./upload/
           
           # 保存配置
@@ -467,7 +468,7 @@ jobs:
           
           **编译时间**: $(date '+%Y-%m-%d %H:%M:%S')
           **源码**: ${{ inputs.WRT_SOURCE }}
-          **分支**: ${{ inputs.WRT_BRANCH }}
+          **分支**: ${{ inputs.TARGET_PLATFORM }}
           **平台**: ${{ inputs.TARGET_PLATFORM }}
           **主题**: ${{ inputs.THEME }}
           
@@ -484,7 +485,7 @@ jobs:
         if: inputs.TEST_MODE == false
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)
+          tag_name: ${{ env.TAG_NAME }}
           files: ./wrt/upload/*.*
           body_path: ./wrt/upload/FIRMWARE_INFO.md
           generate_release_notes: true
