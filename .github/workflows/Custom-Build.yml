@@ -421,14 +421,13 @@ jobs:
           echo "🔧 添加中文语言支持..."
           
           # 在 defconfig 后添加中文语言包（防止被覆盖）
-          # 首先尝试添加基础中文语言包
+          # 尝试多种中文语言包命名变体
           echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
-          
-          # 尝试添加其他可能的中文语言包
           echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-base-zh_cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn_gb=y" >> .config
           
-          # 添加插件的中文语言包
+          # 添加插件的中文语言包（如果存在）
           echo "CONFIG_PACKAGE_luci-i18n-autoreboot-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-netspeedtest-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y" >> .config
@@ -443,6 +442,12 @@ jobs:
           echo "CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-lucky-zh-cn=y" >> .config
           echo "CONFIG_PACKAGE_luci-i18n-easytier-zh-cn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-i18n-webdav-zh-cn=y" >> .config
+          
+          # 设置默认语言为中文
+          echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
+          echo "CONFIG_DEFAULT_luci-i18n-base-zh-cn=y" >> .config
+          echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
           
           echo "✅ 中文语言配置已添加"
 
