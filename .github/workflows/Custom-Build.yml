@@ -434,28 +434,58 @@ jobs:
           echo ""
           echo "🔧 配置中文语言支持..."
           
-          # 重要：不再添加编译时的中文语言包，避免依赖问题
-          # 原因：immortalwrt 源中的中文语言包可能不存在或与架构不兼容
-          # 替代方案：使用预配置文件和首次启动脚本设置中文界面
-          echo "# 中文语言支持已禁用编译时配置" >> .config
-          echo "# 使用预配置文件和首次启动脚本设置中文界面" >> .config
+          # 智能检测并添加中文语言包
+          echo "搜索可用的中文语言包..."
           
-          # 检查是否存在中文语言包文件
-          echo "检查中文语言包..."
-          if find ./feeds -name "*zh-cn*" -o -name "*zh_Hans*" 2>/dev/null | grep -q .; then
-            echo "# 检测到中文语言包，但为避免依赖问题，不启用编译时配置" >> .config
+          # 方法1：检查 feeds 中是否存在 luci-i18n-base-zh-cn
+          ZH_CN_PACKAGE_FOUND=false
+          ZH_HANS_PACKAGE_FOUND=false
+          
+          # 搜索 base 语言包（最基础的）
+          if find ./feeds -name "Makefile" -type f -exec grep -l "PKG_NAME:=luci-i18n-base-zh-cn" {} \; 2>/dev/null | grep -q .; then
+            echo "✅ 发现 luci-i18n-base-zh-cn 语言包"
+            ZH_CN_PACKAGE_FOUND=true
+            echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
           else
-            echo "# 未检测到中文语言包，完全依赖运行时配置" >> .config
+            echo "⚠️  未找到 luci-i18n-base-zh-cn"
           fi
           
-          # 仍然设置默认语言配置（这些配置应该存在）
+          # 搜索 zh_Hans 变体
+          if find ./feeds -name "Makefile" -type f -exec grep -l "PKG_NAME:=luci-i18n-base-zh_Hans" {} \; 2>/dev/null | grep -q .; then
+            echo "✅ 发现 luci-i18n-base-zh_Hans 语言包"
+            ZH_HANS_PACKAGE_FOUND=true
+            echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
+          else
+            echo "⚠️  未找到 luci-i18n-base-zh_Hans"
+          fi
+          
+          # 如果都没有找到，尝试搜索其他基础语言包变体
+          if [ "$ZH_CN_PACKAGE_FOUND" = false ] && [ "$ZH_HANS_PACKAGE_FOUND" = false ]; then
+            echo "搜索其他中文语言包变体..."
+            OTHER_ZH_PACKAGE=$(find ./feeds -name "Makefile" -type f -exec grep -l "zh-cn\|zh_Hans\|zh_CN" {} \; 2>/dev/null | head -1 | xargs grep -o "PKG_NAME:=luci-i18n-[^ ]*" 2>/dev/null | head -1 | cut -d: -f2 || echo "")
+            
+            if [ -n "$OTHER_ZH_PACKAGE" ]; then
+              echo "✅ 发现可用的中文语言包: $OTHER_ZH_PACKAGE"
+              echo "CONFIG_PACKAGE_${OTHER_ZH_PACKAGE}=y" >> .config
+            else
+              echo "❌ 未找到任何中文语言包，界面将显示英文"
+              echo "# 警告：未找到中文语言包，界面将显示英文" >> .config
+            fi
+          fi
+          
+          # 设置默认语言配置
           echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
           echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
           
-          # 注意：luci-i18n-base-zh-cn 可能不存在，所以不添加
-          # 使用 files/etc/uci-defaults/99-set-chinese-language 设置中文
+          # 记录语言包状态
+          if [ "$ZH_CN_PACKAGE_FOUND" = true ] || [ "$ZH_HANS_PACKAGE_FOUND" = true ]; then
+            echo "✅ 中文语言包已配置"
+          else
+            echo "⚠️  未配置中文语言包，界面可能显示英文"
+            echo "# 未找到中文语言包，依赖预配置文件和首次启动脚本" >> .config
+          fi
           
-          echo "✅ 中文语言配置已完成（使用运行时配置，避免编译时依赖问题）"
+          echo "✅ 中文语言配置已完成"
 
       - name: Show Configuration
         run: |

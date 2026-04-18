@@ -67,7 +67,43 @@ fi
 
 # Verify Chinese language packages are installed
 echo "Checking Chinese language packages:" >> $LOG_FILE
-opkg list-installed | grep -i "zh-cn\|zh_CN\|i18n.*zh" >> $LOG_FILE 2>/dev/null || echo "No Chinese language packages found" >> $LOG_FILE
+CHINESE_PACKAGES=$(opkg list-installed | grep -i "zh-cn\|zh_CN\|i18n.*zh" 2>/dev/null || echo "No Chinese language packages found")
+echo "$CHINESE_PACKAGES" >> $LOG_FILE
+
+# If no Chinese language packages found, try to install them
+if echo "$CHINESE_PACKAGES" | grep -q "No Chinese language packages found"; then
+    echo "尝试安装中文语言包..." >> $LOG_FILE
+    echo "第一步：更新软件包列表" >> $LOG_FILE
+    opkg update 2>&1 >> $LOG_FILE || echo "opkg update failed" >> $LOG_FILE
+    
+    echo "第二步：搜索可用的中文语言包" >> $LOG_FILE
+    AVAILABLE_PACKAGES=$(opkg list | grep -i "luci-i18n.*zh\|zh-cn\|zh_CN" 2>/dev/null | head -10)
+    echo "可用的中文包:" >> $LOG_FILE
+    echo "$AVAILABLE_PACKAGES" >> $LOG_FILE
+    
+    # Try to install base Chinese language package
+    echo "第三步：尝试安装基础中文语言包" >> $LOG_FILE
+    if echo "$AVAILABLE_PACKAGES" | grep -q "luci-i18n-base-zh-cn"; then
+        opkg install luci-i18n-base-zh-cn 2>&1 >> $LOG_FILE && echo "✅ 安装成功: luci-i18n-base-zh-cn" >> $LOG_FILE || echo "❌ 安装失败" >> $LOG_FILE
+    elif echo "$AVAILABLE_PACKAGES" | grep -q "luci-i18n-base-zh_Hans"; then
+        opkg install luci-i18n-base-zh_Hans 2>&1 >> $LOG_FILE && echo "✅ 安装成功: luci-i18n-base-zh_Hans" >> $LOG_FILE || echo "❌ 安装失败" >> $LOG_FILE
+    else
+        echo "⚠️  没有找到基础中文语言包" >> $LOG_FILE
+        
+        # Try to install any Chinese language package
+        FIRST_ZH_PACKAGE=$(echo "$AVAILABLE_PACKAGES" | head -1 | cut -d' ' -f1)
+        if [ -n "$FIRST_ZH_PACKAGE" ]; then
+            echo "尝试安装: $FIRST_ZH_PACKAGE" >> $LOG_FILE
+            opkg install "$FIRST_ZH_PACKAGE" 2>&1 >> $LOG_FILE && echo "✅ 安装成功: $FIRST_ZH_PACKAGE" >> $LOG_FILE || echo "❌ 安装失败" >> $LOG_FILE
+        fi
+    fi
+    
+    # Check again after installation attempt
+    echo "安装后检查:" >> $LOG_FILE
+    opkg list-installed | grep -i "zh-cn\|zh_CN\|i18n.*zh" 2>/dev/null >> $LOG_FILE || echo "仍然没有中文语言包" >> $LOG_FILE
+else
+    echo "✅ 中文语言包已安装" >> $LOG_FILE
+fi
 
 # Set permissions
 chmod 644 /etc/config/luci 2>/dev/null || true
@@ -75,7 +111,24 @@ chmod 644 /etc/config/luci 2>/dev/null || true
 echo "Chinese language configuration completed at $(date)" >> $LOG_FILE
 echo "Log saved to: $LOG_FILE"
 
-# Cleanup - remove this script after successful run
-rm -f /etc/uci-defaults/99-set-chinese-language
+# Create a user-friendly message
+echo ""
+echo "=================================================================="
+echo "中文语言配置报告"
+echo "=================================================================="
+cat $LOG_FILE | tail -30
+echo "=================================================================="
+echo "如果界面仍然显示英文，请尝试以下方法:"
+echo "1. 在Luci界面中手动设置语言: System -> System -> Language"
+echo "2. 通过SSH连接并运行: opkg update && opkg install luci-i18n-base-zh-cn"
+echo "3. 或运行: /usr/lib/lua/luci/sys/zoneinfo/tzdata.lua"
+echo "=================================================================="
+
+# Don't remove the script immediately - keep it for troubleshooting
+# Instead, rename it so it doesn't run again but can be inspected
+if [ -f /etc/uci-defaults/99-set-chinese-language ]; then
+    mv /etc/uci-defaults/99-set-chinese-language /etc/uci-defaults/99-set-chinese-language.done
+    echo "脚本已重命名为 .done，不会再次执行" >> $LOG_FILE
+fi
 
 exit 0
