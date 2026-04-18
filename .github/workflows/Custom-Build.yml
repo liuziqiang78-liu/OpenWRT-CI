@@ -18,7 +18,7 @@ on:
       
       # 源码分支
       WRT_BRANCH:
-        description: '源码分支'
+        description: '源码分支 (对于 VIKINGYFY/immortalwrt 推荐使用 "owrt" 分支)'
         required: true
         default: 'main'
         type: string
@@ -230,6 +230,12 @@ jobs:
           echo "源码：${{ inputs.WRT_SOURCE }}"
           echo "分支：${{ inputs.WRT_BRANCH }}"
           
+          # 检查 VIKINGYFY 源码推荐分支
+          if [[ "${{ inputs.WRT_SOURCE }}" == "VIKINGYFY/immortalwrt" && "${{ inputs.WRT_BRANCH }}" == "main" ]]; then
+            echo "⚠️  警告：VIKINGYFY/immortalwrt 推荐使用 'owrt' 分支以获得完整中文支持"
+            echo "ℹ️  当前使用 'main' 分支，中文语言包可能不完整"
+          fi
+          
           git clone --depth=1 --single-branch --branch ${{ inputs.WRT_BRANCH }} \
             https://github.com/${{ inputs.WRT_SOURCE }}.git ./wrt/
           
@@ -413,6 +419,9 @@ jobs:
         run: |
           cd ./wrt/
           
+          # 设置主题变量
+          THEME="${{ inputs.THEME }}"
+          
           # 使用基础配置
           cat $GITHUB_WORKSPACE/Config/${{ needs.parse-config.outputs.config-file }}.txt > .config
           cat $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
@@ -474,8 +483,14 @@ jobs:
           fi
           
           # 设置默认语言配置
-          echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
+          echo "CONFIG_DEFAULT_luci-theme-${THEME:-argon}=y" >> .config
           echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
+          
+          # 关键：编译时包含中文语言包 (VIKINGYFY 配置)
+          echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
+          
+          # 主题关联配置
+          echo "CONFIG_PACKAGE_luci-app-${THEME:-argon}-config=y" >> .config
           
           # 记录语言包状态
           if [ "$ZH_CN_PACKAGE_FOUND" = true ] || [ "$ZH_HANS_PACKAGE_FOUND" = true ]; then
