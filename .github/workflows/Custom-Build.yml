@@ -479,6 +479,11 @@ jobs:
             else
               echo "❌ 未找到任何中文语言包，界面将显示英文"
               echo "# 警告：未找到中文语言包，界面将显示英文" >> .config
+              
+              # 强制尝试添加基础中文语言包配置（可能无效，但尝试）
+              echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
+              echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+              echo "⚠️  已强制添加中文语言包配置，实际效果依赖 feeds 是否存在"
             fi
           fi
           
