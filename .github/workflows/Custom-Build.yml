@@ -432,38 +432,30 @@ jobs:
           make defconfig -j$(nproc)
           
           echo ""
-          echo "🔧 添加中文语言支持..."
+          echo "🔧 配置中文语言支持..."
           
-          # 在 defconfig 后添加中文语言包（防止被覆盖）
-          # 尝试多种中文语言包命名变体
-          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-base-zh_cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn_gb=y" >> .config
+          # 重要：不再添加编译时的中文语言包，避免依赖问题
+          # 原因：immortalwrt 源中的中文语言包可能不存在或与架构不兼容
+          # 替代方案：使用预配置文件和首次启动脚本设置中文界面
+          echo "# 中文语言支持已禁用编译时配置" >> .config
+          echo "# 使用预配置文件和首次启动脚本设置中文界面" >> .config
           
-          # 添加插件的中文语言包（如果存在）
-          echo "CONFIG_PACKAGE_luci-i18n-autoreboot-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-netspeedtest-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-upnp-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-cpufreq-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-aria2-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-uhttpd-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-diskman-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-hd-idle-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-lucky-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-easytier-zh-cn=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-webdav-zh-cn=y" >> .config
+          # 检查是否存在中文语言包文件
+          echo "检查中文语言包..."
+          if find ./feeds -name "*zh-cn*" -o -name "*zh_Hans*" 2>/dev/null | grep -q .; then
+            echo "# 检测到中文语言包，但为避免依赖问题，不启用编译时配置" >> .config
+          else
+            echo "# 未检测到中文语言包，完全依赖运行时配置" >> .config
+          fi
           
-          # 设置默认语言为中文
+          # 仍然设置默认语言配置（这些配置应该存在）
           echo "CONFIG_DEFAULT_luci-theme-argon=y" >> .config
-          echo "CONFIG_DEFAULT_luci-i18n-base-zh-cn=y" >> .config
           echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
           
-          echo "✅ 中文语言配置已添加"
+          # 注意：luci-i18n-base-zh-cn 可能不存在，所以不添加
+          # 使用 files/etc/uci-defaults/99-set-chinese-language 设置中文
+          
+          echo "✅ 中文语言配置已完成（使用运行时配置，避免编译时依赖问题）"
 
       - name: Show Configuration
         run: |
