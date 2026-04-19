@@ -1,0 +1,8 @@
+{
+    "name": "FullCombo",
+    "package": "luci-app-fc",
+    "description": "全能代理",
+    "features": "全能协议、一键配置、智能分流",
+    "category": "proxy",
+    "repository": "https://github.com/sbwml/luci-app-fc.git"
+}

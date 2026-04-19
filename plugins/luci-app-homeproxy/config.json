@@ -1,0 +1,8 @@
+{
+    "name": "HomeProxy",
+    "package": "luci-app-homeproxy",
+    "description": "高性能代理工具",
+    "features": "支持多种协议、高性能转发、规则分流、日志记录",
+    "category": "proxy",
+    "repository": "https://github.com/VIKINGYFY/homeproxy.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "IPTV",
+    "package": "luci-app-iptvhelper",
+    "description": "IPTV 助手",
+    "features": "IPTV 组播",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-iptvhelper.git"
+}

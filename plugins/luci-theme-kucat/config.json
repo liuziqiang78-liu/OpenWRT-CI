@@ -1,0 +1,8 @@
+{
+    "name": "Kucat",
+    "package": "luci-theme-kucat",
+    "description": "可爱主题",
+    "features": "多彩配色",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-kucat.git"
+}

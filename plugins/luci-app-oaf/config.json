@@ -1,0 +1,8 @@
+{
+    "name": "OAF",
+    "package": "luci-app-oaf",
+    "description": "应用过滤",
+    "features": "应用识别",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-oaf.git"
+}

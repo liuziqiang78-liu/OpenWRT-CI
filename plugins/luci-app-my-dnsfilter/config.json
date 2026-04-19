@@ -1,0 +1,8 @@
+{
+    "name": "DNSFilter",
+    "package": "luci-app-my-dnsfilter",
+    "description": "DNS 去广告",
+    "features": "DNS 过滤",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-my-dnsfilter.git"
+}

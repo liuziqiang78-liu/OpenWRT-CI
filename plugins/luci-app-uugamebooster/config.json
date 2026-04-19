@@ -1,0 +1,8 @@
+{
+    "name": "UUGameBooster",
+    "package": "luci-app-uugamebooster",
+    "description": "UU 加速器",
+    "features": "游戏加速",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-uugamebooster.git"
+}

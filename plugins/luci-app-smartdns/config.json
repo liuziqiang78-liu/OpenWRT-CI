@@ -1,0 +1,8 @@
+{
+    "name": "SmartDNS",
+    "package": "luci-app-smartdns",
+    "description": "智能 DNS",
+    "features": "多上游 DNS",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-smartdns.git"
+}

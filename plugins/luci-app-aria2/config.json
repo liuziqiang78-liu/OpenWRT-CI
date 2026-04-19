@@ -1,0 +1,8 @@
+{
+    "name": "Aria2",
+    "package": "luci-app-aria2",
+    "description": "下载工具",
+    "features": "HTTP/FTP/BT 下载",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-aria2.git"
+}

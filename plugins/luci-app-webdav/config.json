@@ -1,0 +1,8 @@
+{
+    "name": "WebDAV",
+    "package": "luci-app-webdav",
+    "description": "WebDAV 服务",
+    "features": "WebDAV 协议",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-webdav.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "NLBWmon",
+    "package": "luci-app-nlbwmon",
+    "description": "流量统计",
+    "features": "按 IP 统计",
+    "category": "network",
+    "repository": "https://github.com/jow-/luci-app-nlbwmon.git"
+}

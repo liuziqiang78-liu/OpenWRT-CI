@@ -1,0 +1,8 @@
+{
+    "name": "Automount",
+    "package": "automount",
+    "description": "自动挂载",
+    "features": "USB 热插拔",
+    "category": "system",
+    "repository": "https://github.com/sbwml/automount.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "FRPC",
+    "package": "luci-app-frpc",
+    "description": "FRP 客户端",
+    "features": "内网穿透",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-frpc.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Material",
+    "package": "luci-theme-material",
+    "description": "Material 设计",
+    "features": "卡片布局",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-material.git"
+}

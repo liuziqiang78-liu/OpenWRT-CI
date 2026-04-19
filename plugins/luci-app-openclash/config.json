@@ -1,0 +1,8 @@
+{
+    "name": "OpenClash",
+    "package": "luci-app-openclash",
+    "description": "Clash 客户端",
+    "features": "规则代理、节点切换、流量统计、订阅管理",
+    "category": "proxy",
+    "repository": "https://github.com/vernesong/OpenClash.git"
+}

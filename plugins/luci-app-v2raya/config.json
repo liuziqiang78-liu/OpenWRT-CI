@@ -1,0 +1,8 @@
+{
+    "name": "v2rayA",
+    "package": "luci-app-v2raya",
+    "description": "v2rayA 客户端",
+    "features": "v2ray 核心、Web 管理",
+    "category": "proxy",
+    "repository": "https://github.com/v2raya/v2raya.git"
+}

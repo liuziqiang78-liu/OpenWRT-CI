@@ -1,0 +1,8 @@
+{
+    "name": "PassWall2",
+    "package": "luci-app-passwall2",
+    "description": "PassWall 新版",
+    "features": "新版架构、更好性能",
+    "category": "proxy",
+    "repository": "https://github.com/Openwrt-Passwall/openwrt-passwall2.git"
+}

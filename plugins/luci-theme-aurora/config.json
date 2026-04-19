@@ -1,0 +1,8 @@
+{
+    "name": "Aurora",
+    "package": "luci-theme-aurora",
+    "description": "极光主题",
+    "features": "渐变效果",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-aurora.git"
+}

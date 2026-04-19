@@ -1,0 +1,8 @@
+{
+    "name": "DiskMan",
+    "package": "luci-app-diskman",
+    "description": "磁盘管理",
+    "features": "分区管理、格式化、S.M.A.R.T",
+    "category": "storage",
+    "repository": "https://github.com/lisaac/luci-app-diskman.git"
+}

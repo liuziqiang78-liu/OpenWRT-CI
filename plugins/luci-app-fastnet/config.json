@@ -1,0 +1,8 @@
+{
+    "name": "FastNet",
+    "package": "luci-app-fastnet",
+    "description": "网络测速",
+    "features": "速度测试",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-fastnet.git"
+}

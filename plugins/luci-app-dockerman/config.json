@@ -1,0 +1,8 @@
+{
+    "name": "Docker",
+    "package": "luci-app-dockerman",
+    "description": "Docker 管理",
+    "features": "容器管理",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-dockerman.git"
+}

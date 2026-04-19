@@ -1,0 +1,8 @@
+{
+    "name": "VNT",
+    "package": "luci-app-vnt",
+    "description": "VNT 组网",
+    "features": "异地组网",
+    "category": "network",
+    "repository": "https://github.com/lmq8267/luci-app-vnt.git"
+}

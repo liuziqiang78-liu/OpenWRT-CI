@@ -1,0 +1,8 @@
+{
+    "name": "Routerich",
+    "package": "luci-theme-routerich",
+    "description": "Routerich",
+    "features": "商务风格",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-routerich.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "CUPS",
+    "package": "luci-app-cupsd",
+    "description": "打印服务",
+    "features": "网络打印",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-cupsd.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Netdata",
+    "package": "luci-app-netdata",
+    "description": "性能监测",
+    "features": "实时监控",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-netdata.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "ACME",
+    "package": "luci-app-acme",
+    "description": "HTTPS 证书",
+    "features": "自动续签",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-acme.git"
+}

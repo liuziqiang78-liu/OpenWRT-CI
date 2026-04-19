@@ -1,0 +1,8 @@
+{
+    "name": "Material3",
+    "package": "luci-theme-material3",
+    "description": "Material3",
+    "features": "动态主题",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-material3.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "SubConverter",
+    "package": "luci-app-subconverter",
+    "description": "订阅转换",
+    "features": "规则生成",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-subconverter.git"
+}

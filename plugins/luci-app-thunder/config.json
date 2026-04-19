@@ -1,0 +1,8 @@
+{
+    "name": "Thunder",
+    "package": "luci-app-thunder",
+    "description": "迅雷下载",
+    "features": "远程下载",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-thunder.git"
+}

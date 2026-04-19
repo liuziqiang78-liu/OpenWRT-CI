@@ -268,125 +268,103 @@ jobs:
       - name: Install Custom Plugins
         env:
           PLUGIN_LIST: ${{ needs.parse-config.outputs.plugin-list }}
-          PLUGIN_VERSIONS: ${{ needs.parse-config.outputs.plugin-versions }}
+          THEME: ${{ inputs.THEME }}
         run: |
-          cd ./wrt/package/
-          
-          # 确保 .config 文件存在且可写
-          echo "检查 .config 文件..."
-          if [ ! -f ../.config ]; then
-              touch ../.config
-              echo "# 自动生成的临时配置文件" > ../.config
-              echo "创建了 .config 文件"
-          else
-              echo ".config 文件已存在"
+          # 确保 .config 文件存在
+          cd ./wrt/
+          if [ ! -f .config ]; then
+              echo "# 自动生成的临时配置文件" > .config
           fi
           
-          # 检查插件仓库映射文件
-          echo "检查插件仓库映射文件..."
-          REPO_MAP="$GITHUB_WORKSPACE/plugin-repos.json"
-          if [ ! -f "$REPO_MAP" ]; then
-              echo "❌ 插件仓库映射文件不存在: $REPO_MAP"
-              exit 1
+          chmod +x $GITHUB_WORKSPACE/scripts/install-plugins.sh
+          
+          echo "=========================================="
+          echo "📦 从 plugins/ 目录安装插件"
+          echo "=========================================="
+          
+          # 合并插件列表 (用户选的 + 主题)
+          ALL_PLUGINS="$PLUGIN_LIST"
+          if [ -n "$THEME" ]; then
+            THEME_PKG="luci-theme-${THEME}"
+            if [ -n "$ALL_PLUGINS" ]; then
+              ALL_PLUGINS="$ALL_PLUGINS,$THEME_PKG"
+            else
+              ALL_PLUGINS="$THEME_PKG"
+            fi
           fi
           
-          # 解析插件列表
-          if [ -n "$PLUGIN_LIST" ]; then
-            IFS=',' read -ra PLUGINS <<< "$PLUGIN_LIST"
+          if [ -n "$ALL_PLUGINS" ]; then
+            # 用 install-plugins.sh 安装每个插件
+            IFS=',' read -ra PLUGINS <<< "$ALL_PLUGINS"
+            SUCCESS=0
+            FAILED=0
             
             for PLUGIN in "${PLUGINS[@]}"; do
-              echo "=== 处理插件: $PLUGIN ==="
+              # 跳过空项
+              [ -z "$PLUGIN" ] && continue
               
-              # 清理插件名称（移除可能的 luci-app- 前缀）
-              CLEAN_PLUGIN=$(echo "$PLUGIN" | sed -e 's/^luci-app-//' -e 's/^luci-//')
-              
-              # 从映射文件获取仓库地址
-              REPO_URL=$(jq -r --arg pkg "$PLUGIN" '.[$pkg]' "$REPO_MAP" 2>/dev/null || echo "")
-              
-              if [ -z "$REPO_URL" ] || [ "$REPO_URL" = "null" ]; then
-                echo "⚠️  插件 $PLUGIN 没有仓库映射，尝试通用克隆..."
+              # 检查 plugins/ 目录是否有该插件
+              PLUGIN_DIR="$GITHUB_WORKSPACE/plugins/$PLUGIN"
+              if [ -d "$PLUGIN_DIR" ] && [ -f "$PLUGIN_DIR/config.json" ]; then
+                REPO=$(jq -r '.repository' "$PLUGIN_DIR/config.json")
+                NAME=$(jq -r '.name' "$PLUGIN_DIR/config.json")
                 
-                # 确定配置选项名称（确保有 luci-app- 前缀）
-                if [[ "$PLUGIN" =~ ^luci-app- ]]; then
-                  CONFIG_NAME="$PLUGIN"
-                elif [[ "$PLUGIN" =~ ^luci- ]]; then
-                  CONFIG_NAME="app-${PLUGIN}"
+                echo ""
+                echo "=== [$NAME] $PLUGIN ==="
+                echo "  来源: plugins/ 目录"
+                echo "  仓库: $REPO"
+                
+                # 克隆到 package/
+                if [ ! -d "./package/$PLUGIN" ]; then
+                  if git clone --depth=1 "$REPO" "./package/$PLUGIN" 2>/dev/null; then
+                    echo "  ✅ 克隆成功"
+                    SUCCESS=$((SUCCESS + 1))
+                  else
+                    echo "  ❌ 克隆失败"
+                    FAILED=$((FAILED + 1))
+                  fi
                 else
-                  CONFIG_NAME="luci-app-${PLUGIN}"
+                  echo "  ⚠️  已存在，跳过"
+                  SUCCESS=$((SUCCESS + 1))
                 fi
                 
-                # 尝试通用仓库模式（使用清理后的名称）
-                GENERIC_PATTERNS=$(jq -r '.generic_patterns[]' "$REPO_MAP" 2>/dev/null)
-                CLONED=false
-                
-                for pattern in $GENERIC_PATTERNS; do
-                  REPO_URL=$(echo "$pattern" | sed "s/{plugin}/$CLEAN_PLUGIN/g")
-                  echo "尝试通用地址: $REPO_URL"
-                  
-                  if git clone --depth=1 "$REPO_URL" 2>/dev/null; then
-                    echo "✅ 通用克隆成功: $PLUGIN"
-                    CLONED=true
-                    break
-                  fi
-                done
-                
-                if [ "$CLONED" = false ]; then
-                  echo "⚠️  无法克隆插件 ${PLUGIN}，尝试直接添加配置"
-                  echo "CONFIG_PACKAGE_${CONFIG_NAME}=y" >> ../.config
+                # 写入配置
+                if [ -f "$PLUGIN_DIR/config.mk" ]; then
+                  cat "$PLUGIN_DIR/config.mk" >> .config
+                  echo "  ✅ 配置已写入"
                 fi
               else
-                echo "仓库地址: $REPO_URL"
+                # 回退: 插件不在 plugins/ 目录，用 plugin-repos.json
+                echo ""
+                echo "=== [未知] $PLUGIN ==="
+                echo "  ⚠️  plugins/ 目录无此插件，尝试 plugin-repos.json..."
                 
-                # 特殊处理 samba4（可能在 feeds 中已存在）
-                if [[ "$PLUGIN" =~ samba4 ]]; then
-                  echo "CONFIG_PACKAGE_${PLUGIN}=y" >> ../.config
-                  git clone --depth=1 "$REPO_URL" 2>/dev/null || echo "samba4 仓库可能不存在，依赖 feeds 中的 samba4"
-                else
-                  # 克隆仓库
-                  if git clone --depth=1 "$REPO_URL"; then
-                    echo "✅ 克隆成功: $PLUGIN"
+                REPO_MAP="$GITHUB_WORKSPACE/plugin-repos.json"
+                REPO_URL=$(jq -r --arg pkg "$PLUGIN" '.[$pkg]' "$REPO_MAP" 2>/dev/null || echo "")
+                
+                if [ -n "$REPO_URL" ] && [ "$REPO_URL" != "null" ]; then
+                  if git clone --depth=1 "$REPO_URL" "./package/$PLUGIN" 2>/dev/null; then
+                    echo "  ✅ 回退克隆成功"
+                    echo "CONFIG_PACKAGE_${PLUGIN}=y" >> .config
+                    SUCCESS=$((SUCCESS + 1))
                   else
-                    echo "❌ 克隆失败: $PLUGIN"
-                    echo "CONFIG_PACKAGE_${PLUGIN}=y" >> ../.config
+                    echo "  ❌ 回退克隆失败"
+                    echo "CONFIG_PACKAGE_${PLUGIN}=y" >> .config
+                    FAILED=$((FAILED + 1))
                   fi
+                else
+                  echo "  ⚠️  无仓库映射，仅写入配置"
+                  echo "CONFIG_PACKAGE_${PLUGIN}=y" >> .config
                 fi
               fi
-              
-              echo ""
             done
+            
+            echo ""
+            echo "=========================================="
+            echo "📊 插件安装完成: 成功 $SUCCESS, 失败 $FAILED"
+            echo "=========================================="
           else
-            echo "⚠️  没有插件需要安装"
-          fi
-          
-          # 安装主题
-          THEME="${{ inputs.THEME }}"
-          if [ -n "$THEME" ]; then
-            echo "=== 安装主题: $THEME ==="
-            
-            # 从映射文件获取主题仓库地址
-            THEME_PKG="luci-theme-${THEME}"
-            THEME_REPO=$(jq -r --arg pkg "$THEME_PKG" '.[$pkg]' "$REPO_MAP" 2>/dev/null || echo "")
-            
-            if [ -z "$THEME_REPO" ] || [ "$THEME_REPO" = "null" ]; then
-              echo "⚠️  无法获取主题 $THEME 的仓库地址，使用默认地址"
-              case "$THEME" in
-                "argon")
-                  git clone --depth=1 https://github.com/sbwml/luci-theme-argon.git
-                  ;;
-                "aurora")
-                  git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora.git
-                  ;;
-                "kucat")
-                  git clone --depth=1 https://github.com/sirpdboy/luci-app-kucat.git 2>/dev/null || git clone --depth=1 https://github.com/sirpdboy/luci-theme-kucat.git
-                  ;;
-                *)
-                  echo "⚠️  未知主题: $THEME"
-                  ;;
-              esac
-            else
-              echo "主题仓库地址: $THEME_REPO"
-              git clone --depth=1 "$THEME_REPO" || echo "主题克隆失败"
-            fi
+            echo "⚠️  没有选择任何插件"
           fi
 
       - name: Generate Configuration

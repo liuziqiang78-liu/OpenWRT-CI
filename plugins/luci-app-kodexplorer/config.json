@@ -1,0 +1,8 @@
+{
+    "name": "KodExplorer",
+    "package": "luci-app-kodexplorer",
+    "description": "可道云网盘",
+    "features": "在线办公",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-kodexplorer.git"
+}

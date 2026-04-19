@@ -1,0 +1,8 @@
+{
+    "name": "Samba4",
+    "package": "luci-app-samba4",
+    "description": "文件共享",
+    "features": "SMB/CIFS 共享",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-samba4.git"
+}

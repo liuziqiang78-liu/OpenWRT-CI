@@ -1,0 +1,8 @@
+{
+    "name": "AccessControl",
+    "package": "luci-app-accesscontrol-plus",
+    "description": "访问控制",
+    "features": "MAC 过滤",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-accesscontrol-plus.git"
+}

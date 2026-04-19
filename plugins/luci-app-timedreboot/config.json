@@ -1,0 +1,8 @@
+{
+    "name": "TimedReboot",
+    "package": "luci-app-timedreboot",
+    "description": "定时重启",
+    "features": "自动重启",
+    "category": "system",
+    "repository": "https://github.com/sirpdboy/luci-app-timedreboot.git"
+}

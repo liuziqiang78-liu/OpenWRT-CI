@@ -1,0 +1,8 @@
+{
+    "name": "Xray",
+    "package": "luci-app-xray",
+    "description": "Xray 代理",
+    "features": "VLESS/Vmess/XTLS/Reality",
+    "category": "proxy",
+    "repository": "https://github.com/sbwml/luci-app-xray.git"
+}

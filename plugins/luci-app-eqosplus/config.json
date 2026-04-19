@@ -1,0 +1,8 @@
+{
+    "name": "EqOS",
+    "package": "luci-app-eqosplus",
+    "description": "IP 限速",
+    "features": "按 IP 限速",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-eqosplus.git"
+}

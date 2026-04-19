@@ -1,0 +1,8 @@
+{
+    "name": "Alpha",
+    "package": "luci-theme-alpha",
+    "description": "Alpha 主题",
+    "features": "简洁风格",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-alpha.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "TimeControl",
+    "package": "luci-app-nft-timecontrol",
+    "description": "上网时间",
+    "features": "定时断网",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-nft-timecontrol.git"
+}

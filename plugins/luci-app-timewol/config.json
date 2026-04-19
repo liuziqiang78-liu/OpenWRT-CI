@@ -1,0 +1,8 @@
+{
+    "name": "TimeWOL",
+    "package": "luci-app-timewol",
+    "description": "网络唤醒",
+    "features": "远程开机",
+    "category": "system",
+    "repository": "https://github.com/sirpdboy/luci-app-timewol.git"
+}

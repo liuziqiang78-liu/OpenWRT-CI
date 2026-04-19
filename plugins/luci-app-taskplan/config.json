@@ -1,0 +1,8 @@
+{
+    "name": "TaskPlan",
+    "package": "luci-app-taskplan",
+    "description": "定时任务",
+    "features": "计划执行",
+    "category": "system",
+    "repository": "https://github.com/sirpdboy/luci-app-taskplan.git"
+}

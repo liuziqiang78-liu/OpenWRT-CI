@@ -1,0 +1,8 @@
+{
+    "name": "Btop",
+    "package": "btop",
+    "description": "性能监控",
+    "features": "系统监控",
+    "category": "network",
+    "repository": "https://github.com/sbwml/btop.git"
+}

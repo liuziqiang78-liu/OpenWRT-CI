@@ -1,0 +1,8 @@
+{
+    "name": "NATMap",
+    "package": "luci-app-natmap",
+    "description": "端口映射",
+    "features": "自动映射",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-natmap.git"
+}

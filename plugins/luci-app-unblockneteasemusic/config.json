@@ -1,0 +1,8 @@
+{
+    "name": "NeteaseUnlock",
+    "package": "luci-app-unblockneteasemusic",
+    "description": "解锁网易云",
+    "features": "版权解锁",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-unblockneteasemusic.git"
+}

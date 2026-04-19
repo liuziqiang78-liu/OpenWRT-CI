@@ -1,0 +1,8 @@
+{
+    "name": "SQM",
+    "package": "luci-app-sqm-autorate",
+    "description": "SQM QoS",
+    "features": "智能队列",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-sqm-autorate.git"
+}

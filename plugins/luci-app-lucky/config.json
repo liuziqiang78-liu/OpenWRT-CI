@@ -1,0 +1,8 @@
+{
+    "name": "Lucky",
+    "package": "luci-app-lucky",
+    "description": "多功能工具",
+    "features": "端口转发、DDNS",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-lucky.git"
+}

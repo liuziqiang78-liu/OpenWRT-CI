@@ -1,0 +1,8 @@
+{
+    "name": "EasyMesh",
+    "package": "luci-app-easymesh",
+    "description": "Mesh 组网",
+    "features": "无缝漫游",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-easymesh.git"
+}

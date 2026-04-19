@@ -1,0 +1,8 @@
+{
+    "name": "PartExp",
+    "package": "luci-app-partexp",
+    "description": "分区扩容",
+    "features": "无损扩容",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-partexp.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Argon",
+    "package": "luci-theme-argon",
+    "description": "流行主题",
+    "features": "毛玻璃效果",
+    "category": "theme",
+    "repository": "https://github.com/jerrykuku/luci-theme-argon.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "VLMCSD",
+    "package": "luci-app-vlmcsd",
+    "description": "KMS 服务",
+    "features": "激活服务",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-vlmcsd.git"
+}

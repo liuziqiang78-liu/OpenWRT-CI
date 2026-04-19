@@ -1,0 +1,8 @@
+{
+    "name": "Linkease",
+    "package": "luci-app-linkease",
+    "description": "易有云",
+    "features": "文件管理、远程访问",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-linkease.git"
+}

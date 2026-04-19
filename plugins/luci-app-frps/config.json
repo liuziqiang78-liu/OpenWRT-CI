@@ -1,0 +1,8 @@
+{
+    "name": "FRPS",
+    "package": "luci-app-frps",
+    "description": "FRP 服务端",
+    "features": "FRP 管理",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-frps.git"
+}

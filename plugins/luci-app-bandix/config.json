@@ -1,0 +1,8 @@
+{
+    "name": "BandiX",
+    "package": "luci-app-bandix",
+    "description": "流量监控",
+    "features": "实时流量",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-bandix.git"
+}

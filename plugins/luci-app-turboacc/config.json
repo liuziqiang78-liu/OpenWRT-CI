@@ -1,0 +1,8 @@
+{
+    "name": "TurboACC",
+    "package": "luci-app-turboacc",
+    "description": "网络加速",
+    "features": "硬件加速",
+    "category": "network",
+    "repository": "https://github.com/chenmozhijin/luci-app-turboacc.git"
+}

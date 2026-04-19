@@ -1,0 +1,8 @@
+{
+    "name": "ZeroTier",
+    "package": "luci-app-zerotier",
+    "description": "内网穿透",
+    "features": "虚拟局域网",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-zerotier.git"
+}

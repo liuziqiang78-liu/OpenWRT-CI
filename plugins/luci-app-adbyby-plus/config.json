@@ -1,0 +1,8 @@
+{
+    "name": "AdByBy",
+    "package": "luci-app-adbyby-plus",
+    "description": "去广告",
+    "features": "规则去广告",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-adbyby-plus.git"
+}

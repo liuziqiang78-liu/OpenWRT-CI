@@ -1,0 +1,8 @@
+{
+    "name": "Tailscale",
+    "package": "luci-app-tailscale-community",
+    "description": "虚拟组网",
+    "features": "异地组网、P2P 直连",
+    "category": "network",
+    "repository": "https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "DDNSTO",
+    "package": "luci-app-ddnsto",
+    "description": "内网穿透",
+    "features": "免费穿透",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-ddnsto.git"
+}

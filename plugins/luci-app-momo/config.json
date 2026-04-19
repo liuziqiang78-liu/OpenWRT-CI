@@ -1,0 +1,8 @@
+{
+    "name": "Momo",
+    "package": "luci-app-momo",
+    "description": "代理工具",
+    "features": "简洁界面、快速连接",
+    "category": "proxy",
+    "repository": "https://github.com/sbwml/luci-app-momo.git"
+}

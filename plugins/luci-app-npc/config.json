@@ -1,0 +1,8 @@
+{
+    "name": "NPC",
+    "package": "luci-app-npc",
+    "description": "NPS 客户端",
+    "features": "内网穿透",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-npc.git"
+}

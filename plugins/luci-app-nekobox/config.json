@@ -1,0 +1,8 @@
+{
+    "name": "NeKoBox",
+    "package": "luci-app-nekobox",
+    "description": "NekoBox 客户端",
+    "features": "Neko 核心、多协议",
+    "category": "proxy",
+    "repository": "https://github.com/sbwml/luci-app-nekobox.git"
+}

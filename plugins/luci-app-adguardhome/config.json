@@ -1,0 +1,8 @@
+{
+    "name": "AdGuardHome",
+    "package": "luci-app-adguardhome",
+    "description": "ADG 去广告",
+    "features": "DNS 去广告",
+    "category": "network",
+    "repository": "https://github.com/rufengsuixing/luci-app-adguardhome.git"
+}

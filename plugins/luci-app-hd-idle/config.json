@@ -1,0 +1,8 @@
+{
+    "name": "HD-Idle",
+    "package": "luci-app-hd-idle",
+    "description": "硬盘休眠",
+    "features": "节能保护",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-hd-idle.git"
+}

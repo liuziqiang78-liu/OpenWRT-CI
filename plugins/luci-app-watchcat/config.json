@@ -1,0 +1,8 @@
+{
+    "name": "Watchcat",
+    "package": "luci-app-watchcat",
+    "description": "断网检测",
+    "features": "自动恢复",
+    "category": "system",
+    "repository": "https://github.com/sirpdboy/luci-app-watchcat.git"
+}

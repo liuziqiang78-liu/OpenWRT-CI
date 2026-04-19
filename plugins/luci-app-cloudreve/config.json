@@ -1,0 +1,8 @@
+{
+    "name": "Cloudreve",
+    "package": "luci-app-cloudreve",
+    "description": "私有云盘",
+    "features": "私有云存储",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-cloudreve.git"
+}

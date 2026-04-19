@@ -1,0 +1,8 @@
+{
+    "name": "EasyTier",
+    "package": "luci-app-easytier",
+    "description": "异地组网",
+    "features": "去中心化组网",
+    "category": "network",
+    "repository": "https://github.com/EasyTier/luci-app-easytier.git"
+}

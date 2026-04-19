@@ -1,0 +1,8 @@
+{
+    "name": "WeChatPush",
+    "package": "luci-app-wechatpush",
+    "description": "通知推送",
+    "features": "微信/Telegram",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-wechatpush.git"
+}

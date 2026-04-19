@@ -1,0 +1,8 @@
+{
+    "name": "QoS",
+    "package": "luci-app-qosmate",
+    "description": "流量控制",
+    "features": "带宽管理",
+    "category": "network",
+    "repository": "https://github.com/sirpdboy/luci-app-qosmate.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Clouddrive2",
+    "package": "luci-app-clouddrive2",
+    "description": "多云盘管理",
+    "features": "20+ 云盘支持",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-clouddrive2.git"
+}

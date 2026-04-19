@@ -1,0 +1,8 @@
+{
+    "name": "TTYD",
+    "package": "luci-app-ttyd",
+    "description": "网页终端",
+    "features": "SSH 访问",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-ttyd.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "ARPBind",
+    "package": "luci-app-arpbind",
+    "description": "ARP 绑定",
+    "features": "IP-MAC 绑定",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-arpbind.git"
+}

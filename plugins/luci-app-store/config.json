@@ -1,0 +1,8 @@
+{
+    "name": "Store",
+    "package": "luci-app-store",
+    "description": "iStore",
+    "features": "应用商店",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-store.git"
+}

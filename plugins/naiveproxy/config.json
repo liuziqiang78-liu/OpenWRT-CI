@@ -1,0 +1,8 @@
+{
+    "name": "NaiveProxy",
+    "package": "naiveproxy",
+    "description": "代理工具",
+    "features": "轻量代理、HTTPS 传输",
+    "category": "proxy",
+    "repository": "https://github.com/sbwml/naiveproxy.git"
+}

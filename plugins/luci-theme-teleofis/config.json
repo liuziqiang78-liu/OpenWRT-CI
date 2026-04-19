@@ -1,0 +1,8 @@
+{
+    "name": "Teleofis",
+    "package": "luci-theme-teleofis",
+    "description": "Teleofis",
+    "features": "工业风格",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-teleofis.git"
+}

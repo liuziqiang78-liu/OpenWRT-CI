@@ -1,0 +1,8 @@
+{
+    "name": "Spectra",
+    "package": "luci-theme-spectra",
+    "description": "Spectra",
+    "features": "多彩渐变",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-spectra.git"
+}

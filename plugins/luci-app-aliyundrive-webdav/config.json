@@ -1,0 +1,8 @@
+{
+    "name": "阿里云盘WebDAV",
+    "package": "luci-app-aliyundrive-webdav",
+    "description": "阿里云盘",
+    "features": "阿里云盘集成",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-aliyundrive-webdav.git"
+}

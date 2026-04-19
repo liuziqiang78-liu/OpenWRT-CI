@@ -1,0 +1,8 @@
+{
+    "name": "MiniDLNA",
+    "package": "luci-app-minidlna",
+    "description": "DLNA 媒体服务",
+    "features": "媒体推送",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-minidlna.git"
+}

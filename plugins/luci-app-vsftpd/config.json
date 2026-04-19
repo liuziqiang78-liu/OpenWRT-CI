@@ -1,0 +1,8 @@
+{
+    "name": "VSFTPD",
+    "package": "luci-app-vsftpd",
+    "description": "FTP 服务器",
+    "features": "FTP 服务",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-vsftpd.git"
+}

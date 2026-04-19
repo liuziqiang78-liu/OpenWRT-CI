@@ -1,0 +1,8 @@
+{
+    "name": "FileBrowser",
+    "package": "luci-app-filebrowser",
+    "description": "文件管理",
+    "features": "Web 文件管理",
+    "category": "storage",
+    "repository": "https://github.com/sbwml/luci-app-filebrowser.git"
+}

@@ -1,0 +1,8 @@
+{
+    "name": "OpenList2",
+    "package": "luci-app-openlist2",
+    "description": "文件列表",
+    "features": "原 Alist",
+    "category": "network",
+    "repository": "https://github.com/sbwml/luci-app-openlist2.git"
+}

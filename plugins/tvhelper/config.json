@@ -1,0 +1,8 @@
+{
+    "name": "TVHelper",
+    "package": "tvhelper",
+    "description": "盒子助手",
+    "features": "直播源",
+    "category": "system",
+    "repository": "https://github.com/sbwml/tvhelper.git"
+}

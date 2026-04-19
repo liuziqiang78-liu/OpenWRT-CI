@@ -1,0 +1,8 @@
+{
+    "name": "SNMPD",
+    "package": "luci-app-snmpd",
+    "description": "SNMP 监控",
+    "features": "设备管理",
+    "category": "system",
+    "repository": "https://github.com/sbwml/luci-app-snmpd.git"
+}

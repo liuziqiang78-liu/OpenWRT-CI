@@ -1,0 +1,8 @@
+{
+    "name": "Design",
+    "package": "luci-theme-design",
+    "description": "Design 主题",
+    "features": "现代界面",
+    "category": "theme",
+    "repository": "https://github.com/kenzok8/luci-theme-design.git"
+}
