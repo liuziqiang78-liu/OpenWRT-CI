@@ -147,8 +147,6 @@
                         <label>源码分支 *</label>
                         <select id="wrt_branch" required>
                             <option value="main" selected>main</option>
-                            <option value="owrt">owrt</option>
-                            <option value="master">master</option>
                         </select>
                     </div>
                 </div>
@@ -180,7 +178,7 @@
                     <div class="plugin-tabs" id="plugin-tabs">
                         <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
                         <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">37</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">32</span>)</div>
                         <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
                         <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
                     </div>
@@ -277,6 +275,35 @@
     </div>
     
     <script>
+        // ========== 源码仓库与分支联动 ==========
+        const SOURCE_BRANCHES = {
+            'VIKINGYFY/immortalwrt': ['owrt', 'main'],
+            'immortalwrt/immortalwrt': ['main', 'openwrt-23.05', 'openwrt-24.10'],
+            'LiBwrt/openwrt-6.x': ['main', 'dev'],
+            'qosmio/openwrt-ipq': ['main']
+        };
+
+        function updateBranches() {
+            const src = document.getElementById('wrt_source').value;
+            const branchEl = document.getElementById('wrt_branch');
+            const branches = SOURCE_BRANCHES[src] || ['main'];
+            const prev = branchEl.value;
+            branchEl.innerHTML = '';
+            branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                branchEl.appendChild(opt);
+            });
+            // 保留之前选的分支（如果存在），否则默认第一个
+            if (branches.includes(prev)) {
+                branchEl.value = prev;
+            }
+            updateSummary();
+        }
+
+        document.getElementById('wrt_source').addEventListener('change', updateBranches);
+
         // ========== 设备数据库 ==========
         const DEVICES = {
             MEDIATEK: [
@@ -485,9 +512,6 @@
                 {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播'},
                 {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: '无缝漫游'},
                 {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速'},
-                {name: 'Btop', pkg: 'btop', desc: '性能监控', features: '系统监控'},                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
-                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理'},
-                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist'},
                 {name: 'VNT', pkg: 'luci-app-vnt', desc: 'VNT 组网', features: '异地组网'},
             ],
             theme: [
@@ -532,6 +556,7 @@
         function init() {
             loadToken();
             loadConfig();
+            updateBranches();
             renderDevices('MEDIATEK');
             renderPlugins('proxy');
             startBuildMonitor();
