@@ -47,6 +47,7 @@ fi
 echo "# 核心系统包" >> ./.config
 echo "CONFIG_PACKAGE_dnsmasq-full=y" >> ./.config
 echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
+echo "# CONFIG_PACKAGE_odhcpd-ipv6only is not set" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd-ubus=y" >> ./.config
 if [ "$WRT_FIREWALL" = "iptables" ]; then

@@ -181,7 +181,16 @@ jobs:
           export CCACHE_DIR=$(pwd)/.ccache
           export CCACHE_MAXSIZE=5G
 
-          make defconfig -j$(nproc) && make clean -j$(nproc)
+          make defconfig -j$(nproc)
+
+          # 防冲突检查：修复 odhcpd / odhcpd-ipv6only 冲突
+          if grep -q '^CONFIG_PACKAGE_odhcpd=y' .config && grep -q '^CONFIG_PACKAGE_odhcpd-ipv6only=y' .config; then
+            echo "⚠️  检测到 odhcpd 与 odhcpd-ipv6only 同时启用，自动修复..."
+            sed -i 's/^CONFIG_PACKAGE_odhcpd-ipv6only=y/# CONFIG_PACKAGE_odhcpd-ipv6only is not set/' .config
+            echo "✅ 已禁用 odhcpd-ipv6only（保留完整版 odhcpd）"
+          fi
+
+          make clean -j$(nproc)
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'

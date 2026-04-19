@@ -675,6 +675,14 @@ jobs:
             make defconfig V=s 2>&1 || true
           }
 
+          # ========== 防冲突检查 ==========
+          # 检查并修复 odhcpd / odhcpd-ipv6only 冲突
+          if grep -q '^CONFIG_PACKAGE_odhcpd=y' .config && grep -q '^CONFIG_PACKAGE_odhcpd-ipv6only=y' .config; then
+            echo "⚠️  检测到 odhcpd 与 odhcpd-ipv6only 同时启用，自动修复..."
+            sed -i 's/^CONFIG_PACKAGE_odhcpd-ipv6only=y/# CONFIG_PACKAGE_odhcpd-ipv6only is not set/' .config
+            echo "✅ 已禁用 odhcpd-ipv6only（保留完整版 odhcpd）"
+          fi
+
       - name: Show Configuration
         run: |
           echo "======================================"
