@@ -1,0 +1,4 @@
+# FriendlyARM NanoPC-T6 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopc-t6=y

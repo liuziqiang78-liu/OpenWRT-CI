@@ -1,0 +1,4 @@
+# TP-Link TL-7DR7250 V1 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_tplink_tl-7dr7250-v1=y

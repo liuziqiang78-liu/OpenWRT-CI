@@ -1,0 +1,4 @@
+# Link NN6000 V1 设备配置
+# IPQ60XX 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_link_nn6000-v1=y

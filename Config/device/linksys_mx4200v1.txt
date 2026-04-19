@@ -1,0 +1,4 @@
+# Linksys MX4200 V1 设备配置
+# IPQ807X 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq807x_DEVICE_linksys_mx4200v1=y

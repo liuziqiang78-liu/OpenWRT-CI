@@ -1,0 +1,4 @@
+# 飞牛 Fastrhino R68S 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_lunzn_fastrhino-r68s=y

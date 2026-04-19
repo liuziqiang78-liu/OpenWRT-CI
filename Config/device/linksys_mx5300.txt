@@ -1,0 +1,4 @@
+# Linksys MX5300 设备配置
+# IPQ807X 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq807x_DEVICE_linksys_mx5300=y

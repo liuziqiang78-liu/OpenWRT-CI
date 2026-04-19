@@ -1,0 +1,4 @@
+# 香橙派 OrangePi R1 Plus LTS 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_xunlong_orangepi-r1-plus-lts=y

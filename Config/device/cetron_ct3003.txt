@@ -1,0 +1,4 @@
+# CETRON CT3003 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_cetron_ct3003=y

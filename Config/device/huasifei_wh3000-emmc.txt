@@ -1,0 +1,4 @@
+# 华硕飞 WH3000-EMMC 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_huasifei_wh3000-emmc=y

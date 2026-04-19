@@ -1,0 +1,4 @@
+# CUDY TR3000 V1 Ubootmod 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_cudy_tr3000-v1-ubootmod=y

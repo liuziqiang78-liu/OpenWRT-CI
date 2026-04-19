@@ -1,0 +1,4 @@
+# CMCC A10 Stock 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_cmcc_a10-stock=y

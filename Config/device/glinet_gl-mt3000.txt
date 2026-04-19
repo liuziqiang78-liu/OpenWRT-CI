@@ -1,0 +1,4 @@
+# GL.iNet GL-MT3000 设备配置
+# MEDIATEK 平台
+
+CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_glinet_gl-mt3000=y

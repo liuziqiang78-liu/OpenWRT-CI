@@ -1,0 +1,4 @@
+# EZPRO MRKAIO-M68S 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_ezpro_mrkaio-m68s=y

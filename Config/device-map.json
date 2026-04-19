@@ -1,0 +1,132 @@
+{
+  "mediatek": {
+    "platform": "MEDIATEK",
+    "devices": {
+      "abt_asr3000": { "name": "ABT ASR3000", "config": "abt_asr3000" },
+      "asus_tuf-ax4200": { "name": "华硕 TUF-AX4200", "config": "asus_tuf-ax4200" },
+      "asus_tuf-ax4200q": { "name": "华硕 TUF-AX4200Q", "config": "asus_tuf-ax4200q" },
+      "asus_tuf-ax6000": { "name": "华硕 TUF-AX6000", "config": "asus_tuf-ax6000" },
+      "cetron_ct3003": { "name": "CETRON CT3003", "config": "cetron_ct3003" },
+      "cetron_ct3003-ubootmod": { "name": "CETRON CT3003 Ubootmod", "config": "cetron_ct3003-ubootmod" },
+      "cmcc_a10-stock": { "name": "CMCC A10 Stock", "config": "cmcc_a10-stock" },
+      "cmcc_a10-ubootmod": { "name": "CMCC A10 Ubootmod", "config": "cmcc_a10-ubootmod" },
+      "cmcc_rax3000m": { "name": "CMCC RAX3000M", "config": "cmcc_rax3000m" },
+      "cmcc_rax3000me": { "name": "CMCC RAX3000ME", "config": "cmcc_rax3000me" },
+      "comfast_cf-e393ax": { "name": "COMFAST CF-E393AX", "config": "comfast_cf-e393ax" },
+      "comfast_cf-wr632ax": { "name": "COMFAST CF-WR632AX", "config": "comfast_cf-wr632ax" },
+      "comfast_cf-wr632ax-ubootmod": { "name": "COMFAST CF-WR632AX Ubootmod", "config": "comfast_cf-wr632ax-ubootmod" },
+      "cudy_tr3000-256mb-v1": { "name": "CUDY TR3000 256MB V1", "config": "cudy_tr3000-256mb-v1" },
+      "cudy_tr3000-v1": { "name": "CUDY TR3000 V1", "config": "cudy_tr3000-v1" },
+      "cudy_tr3000-v1-ubootmod": { "name": "CUDY TR3000 V1 Ubootmod", "config": "cudy_tr3000-v1-ubootmod" },
+      "glinet_gl-mt3000": { "name": "GL.iNet GL-MT3000", "config": "glinet_gl-mt3000" },
+      "glinet_gl-mt6000": { "name": "GL.iNet GL-MT6000", "config": "glinet_gl-mt6000" },
+      "glinet_gl-x3000": { "name": "GL.iNet GL-X3000", "config": "glinet_gl-x3000" },
+      "glinet_gl-xe3000": { "name": "GL.iNet GL-XE3000", "config": "glinet_gl-xe3000" },
+      "h3c_magic-nx30-pro": { "name": "H3C Magic NX30 Pro", "config": "h3c_magic-nx30-pro" },
+      "huasifei_wh3000-emmc": { "name": "华硕飞 WH3000-EMMC", "config": "huasifei_wh3000-emmc" },
+      "huasifei_wh3000-pro": { "name": "华硕飞 WH3000-Pro", "config": "huasifei_wh3000-pro" },
+      "imou_hx21": { "name": "IMOU HX21", "config": "imou_hx21" },
+      "jcg_q30-pro": { "name": "JCG Q30 Pro", "config": "jcg_q30-pro" },
+      "jdcloud_re-cp-03": { "name": "京东云 RE-CP-03", "config": "jdcloud_re-cp-03" },
+      "konka_komi-a31": { "name": "康佳 KOMI-A31", "config": "konka_komi-a31" },
+      "netcore_n60": { "name": "网件 N60", "config": "netcore_n60" },
+      "netcore_n60-pro": { "name": "网件 N60 Pro", "config": "netcore_n60-pro" },
+      "nokia_ea0326gmp": { "name": "Nokia EA0326GMP", "config": "nokia_ea0326gmp" },
+      "qihoo_360t7": { "name": "360 T7", "config": "360_t7" },
+      "ruijie_rg-x60-pro": { "name": "锐捷 RG-X60 Pro", "config": "ruijie_rg-x60-pro" },
+      "tplink_tl-7dr7230-v1": { "name": "TP-Link TL-7DR7230 V1", "config": "tplink_tl-7dr7230-v1" },
+      "tplink_tl-7dr7230-v2": { "name": "TP-Link TL-7DR7230 V2", "config": "tplink_tl-7dr7230-v2" },
+      "tplink_tl-7dr7250-v1": { "name": "TP-Link TL-7DR7250 V1", "config": "tplink_tl-7dr7250-v1" },
+      "tplink_tl-xdr4288": { "name": "TP-Link TL-XDR4288", "config": "tplink_tl-xdr4288" },
+      "tplink_tl-xdr6086": { "name": "TP-Link TL-XDR6086", "config": "tplink_tl-xdr6086" },
+      "tplink_tl-xdr6088": { "name": "TP-Link TL-XDR6088", "config": "tplink_tl-xdr6088" },
+      "tplink_tl-xtr8488": { "name": "TP-Link TL-XTR8488", "config": "tplink_tl-xtr8488" },
+      "xiaomi_ax3000t": { "name": "小米 AX3000T", "config": "xiaomi_ax3000t" },
+      "xiaomi_wr30u-stock": { "name": "小米 WR30U Stock", "config": "xiaomi_wr30u-stock" },
+      "xiaomi_wr30u-ubootmod": { "name": "小米 WR30U Ubootmod", "config": "xiaomi_wr30u-ubootmod" },
+      "redmi_ax6000-stock": { "name": "红米 AX6000 Stock", "config": "redmi_ax6000-stock" },
+      "redmi_ax6000-ubootmod": { "name": "红米 AX6000 Ubootmod", "config": "redmi_ax6000-ubootmod" },
+      "zyxel_ex5700-telenor": { "name": "Zyxel EX5700 Telenor", "config": "zyxel_ex5700-telenor" }
+    }
+  },
+  "rockchip": {
+    "platform": "ROCKCHIP",
+    "devices": {
+      "ezpro_mrkaio-m68s": { "name": "EZPRO MRKAIO-M68S", "config": "ezpro_mrkaio-m68s" },
+      "nanopc-t4": { "name": "NanoPC-T4", "config": "nanopc-t4" },
+      "nanopc-t6": { "name": "NanoPC-T6", "config": "nanopc-t6" },
+      "nanopi-r2c": { "name": "NanoPi R2C", "config": "nanopi_r2c" },
+      "nanopi-r2c-plus": { "name": "NanoPi R2C Plus", "config": "nanopi_r2c-plus" },
+      "nanopi-r2s": { "name": "NanoPi R2S", "config": "nanopi_r2s" },
+      "nanopi-r3s": { "name": "NanoPi R3S", "config": "nanopi_r3s" },
+      "nanopi-r4s": { "name": "NanoPi R4S", "config": "nanopi_r4s" },
+      "nanopi-r4se": { "name": "NanoPi R4SE", "config": "nanopi_r4se" },
+      "nanopi-r4s-enterprise": { "name": "NanoPi R4S Enterprise", "config": "nanopi_r4s-enterprise" },
+      "nanopi-r5c": { "name": "NanoPi R5C", "config": "nanopi_r5c" },
+      "nanopi-r5s": { "name": "NanoPi R5S", "config": "nanopi_r5s" },
+      "nanopi-r6c": { "name": "NanoPi R6C", "config": "nanopi_r6c" },
+      "nanopi-r6s": { "name": "NanoPi R6S", "config": "nanopi_r6s" },
+      "nanopi-r76s": { "name": "NanoPi R76S", "config": "nanopi_r76s" },
+      "fastrhino-r66s": { "name": "飞牛 Fastrhino R66S", "config": "fastrhino_r66s" },
+      "fastrhino-r68s": { "name": "飞牛 Fastrhino R68S", "config": "fastrhino_r68s" },
+      "orangepi-5": { "name": "香橙派 OrangePi 5", "config": "orangepi_5" },
+      "orangepi-5-plus": { "name": "香橙派 OrangePi 5 Plus", "config": "orangepi_5-plus" },
+      "orangepi-r1-plus": { "name": "香橙派 OrangePi R1 Plus", "config": "orangepi_r1-plus" },
+      "orangepi-r1-plus-lts": { "name": "香橙派 OrangePi R1 Plus LTS", "config": "orangepi_r1-plus-lts" }
+    }
+  },
+  "ipq60xx": {
+    "platform": "IPQ60XX",
+    "devices": {
+      "anysafe_e1": { "name": "AnySafe E1", "config": "anysafe_e1" },
+      "cmiot_ax18": { "name": "CMIOT AX18", "config": "cmiot_ax18" },
+      "glinet_gl-ax1800": { "name": "GL.iNet GL-AX1800", "config": "glinet_gl-ax1800" },
+      "glinet_gl-axt1800": { "name": "GL.iNet GL-AXT1800", "config": "glinet_gl-axt1800" },
+      "jdcloud_re-cs-02": { "name": "京东云 RE-CS-02", "config": "jdcloud_re-cs-02" },
+      "jdcloud_re-cs-07": { "name": "京东云 RE-CS-07", "config": "jdcloud_re-cs-07" },
+      "jdcloud_re-ss-01": { "name": "京东云 RE-SS-01", "config": "jdcloud_re-ss-01" },
+      "link_nn6000-v1": { "name": "Link NN6000 V1", "config": "link_nn6000-v1" },
+      "link_nn6000-v2": { "name": "Link NN6000 V2", "config": "link_nn6000-v2" },
+      "linksys_mr7350": { "name": "Linksys MR7350", "config": "linksys_mr7350" },
+      "linksys_mr7500": { "name": "Linksys MR7500", "config": "linksys_mr7500" },
+      "philips_ly1800": { "name": "Philips LY1800", "config": "philips_ly1800" },
+      "qihoo_360v6": { "name": "奇虎 360V6", "config": "qihoo_360v6" },
+      "redmi_ax5": { "name": "红米 AX5", "config": "redmi_ax5" },
+      "redmi_ax5-jdcloud": { "name": "红米 AX5 京东云", "config": "redmi_ax5-jdcloud" },
+      "sy_y6010": { "name": "SY Y6010", "config": "sy_y6010" },
+      "xiaomi_ax1800": { "name": "小米 AX1800", "config": "xiaomi_ax1800" },
+      "zn_m2": { "name": "ZN M2", "config": "zn_m2" }
+    }
+  },
+  "ipq807x": {
+    "platform": "IPQ807X",
+    "devices": {
+      "aliyun_ap8220": { "name": "阿里云 AP8220", "config": "aliyun_ap8220" },
+      "linksys_homewrk": { "name": "Linksys HomeWRK", "config": "linksys_homewrk" },
+      "linksys_mx4200v1": { "name": "Linksys MX4200 V1", "config": "linksys_mx4200v1" },
+      "linksys_mx4200v2": { "name": "Linksys MX4200 V2", "config": "linksys_mx4200v2" },
+      "linksys_mx4300": { "name": "Linksys MX4300", "config": "linksys_mx4300" },
+      "linksys_mx5300": { "name": "Linksys MX5300", "config": "linksys_mx5300" },
+      "linksys_mx8500": { "name": "Linksys MX8500", "config": "linksys_mx8500" },
+      "qnap_301w": { "name": "QNAP 301W", "config": "qnap_301w" },
+      "redmi_ax6": { "name": "红米 AX6", "config": "redmi_ax6" },
+      "redmi_ax6-stock": { "name": "红米 AX6 Stock", "config": "redmi_ax6-stock" },
+      "xiaomi_ax3600": { "name": "小米 AX3600", "config": "xiaomi_ax3600" },
+      "xiaomi_ax3600-stock": { "name": "小米 AX3600 Stock", "config": "xiaomi_ax3600-stock" },
+      "xiaomi_ax9000": { "name": "小米 AX9000", "config": "xiaomi_ax9000" },
+      "xiaomi_ax9000-stock": { "name": "小米 AX9000 Stock", "config": "xiaomi_ax9000-stock" }
+    }
+  },
+  "ipq50xx": {
+    "platform": "IPQ50XX",
+    "devices": {
+      "jdcloud_re-cs-03": { "name": "京东云 RE-CS-03", "config": "jdcloud_re-cs-03" }
+    }
+  },
+  "x86": {
+    "platform": "X86",
+    "devices": {
+      "generic": { "name": "通用 X86_64", "config": "x86_generic" }
+    }
+  }
+}

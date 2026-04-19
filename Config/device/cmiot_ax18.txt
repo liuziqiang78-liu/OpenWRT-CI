@@ -1,0 +1,4 @@
+# CMIOT AX18 设备配置
+# IPQ60XX 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_cmiot_ax18=y

@@ -1,0 +1,4 @@
+# 京东云 RE-CS-03 设备配置
+# IPQ50XX 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq50xx_DEVICE_jdcloud_re-cs-03=y

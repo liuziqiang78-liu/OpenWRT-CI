@@ -1,0 +1,4 @@
+# ZN M2 设备配置
+# IPQ60XX 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_zn_m2=y

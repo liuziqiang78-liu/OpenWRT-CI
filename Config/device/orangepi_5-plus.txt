@@ -1,0 +1,4 @@
+# 香橙派 OrangePi 5 Plus 设备配置
+# ROCKCHIP 平台
+
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_xunlong_orangepi-5-plus=y

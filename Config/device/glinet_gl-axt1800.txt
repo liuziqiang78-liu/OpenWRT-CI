@@ -1,0 +1,4 @@
+# GL.iNet GL-AXT1800 设备配置
+# IPQ60XX 平台
+
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_glinet_gl-axt1800=y
