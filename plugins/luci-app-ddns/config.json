@@ -1,0 +1,1 @@
+{"name":"DDNS","package":"luci-app-ddns","description":"动态 DNS","features":"域名解析、自动更新","category":"network","repository":"https://github.com/openwrt/luci.git"}

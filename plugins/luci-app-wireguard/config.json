@@ -1,0 +1,1 @@
+{"name":"WireGuard","package":"luci-app-wireguard","description":"VPN","features":"WireGuard 协议","category":"network","repository":"https://github.com/openwrt/luci.git"}

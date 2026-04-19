@@ -178,11 +178,11 @@
                         <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="debounceSearch()">
                     </div>
                     <div class="plugin-tabs" id="plugin-tabs">
-                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
-                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">36</span>)</div>
+                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">13</span>)</div>
+                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">17</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">41</span>)</div>
                         <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
-                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
+                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">29</span>)</div>
                     </div>
                     <div class="select-all-bar">
                         <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
@@ -248,7 +248,7 @@
                     <h2>⚙️ 高级选项</h2>
                     <div class="form-group">
                         <label>其他插件 (用空格分隔包名)</label>
-                        <input type="text" id="other_plugins" placeholder="例如：luci-app-vlmcsd automount btop">
+                        <input type="text" id="other_plugins" placeholder="例如：luci-app-vlmcsd,automount,btop">
                     </div>
                     <div class="form-group">
                         <label>
@@ -289,35 +289,68 @@
                 {name: '360 T7', chip: 'MT7981', id: 'qihoo_360t7'},
                 {name: '京东云 RE-CP-03', chip: 'MT7981', id: 'jdcloud_re-cp-03'},
                 {name: '华硕 TUF-AX4200', chip: 'MT7986', id: 'asus_tuf-ax4200'},
+                {name: '华硕 TUF-AX4200Q', chip: 'MT7986', id: 'asus_tuf-ax4200q'},
                 {name: '华硕 TUF-AX6000', chip: 'MT7986', id: 'asus_tuf-ax6000'},
                 {name: 'H3C NX30 Pro', chip: 'MT7981', id: 'h3c_magic-nx30-pro'},
                 {name: 'CMCC A10', chip: 'MT7981', id: 'cmcc_a10-stock'},
+                {name: 'CMCC A10 (uboot)', chip: 'MT7981', id: 'cmcc_a10-ubootmod'},
                 {name: 'CMCC RAX3000M', chip: 'MT7986', id: 'cmcc_rax3000m'},
+                {name: 'CMCC RAX3000ME', chip: 'MT7986', id: 'cmcc_rax3000me'},
                 {name: 'Nokia EA0326GMP', chip: 'MT7981', id: 'nokia_ea0326gmp'},
                 {name: 'GL.iNet MT3000', chip: 'MT7981', id: 'glinet_gl-mt3000'},
                 {name: 'GL.iNet MT6000', chip: 'MT7986', id: 'glinet_gl-mt6000'},
+                {name: 'GL.iNet X3000', chip: 'MT7981', id: 'glinet_gl-x3000'},
+                {name: 'GL.iNet XE3000', chip: 'MT7981', id: 'glinet_gl-xe3000'},
                 {name: 'TP-Link XDR6088', chip: 'MT7986', id: 'tplink_tl-xdr6088'},
+                {name: 'TP-Link XDR6086', chip: 'MT7986', id: 'tplink_tl-xdr6086'},
                 {name: 'TP-Link XDR4288', chip: 'MT7986', id: 'tplink_tl-xdr4288'},
+                {name: 'TP-Link XTR8488', chip: 'MT7986', id: 'tplink_tl-xtr8488'},
+                {name: 'TP-Link 7DR7230 v1', chip: 'MT7986', id: 'tplink_tl-7dr7230-v1'},
+                {name: 'TP-Link 7DR7230 v2', chip: 'MT7986', id: 'tplink_tl-7dr7230-v2'},
+                {name: 'TP-Link 7DR7250 v1', chip: 'MT7986', id: 'tplink_tl-7dr7250-v1'},
                 {name: '锐捷 X60 Pro', chip: 'MT7986', id: 'ruijie_rg-x60-pro'},
                 {name: 'Netcore N60', chip: 'MT7981', id: 'netcore_n60'},
                 {name: 'Netcore N60 Pro', chip: 'MT7986', id: 'netcore_n60-pro'},
                 {name: 'Cudy TR3000', chip: 'MT7981', id: 'cudy_tr3000-v1'},
+                {name: 'Cudy TR3000 (uboot)', chip: 'MT7981', id: 'cudy_tr3000-v1-ubootmod'},
+                {name: 'Cudy TR3000 256MB', chip: 'MT7981', id: 'cudy_tr3000-256mb-v1'},
                 {name: 'Comfast E393AX', chip: 'MT7986', id: 'comfast_cf-e393ax'},
                 {name: 'Comfast WR632AX', chip: 'MT7981', id: 'comfast_cf-wr632ax'},
+                {name: 'Comfast WR632AX (uboot)', chip: 'MT7981', id: 'comfast_cf-wr632ax-ubootmod'},
+                {name: 'ABT ASR3000', chip: 'MT7981', id: 'abt_asr3000'},
+                {name: 'Cetron CT3003', chip: 'MT7981', id: 'cetron_ct3003'},
+                {name: 'Cetron CT3003 (uboot)', chip: 'MT7981', id: 'cetron_ct3003-ubootmod'},
+                {name: '华飞 FS WH3000-EMMC', chip: 'MT7981', id: 'huasifei_wh3000-emmc'},
+                {name: '华飞 FS WH3000 Pro', chip: 'MT7981', id: 'huasifei_wh3000-pro'},
+                {name: 'Imou HX21', chip: 'MT7981', id: 'imou_hx21'},
+                {name: 'JCG Q30 Pro', chip: 'MT7981', id: 'jcg_q30-pro'},
+                {name: '康佳 KOMI-A31', chip: 'MT7981', id: 'konka_komi-a31'},
+                {name: 'Zyxel EX5700', chip: 'MT7986', id: 'zyxel_ex5700-telenor'},
+            
             ],
             ROCKCHIP: [
                 {name: 'NanoPi R2S', chip: 'RK3328', id: 'friendlyarm_nanopi-r2s'},
+                {name: 'NanoPi R2C', chip: 'RK3328', id: 'friendlyarm_nanopi-r2c'},
+                {name: 'NanoPi R2C Plus', chip: 'RK3328', id: 'friendlyarm_nanopi-r2c-plus'},
+                {name: 'NanoPi R3S', chip: 'RK3566', id: 'friendlyarm_nanopi-r3s'},
                 {name: 'NanoPi R4S', chip: 'RK3399', id: 'friendlyarm_nanopi-r4s'},
+                {name: 'NanoPi R4SE', chip: 'RK3399', id: 'friendlyarm_nanopi-r4se'},
+                {name: 'NanoPi R4S 企业版', chip: 'RK3399', id: 'friendlyarm_nanopi-r4s-enterprise'},
                 {name: 'NanoPi R5S', chip: 'RK3568', id: 'friendlyarm_nanopi-r5s'},
                 {name: 'NanoPi R5C', chip: 'RK3568', id: 'friendlyarm_nanopi-r5c'},
                 {name: 'NanoPi R6S', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6s'},
                 {name: 'NanoPi R6C', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6c'},
+                {name: 'NanoPi R76S', chip: 'RK3588', id: 'friendlyarm_nanopi-r76s'},
+                {name: 'NanoPC T4', chip: 'RK3399', id: 'friendlyarm_nanopc-t4'},
                 {name: 'NanoPC T6', chip: 'RK3588', id: 'friendlyarm_nanopc-t6'},
                 {name: 'OrangePi 5', chip: 'RK3588S', id: 'xunlong_orangepi-5'},
                 {name: 'OrangePi 5 Plus', chip: 'RK3588', id: 'xunlong_orangepi-5-plus'},
+                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus'},
+                {name: 'OrangePi R1 Plus LTS', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus-lts'},
                 {name: 'Fastrhino R66S', chip: 'RK3568', id: 'lunzn_fastrhino-r66s'},
                 {name: 'Fastrhino R68S', chip: 'RK3568', id: 'lunzn_fastrhino-r68s'},
-                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus'},
+                {name: 'EZPRO MRKAIO M68S', chip: 'RK3568', id: 'ezpro_mrkaio-m68s'},
+            
             ],
             X86: [
                 {name: '通用 x86_64', chip: 'X86_64', id: 'generic'},
@@ -338,6 +371,7 @@
                 {name: 'Anysafe E1', chip: 'IPQ6000', id: 'anysafe_e1'},
                 {name: 'CMIOT AX18', chip: 'IPQ6010', id: 'cmiot_ax18'},
                 {name: 'Link NN6000 v1', chip: 'IPQ6000', id: 'link_nn6000-v1'},
+                {name: 'Link NN6000 v2', chip: 'IPQ6000', id: 'link_nn6000-v2'},
                 {name: 'SY Y6010', chip: 'IPQ6010', id: 'sy_y6010'},
                 {name: 'ZN M2', chip: 'IPQ6000', id: 'zn_m2'},
             ],
@@ -419,11 +453,13 @@
                 {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议'},
                 {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
                 {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
+                {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
             ],
             storage: [
                 {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、S.M.A.R.T'},
                 {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载'},
                 {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅'},
+                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
                 {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
                 {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享'},
                 {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、用户认证'},
@@ -444,11 +480,15 @@
                 {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端'},
                 {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端'},
                 {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析'},
+                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析、自动更新'},
                 {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS'},
                 {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告'},
                 {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、防污染'},
                 {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS'},
                 {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网'},
+                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
+                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: '服务端/客户端'},
+                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
                 {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
                 {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端'},
                 {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理'},
@@ -475,6 +515,7 @@
                 {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
                 {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理'},
                 {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist'},
+                {name: 'VNT', pkg: 'luci-app-vnt', desc: 'VNT 组网', features: '异地组网'},
             ],
             theme: [
                 {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果'},
@@ -516,6 +557,7 @@
                 {name: '网易云解锁', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权解锁'},
                 {name: 'TVHelper', pkg: 'tvhelper', desc: '盒子助手', features: '直播源'},
                 {name: 'Store', pkg: 'luci-app-store', desc: 'iStore', features: '应用商店'},
+                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
                 {name: 'UU 加速', pkg: 'luci-app-uugamebooster', desc: 'UU 加速器', features: '游戏加速'},
                 {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '行为管理'},
                 {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},

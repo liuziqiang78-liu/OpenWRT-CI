@@ -1,0 +1,1 @@
+{"name":"V2Ray Server","package":"luci-app-v2ray-server","description":"V2Ray 服务器","features":"服务器管理","category":"proxy","repository":"https://github.com/openwrt/luci.git"}

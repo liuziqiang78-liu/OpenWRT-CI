@@ -1,0 +1,1 @@
+{"name":"OpenVPN","package":"luci-app-openvpn-server-client","description":"OpenVPN","features":"服务端/客户端","category":"network","repository":"https://github.com/openwrt/luci.git"}
