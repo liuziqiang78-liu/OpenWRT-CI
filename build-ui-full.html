@@ -178,11 +178,11 @@
                         <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="debounceSearch()">
                     </div>
                     <div class="plugin-tabs" id="plugin-tabs">
-                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">13</span>)</div>
-                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">17</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">41</span>)</div>
+                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
+                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">37</span>)</div>
                         <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
-                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">29</span>)</div>
+                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
                     </div>
                     <div class="select-all-bar">
                         <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
@@ -453,13 +453,11 @@
                 {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议'},
                 {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
                 {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
-                {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
-            ],
+                ],
             storage: [
                 {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、S.M.A.R.T'},
                 {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载'},
                 {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅'},
-                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
                 {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
                 {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享'},
                 {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、用户认证'},
@@ -480,7 +478,6 @@
                 {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端'},
                 {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端'},
                 {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析'},
-                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析、自动更新'},
                 {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS'},
                 {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告'},
                 {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、防污染'},
@@ -489,8 +486,6 @@
                 {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
                 {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: '服务端/客户端'},
                 {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
-                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
-                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端'},
                 {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理'},
                 {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理'},
                 {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时监控'},
@@ -506,7 +501,6 @@
                 {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告'},
                 {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告'},
                 {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别'},
-                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
                 {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播'},
                 {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: '无缝漫游'},
                 {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速'},
@@ -560,7 +554,6 @@
                 {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
                 {name: 'UU 加速', pkg: 'luci-app-uugamebooster', desc: 'UU 加速器', features: '游戏加速'},
                 {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '行为管理'},
-                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
                 {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务', features: '计划执行'},
             ]
         };
