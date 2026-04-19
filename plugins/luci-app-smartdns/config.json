@@ -4,5 +4,6 @@
     "description": "智能 DNS",
     "features": "多上游 DNS",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-smartdns.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

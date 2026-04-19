@@ -4,5 +4,6 @@
     "description": "访客 WiFi",
     "features": "隔离网络",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-guest-wifi.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

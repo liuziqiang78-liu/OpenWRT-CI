@@ -4,5 +4,6 @@
     "description": "分区扩容",
     "features": "无损扩容",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-partexp.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

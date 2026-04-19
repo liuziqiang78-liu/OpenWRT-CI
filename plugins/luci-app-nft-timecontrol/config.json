@@ -4,5 +4,6 @@
     "description": "上网时间",
     "features": "定时断网",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-nft-timecontrol.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

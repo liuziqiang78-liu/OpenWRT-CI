@@ -1,1 +1,9 @@
-{"name":"Transmission","package":"luci-app-transmission","description":"BT 下载","features":"轻量 BT","category":"storage","repository":"https://github.com/openwrt/luci.git"}
+{
+    "name": "Transmission",
+    "package": "luci-app-transmission",
+    "description": "BT 下载",
+    "features": "轻量 BT",
+    "category": "storage",
+    "repository": "",
+    "note": "在 feeds 中已有"
+}

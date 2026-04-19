@@ -4,5 +4,6 @@
     "description": "网络唤醒",
     "features": "远程开机",
     "category": "system",
-    "repository": "https://github.com/sirpdboy/luci-app-timewol.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

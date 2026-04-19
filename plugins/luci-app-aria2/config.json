@@ -4,5 +4,5 @@
     "description": "下载工具",
     "features": "HTTP/FTP/BT 下载",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-aria2.git"
+    "repository": "https://github.com/sbwml/feeds_packages_net_aria2.git"
 }

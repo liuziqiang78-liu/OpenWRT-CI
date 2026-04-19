@@ -4,5 +4,6 @@
     "description": "FTP 服务器",
     "features": "FTP 服务",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-vsftpd.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

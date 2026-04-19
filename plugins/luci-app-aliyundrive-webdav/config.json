@@ -4,5 +4,5 @@
     "description": "阿里云盘",
     "features": "阿里云盘集成",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-aliyundrive-webdav.git"
+    "repository": "https://github.com/sbwml/aliyundrive-webdav.git"
 }

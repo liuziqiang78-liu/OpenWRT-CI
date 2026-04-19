@@ -4,5 +4,6 @@
     "description": "NekoBox 客户端",
     "features": "Neko 核心、多协议",
     "category": "proxy",
-    "repository": "https://github.com/sbwml/luci-app-nekobox.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

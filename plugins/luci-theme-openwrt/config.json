@@ -1,1 +1,8 @@
-{"name":"OpenWrt","package":"luci-theme-openwrt","description":"经典主题","features":"原始风格","category":"theme","repository":"https://github.com/openwrt/luci.git"}
+{
+    "name": "OpenWrt",
+    "package": "luci-theme-openwrt",
+    "description": "经典主题",
+    "features": "原始风格",
+    "category": "theme",
+    "repository": "https://github.com/openwrt/luci.git"
+}

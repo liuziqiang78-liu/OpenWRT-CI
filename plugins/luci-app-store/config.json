@@ -4,5 +4,6 @@
     "description": "iStore",
     "features": "应用商店",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-store.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

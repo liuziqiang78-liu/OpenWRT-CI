@@ -4,5 +4,6 @@
     "description": "内网穿透",
     "features": "虚拟局域网",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-zerotier.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

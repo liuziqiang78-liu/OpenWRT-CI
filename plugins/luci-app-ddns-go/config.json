@@ -4,5 +4,6 @@
     "description": "动态 DNS",
     "features": "轻量 DDNS",
     "category": "network",
-    "repository": "https://github.com/sirpdboy/luci-app-ddns-go.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

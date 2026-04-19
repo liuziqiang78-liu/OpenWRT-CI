@@ -4,5 +4,6 @@
     "description": "FRP 客户端",
     "features": "内网穿透",
     "category": "network",
-    "repository": "https://github.com/sirpdboy/luci-app-frpc.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

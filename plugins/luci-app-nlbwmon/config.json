@@ -4,5 +4,6 @@
     "description": "流量统计",
     "features": "按 IP 统计",
     "category": "network",
-    "repository": "https://github.com/jow-/luci-app-nlbwmon.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

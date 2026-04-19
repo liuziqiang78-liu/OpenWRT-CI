@@ -4,5 +4,6 @@
     "description": "SNMP 监控",
     "features": "设备管理",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-snmpd.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

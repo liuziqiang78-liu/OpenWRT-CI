@@ -4,5 +4,6 @@
     "description": "迅雷下载",
     "features": "远程下载",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-thunder.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

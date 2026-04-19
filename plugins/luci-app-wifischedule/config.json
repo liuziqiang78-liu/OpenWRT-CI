@@ -4,5 +4,6 @@
     "description": "WiFi 计划",
     "features": "定时开关",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-wifischedule.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

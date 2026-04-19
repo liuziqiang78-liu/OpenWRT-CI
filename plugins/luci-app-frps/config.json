@@ -4,5 +4,6 @@
     "description": "FRP 服务端",
     "features": "FRP 管理",
     "category": "network",
-    "repository": "https://github.com/sirpdboy/luci-app-frps.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

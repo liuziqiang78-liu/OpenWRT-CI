@@ -4,5 +4,6 @@
     "description": "Material3",
     "features": "动态主题",
     "category": "theme",
-    "repository": "https://github.com/kenzok8/luci-theme-material3.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

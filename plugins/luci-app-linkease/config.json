@@ -4,5 +4,6 @@
     "description": "易有云",
     "features": "文件管理、远程访问",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-linkease.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

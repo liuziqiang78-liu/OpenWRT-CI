@@ -4,5 +4,6 @@
     "description": "Mihomo 透明代理",
     "features": "Transparent Proxy、高性能、规则分流",
     "category": "proxy",
-    "repository": "https://github.com/sbwml/luci-app-nikki.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

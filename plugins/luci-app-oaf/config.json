@@ -4,5 +4,6 @@
     "description": "应用过滤",
     "features": "应用识别",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-oaf.git"
+    "repository": "",
+    "note": "源仓库已删除，使用 feeds 中的版本"
 }

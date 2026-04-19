@@ -4,5 +4,6 @@
     "description": "UU 加速器",
     "features": "游戏加速",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-uugamebooster.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

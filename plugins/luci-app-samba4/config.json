@@ -5,5 +5,5 @@
     "features": "SMB/CIFS 共享",
     "category": "storage",
     "repository": "",
-    "note": "已在 immortalwrt/luci feeds 中，无需单独克隆"
+    "note": "在 immortalwrt/luci feeds 中已有"
 }

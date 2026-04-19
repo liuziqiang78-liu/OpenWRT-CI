@@ -316,15 +316,24 @@ jobs:
                 
                 # 克隆到 package/ (仓库为空表示已在 feeds 中)
                 if [ -z "$REPO" ] || [ "$REPO" = "null" ]; then
-                  echo "  ℹ️  仓库为空，使用 feeds 中的版本"
-                  SUCCESS=$((SUCCESS + 1))
+                  # 检查是否标记为不可用
+                  NOTE=$(jq -r '.note // ""' "$PLUGIN_DIR/config.json" 2>/dev/null)
+                  if echo "$NOTE" | grep -q "不可用"; then
+                    echo "  🚫 仓库为空且标记不可用，跳过"
+                    FAILED=$((FAILED + 1))
+                  else
+                    echo "  ℹ️  仓库为空，使用 feeds 中的版本"
+                    SUCCESS=$((SUCCESS + 1))
+                  fi
                 elif [ ! -d "./package/$PLUGIN" ]; then
                   if git clone --depth=1 "$REPO" "./package/$PLUGIN" 2>/dev/null; then
                     echo "  ✅ 克隆成功"
                     SUCCESS=$((SUCCESS + 1))
                   else
-                    echo "  ❌ 克隆失败，将使用 feeds 版本（如有）"
+                    echo "  ❌ 克隆失败，跳过此插件"
                     FAILED=$((FAILED + 1))
+                    # 不写入配置，避免 make defconfig 找不到包
+                    continue
                   fi
                 else
                   echo "  ⚠️  已存在，跳过"
@@ -351,9 +360,9 @@ jobs:
                     echo "CONFIG_PACKAGE_${PLUGIN}=y" >> .config
                     SUCCESS=$((SUCCESS + 1))
                   else
-                    echo "  ❌ 回退克隆失败"
-                    echo "CONFIG_PACKAGE_${PLUGIN}=y" >> .config
+                    echo "  ❌ 回退克隆失败，跳过"
                     FAILED=$((FAILED + 1))
+                    continue
                   fi
                 else
                   echo "  ⚠️  无仓库映射，仅写入配置"

@@ -4,5 +4,6 @@
     "description": "Xray 代理",
     "features": "VLESS/Vmess/XTLS/Reality",
     "category": "proxy",
-    "repository": "https://github.com/sbwml/luci-app-xray.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

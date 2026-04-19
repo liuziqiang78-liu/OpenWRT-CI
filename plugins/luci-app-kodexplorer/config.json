@@ -4,5 +4,6 @@
     "description": "可道云网盘",
     "features": "在线办公",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-kodexplorer.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }

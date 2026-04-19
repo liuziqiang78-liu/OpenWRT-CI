@@ -4,5 +4,6 @@
     "description": "端口映射",
     "features": "自动映射",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-natmap.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

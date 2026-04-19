@@ -1,1 +1,8 @@
-{"name":"iStore","package":"luci-app-istore","description":"应用商店","features":"插件管理","category":"system","repository":"https://github.com/openwrt/luci.git"}
+{
+    "name": "iStore",
+    "package": "luci-app-istore",
+    "description": "应用商店",
+    "features": "插件管理",
+    "category": "system",
+    "repository": "https://github.com/openwrt/luci.git"
+}

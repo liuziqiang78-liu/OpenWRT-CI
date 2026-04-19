@@ -4,5 +4,6 @@
     "description": "云盘同步",
     "features": "50+ 云盘支持",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-rclone.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

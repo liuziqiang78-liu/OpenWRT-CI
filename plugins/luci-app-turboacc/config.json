@@ -4,5 +4,6 @@
     "description": "网络加速",
     "features": "硬件加速",
     "category": "network",
-    "repository": "https://github.com/chenmozhijin/luci-app-turboacc.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

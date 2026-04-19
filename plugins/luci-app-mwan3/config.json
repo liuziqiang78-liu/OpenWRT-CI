@@ -1,1 +1,9 @@
-{"name":"MWAN3","package":"luci-app-mwan3","description":"负载均衡","features":"多 WAN 口、故障转移","category":"network","repository":"https://github.com/openwrt/luci.git"}
+{
+    "name": "MWAN3",
+    "package": "luci-app-mwan3",
+    "description": "负载均衡",
+    "features": "多 WAN 口、故障转移",
+    "category": "network",
+    "repository": "",
+    "note": "在 feeds 中已有"
+}

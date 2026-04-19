@@ -4,5 +4,6 @@
     "description": "HTTPS 证书",
     "features": "自动续签",
     "category": "system",
-    "repository": "https://github.com/sbwml/luci-app-acme.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

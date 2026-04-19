@@ -4,5 +4,6 @@
     "description": "端口转发",
     "features": "TCP/UDP 转发",
     "category": "network",
-    "repository": "https://github.com/sbwml/luci-app-socat.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

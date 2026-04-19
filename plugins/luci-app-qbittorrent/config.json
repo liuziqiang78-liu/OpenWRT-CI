@@ -4,5 +4,6 @@
     "description": "BT 下载",
     "features": "BT/磁力链、RSS 订阅",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-qbittorrent.git"
+    "repository": "",
+    "note": "在 feeds 中已有"
 }

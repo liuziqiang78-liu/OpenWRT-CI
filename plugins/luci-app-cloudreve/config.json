@@ -4,5 +4,6 @@
     "description": "私有云盘",
     "features": "私有云存储",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-cloudreve.git"
+    "repository": "",
+    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
 }
