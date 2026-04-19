@@ -246,6 +246,43 @@ jobs:
           
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+      # ========== 缓存系统 (工具链 + ccache + 下载包) ==========
+      - name: Restore Toolchain Cache
+        id: cache-toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./wrt/.ccache
+            ./wrt/staging_dir/host
+            ./wrt/staging_dir/tool
+          key: openwrt-toolchain-${{ inputs.TARGET_PLATFORM }}-${{ inputs.WRT_SOURCE }}-${{ env.WRT_HASH }}
+          restore-keys: |
+            openwrt-toolchain-${{ inputs.TARGET_PLATFORM }}-${{ inputs.WRT_SOURCE }}-
+            openwrt-toolchain-${{ inputs.TARGET_PLATFORM }}-
+
+      - name: Restore Download Cache
+        uses: actions/cache@v4
+        with:
+          path: ./wrt/dl
+          key: openwrt-dl-${{ inputs.TARGET_PLATFORM }}-${{ hashFiles('Config/*.txt') }}
+          restore-keys: |
+            openwrt-dl-${{ inputs.TARGET_PLATFORM }}-
+
+      - name: Update Toolchain Timestamps
+        if: steps.cache-toolchain.outputs.cache-hit == 'true'
+        run: |
+          if [ -d "./wrt/staging_dir" ]; then
+            echo "✅ 命中工具链缓存，跳过工具链编译"
+            # 更新时间戳欺骗构建系统
+            find ./wrt/staging_dir -type d -name "stamp" -not -path "*target*" 2>/dev/null | while read -r DIR; do
+              find "$DIR" -type f -exec touch {} + 2>/dev/null
+            done
+            mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
+            echo "🔧 工具链缓存已恢复，编译将大幅加速"
+          else
+            echo "⚠️  无缓存，首次编译需完整构建工具链"
+          fi
+
       - name: Add Chinese language configuration files
         run: |
           echo "添加中文语言配置文件..."
