@@ -32,12 +32,9 @@ on:
           - MEDIATEK
           - ROCKCHIP
           - X86
-          - IPQ50XX-WIFI-YES
-          - IPQ50XX-WIFI-NO
-          - IPQ60XX-WIFI-YES
-          - IPQ60XX-WIFI-NO
-          - IPQ807X-WIFI-YES
-          - IPQ807X-WIFI-NO
+          - IPQ50XX
+          - IPQ60XX
+          - IPQ807X
         default: 'MEDIATEK'
       
       # 科学上网插件
@@ -268,29 +265,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Check available Chinese language packages
-        run: |
-          cd ./wrt/
-          echo "🔍 检查可用的中文语言包..."
-          echo ""
-          echo "搜索 luci-i18n 包..."
-          find ./feeds -name "Makefile" -type f | xargs grep -l "luci-i18n" | head -10 | while read file; do
-            PKG_NAME=$(grep -o "PKG_NAME:=.*" "$file" | cut -d: -f2 | tr -d ' ')
-            echo "找到包: $PKG_NAME"
-          done || true
-          
-          echo ""
-          echo "搜索中文语言包 (zh-cn, zh_Hans)..."
-          find ./feeds -name "Makefile" -type f | xargs grep -i "zh-cn\|zh_Hans" 2>/dev/null | head -20 | while read line; do
-            echo "$line"
-          done || echo "未找到中文语言包信息"
-          
-          echo ""
-          echo "列出 feeds/luci 中的语言包..."
-          ls -la ./feeds/luci/ 2>/dev/null || echo "feeds/luci 目录不存在"
-          
-          echo "✅ 语言包检查完成"
-
       - name: Install Custom Plugins
         env:
           PLUGIN_LIST: ${{ needs.parse-config.outputs.plugin-list }}
@@ -416,14 +390,26 @@ jobs:
           fi
 
       - name: Generate Configuration
+        env:
+          WRT_CONFIG: ${{ inputs.TARGET_PLATFORM }}
+          WRT_THEME: ${{ inputs.THEME }}
+          WRT_SSID: ${{ inputs.WIFI_SSID }}
+          WRT_WORD: ${{ inputs.WIFI_PASSWORD }}
+          WRT_IP: ${{ inputs.LAN_IP }}
+          WRT_NAME: ${{ inputs.LOGIN_USERNAME }}
+          WRT_PW: ${{ inputs.LOGIN_PASSWORD }}
+          WRT_TARGET: ${{ inputs.TARGET_PLATFORM }}
         run: |
           cd ./wrt/
           
-          # 设置主题变量
-          THEME="${{ inputs.THEME }}"
-          
           # 使用基础配置
-          cat $GITHUB_WORKSPACE/Config/${{ needs.parse-config.outputs.config-file }}.txt > .config
+          CONFIG_FILE="$GITHUB_WORKSPACE/Config/${WRT_CONFIG}.txt"
+          if [ ! -f "$CONFIG_FILE" ]; then
+            echo "❌ 配置文件不存在: $CONFIG_FILE"
+            exit 1
+          fi
+          
+          cat "$CONFIG_FILE" > .config
           cat $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
           
           # 添加用户自定义配置
@@ -438,74 +424,112 @@ jobs:
             fi
           done
           
-          make defconfig -j$(nproc)
-          
+          # ========== WiFi 配置 (修复 WiFi 不生效问题) ==========
           echo ""
-          echo "🔧 配置中文语言支持..."
+          echo "🔧 配置 WiFi 设置..."
           
-          # 智能检测并添加中文语言包
-          echo "搜索可用的中文语言包..."
+          WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
+          WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
           
-          # 方法1：检查 feeds 中是否存在 luci-i18n-base-zh-cn
-          ZH_CN_PACKAGE_FOUND=false
-          ZH_HANS_PACKAGE_FOUND=false
-          
-          # 搜索 base 语言包（最基础的）
-          if find ./feeds -name "Makefile" -type f -exec grep -l "PKG_NAME:=luci-i18n-base-zh-cn" {} \; 2>/dev/null | grep -q .; then
-            echo "✅ 发现 luci-i18n-base-zh-cn 语言包"
-            ZH_CN_PACKAGE_FOUND=true
-            echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+          if [ -f "$WIFI_SH" ]; then
+            echo "✅ 找到 WiFi 配置脚本: $WIFI_SH"
+            # 修改 WiFi 名称
+            sed -i "s/BASE_SSID='.*'/BASE_SSID='${WRT_SSID}'/g" "$WIFI_SH"
+            # 修改 WiFi 密码
+            sed -i "s/BASE_WORD='.*'/BASE_WORD='${WRT_WORD}'/g" "$WIFI_SH"
+            echo "✅ WiFi SSID: ${WRT_SSID}"
+            echo "✅ WiFi 密码已设置"
+          elif [ -f "$WIFI_UC" ]; then
+            echo "✅ 找到 WiFi UC 配置: $WIFI_UC"
+            # 修改 WiFi 名称
+            sed -i "s/ssid='.*'/ssid='${WRT_SSID}'/g" "$WIFI_UC"
+            # 修改 WiFi 密码
+            sed -i "s/key='.*'/key='${WRT_WORD}'/g" "$WIFI_UC"
+            # 修改 WiFi 地区
+            sed -i "s/country='.*'/country='CN'/g" "$WIFI_UC"
+            # 修改 WiFi 加密
+            sed -i "s/encryption='.*'/encryption='psk2+ccmp'/g" "$WIFI_UC"
+            echo "✅ WiFi SSID: ${WRT_SSID}"
+            echo "✅ WiFi 密码已设置"
           else
-            echo "⚠️  未找到 luci-i18n-base-zh-cn"
+            echo "⚠️  未找到 WiFi 配置文件，尝试 uci-defaults 方式"
+            # 创建 uci-defaults 脚本设置 WiFi
+            mkdir -p ./files/etc/uci-defaults
+            cat > ./files/etc/uci-defaults/99-setup-wifi << 'WIFIEOF'
+          #!/bin/sh
+          # 设置 WiFi
+          for iface in $(uci show wireless | grep "ssid=" | cut -d. -f2 | sort -u); do
+            uci set wireless.${iface}.ssid='WIFI_SSID_PLACEHOLDER'
+            uci set wireless.${iface}.encryption='psk2+ccmp'
+            uci set wireless.${iface}.key='WIFI_KEY_PLACEHOLDER'
+            uci set wireless.${iface}.disabled='0'
+          done
+          uci commit wireless
+          WIFIEOF
+            # 替换占位符
+            sed -i "s/WIFI_SSID_PLACEHOLDER/${WRT_SSID}/g" ./files/etc/uci-defaults/99-setup-wifi
+            sed -i "s/WIFI_KEY_PLACEHOLDER/${WRT_WORD}/g" ./files/etc/uci-defaults/99-setup-wifi
+            chmod +x ./files/etc/uci-defaults/99-setup-wifi
+            echo "✅ 已创建 WiFi 初始化脚本"
           fi
           
-          # 搜索 zh_Hans 变体
-          if find ./feeds -name "Makefile" -type f -exec grep -l "PKG_NAME:=luci-i18n-base-zh_Hans" {} \; 2>/dev/null | grep -q .; then
-            echo "✅ 发现 luci-i18n-base-zh_Hans 语言包"
-            ZH_HANS_PACKAGE_FOUND=true
-            echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
-          else
-            echo "⚠️  未找到 luci-i18n-base-zh_Hans"
-          fi
-          
-          # 如果都没有找到，尝试搜索其他基础语言包变体
-          if [ "$ZH_CN_PACKAGE_FOUND" = false ] && [ "$ZH_HANS_PACKAGE_FOUND" = false ]; then
-            echo "搜索其他中文语言包变体..."
-            OTHER_ZH_PACKAGE=$(find ./feeds -name "Makefile" -type f -exec grep -l "zh-cn\|zh_Hans\|zh_CN" {} \; 2>/dev/null | head -1 | xargs grep -o "PKG_NAME:=luci-i18n-[^ ]*" 2>/dev/null | head -1 | cut -d: -f2 || echo "")
+          # ========== QUALCOMMAX DTS 配置 ==========
+          if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]] || [[ "${WRT_TARGET^^}" == *"IPQ"* ]]; then
+            echo ""
+            echo "🔧 配置 QUALCOMMAX 平台设置..."
             
-            if [ -n "$OTHER_ZH_PACKAGE" ]; then
-              echo "✅ 发现可用的中文语言包: $OTHER_ZH_PACKAGE"
-              echo "CONFIG_PACKAGE_${OTHER_ZH_PACKAGE}=y" >> .config
+            # 高通平台调整
+            DTS_PATH="./target/linux/qualcommax/dts/"
+            
+            # 取消 nss 相关 feed
+            echo "CONFIG_FEED_nss_packages=n" >> .config
+            echo "CONFIG_FEED_sqm_scripts_nss=n" >> .config
+            
+            # 开启 sqm-nss 插件
+            echo "CONFIG_PACKAGE_luci-app-sqm=y" >> .config
+            echo "CONFIG_PACKAGE_sqm-scripts-nss=y" >> .config
+            
+            # 设置 NSS 版本
+            echo "CONFIG_NSS_FIRMWARE_VERSION_11_4=n" >> .config
+            if [[ "${WRT_CONFIG,,}" == *"ipq50"* ]]; then
+              echo "CONFIG_NSS_FIRMWARE_VERSION_12_2=y" >> .config
             else
-              echo "❌ 未找到任何中文语言包，界面将显示英文"
-              echo "# 警告：未找到中文语言包，界面将显示英文" >> .config
-              
-              # 强制尝试添加基础中文语言包配置（可能无效，但尝试）
-              echo "CONFIG_PACKAGE_luci-i18n-base-zh_Hans=y" >> .config
-              echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
-              echo "⚠️  已强制添加中文语言包配置，实际效果依赖 feeds 是否存在"
+              echo "CONFIG_NSS_FIRMWARE_VERSION_12_5=y" >> .config
             fi
+            
+            # 其他调整
+            echo "CONFIG_PACKAGE_kmod-usb-serial-qualcomm=y" >> .config
+            
+            echo "✅ QUALCOMMAX 平台配置完成"
           fi
           
-          # 设置默认语言配置
-          echo "CONFIG_DEFAULT_luci-theme-${THEME:-argon}=y" >> .config
-          echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
+          # ========== 路由器基本配置 ==========
+          CFG_FILE="./package/base-files/files/bin/config_generate"
+          if [ -f "$CFG_FILE" ]; then
+            # 修改默认 IP 地址
+            sed -i "s/192\.168\.[0-9]*\.[0-9]*/${WRT_IP}/g" "$CFG_FILE"
+            # 修改默认主机名
+            sed -i "s/hostname='.*'/hostname='${WRT_NAME}'/g" "$CFG_FILE"
+            echo "✅ 路由器 IP: ${WRT_IP}"
+          fi
           
-          # 关键：编译时包含中文语言包 (VIKINGYFY 配置)
+          # ========== iptables 配置 ==========
+          echo "# 使用 iptables 作为防火墙后端" >> .config
+          echo "CONFIG_PACKAGE_iptables=y" >> .config
+          echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
+          echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
+          echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
+          echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
+          
+          # ========== 中文配置 ==========
           echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
+          echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
+          THEME="${WRT_THEME:-argon}"
+          echo "CONFIG_DEFAULT_luci-theme-${THEME}=y" >> .config
+          echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
           
-          # 主题关联配置
-          echo "CONFIG_PACKAGE_luci-app-${THEME:-argon}-config=y" >> .config
-          
-          # 记录语言包状态
-          if [ "$ZH_CN_PACKAGE_FOUND" = true ] || [ "$ZH_HANS_PACKAGE_FOUND" = true ]; then
-            echo "✅ 中文语言包已配置"
-          else
-            echo "⚠️  未配置中文语言包，界面可能显示英文"
-            echo "# 未找到中文语言包，依赖预配置文件和首次启动脚本" >> .config
-          fi
-          
-          echo "✅ 中文语言配置已完成"
+          # ========== make defconfig ==========
+          make defconfig -j$(nproc)
 
       - name: Show Configuration
         run: |
@@ -516,31 +540,21 @@ jobs:
           echo "分支：${{ inputs.WRT_BRANCH }}"
           echo "平台：${{ inputs.TARGET_PLATFORM }}"
           echo "主题：${{ inputs.THEME }}"
+          echo "WiFi SSID：${{ inputs.WIFI_SSID }}"
           echo "插件列表：${{ needs.parse-config.outputs.plugin-list }}"
-          echo "插件版本：${{ needs.parse-config.outputs.plugin-versions }}"
           echo "======================================"
           
-          # 显示配置摘要
           echo ""
           echo "📦 已启用的主要插件:"
           grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | sort
           
           echo ""
-          echo "🔍 插件配置详细状态:"
-          echo "总数: $(grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=y" | wc -l) 个插件"
-          echo "被禁用的插件:"
-          grep "CONFIG_PACKAGE_luci-app-" ./wrt/.config | grep "=n" | sort | head -10
-          
-          echo ""
-          echo "🌐 语言包配置状态:"
-          echo "中文语言包:"
-          grep -E "CONFIG_PACKAGE_luci-i18n.*(zh-cn|zh_Hans)" ./wrt/.config | grep "=y" | sort || echo "未找到中文语言包配置"
+          echo "📡 WiFi 相关配置:"
+          grep -i "wifi\|hostapd\|wpad\|ath11k\|mt76\|mac80211" ./wrt/.config | grep "=y" | sort || echo "无"
           
           echo ""
           echo "📋 完整配置中的语言相关设置:"
           grep -i "lang\|locale\|language\|i18n" ./wrt/.config | head -15 || true
-
-
 
       - name: Download Packages
         if: inputs.TEST_MODE == false
@@ -551,79 +565,29 @@ jobs:
       - name: Fix hostapd compile error (after download)
         if: inputs.TEST_MODE == false
         run: |
-          echo "======================================"
-          echo "🔧 修复 hostapd 编译错误 (下载后修复)"
-          echo "======================================"
-          echo "错误信息: 'struct hostapd_config' has no member named 'he_mu_edca'"
-          echo "修复方法: 添加条件编译守卫 #ifdef CONFIG_IEEE80211AX"
-          echo "======================================"
+          echo "🔧 修复 hostapd 编译错误..."
           
           cd ./wrt/
           
-          # 方法1: 查找并直接修改 hostapd.c (现在应该已经下载)
-          echo ""
-          echo "🔍 查找 hostapd.c 文件..."
-          # 在 build_dir 中查找最新的 hostapd 目录
+          # 查找 hostapd.c
           HOSTAPD_DIR=$(find ./build_dir -type d -name "hostapd-*" -o -name "hostapd-wpad-*" | grep -v ".backup" | head -1)
           if [ -n "$HOSTAPD_DIR" ]; then
-            echo "找到 hostapd 目录: $HOSTAPD_DIR"
             HOSTAPD_FOUND=$(find "$HOSTAPD_DIR" -name "hostapd.c" -type f | head -1)
           else
-            # 备用查找路径
             HOSTAPD_FOUND=$(find . -type f -name "hostapd.c" -path "*/hostapd-*" -o -path "*/hostapd-wpad-*" | grep -v ".backup" | head -1)
           fi
           
           if [ -n "$HOSTAPD_FOUND" ] && [ -f "$HOSTAPD_FOUND" ]; then
-            echo "✅ 找到文件: $HOSTAPD_FOUND"
-            echo "📝 备份原文件..."
-            BACKUP_PATH="${HOSTAPD_FOUND}.backup.$(date +%s)"
-            cp "$HOSTAPD_FOUND" "$BACKUP_PATH"
-            echo "备份保存到: $BACKUP_PATH"
-            
-            echo "🔧 应用条件编译修复..."
-            # 修复具体的错误行: hapd->iface->conf->he_mu_edca.he_qos_info &= 0xfff0;
+            echo "✅ 找到 hostapd.c: $HOSTAPD_FOUND"
+            cp "$HOSTAPD_FOUND" "${HOSTAPD_FOUND}.backup"
             sed -i 's/\(hapd->iface->conf->he_mu_edca\.he_qos_info &=\s*0xfff0;\)/#ifdef CONFIG_IEEE80211AX\n\1\n#endif/' "$HOSTAPD_FOUND"
-            
-            # 检查修复是否成功
-            if grep -q "#ifdef CONFIG_IEEE80211AX" "$HOSTAPD_FOUND"; then
-              echo "✅ 条件编译守卫已添加"
-              echo "修改预览:"
-              grep -n -B2 -A2 "he_mu_edca" "$HOSTAPD_FOUND" | head -10
-            else
-              echo "⚠️  未找到需要修复的行，可能文件结构不同"
-            fi
-          else
-            echo "⚠️  未找到 hostapd.c 文件，使用配置修复"
+            echo "✅ hostapd 修复完成"
           fi
           
-          # 方法2: 在配置中启用 802.11ax（确保编译通过）
-          echo ""
-          echo "⚙️  更新编译配置..."
-          if [ -f ".config" ]; then
-            # 检查是否已存在 CONFIG_IEEE80211AX 配置
-            if ! grep -q "CONFIG_IEEE80211AX" .config; then
-              echo "CONFIG_IEEE80211AX=y" >> .config
-              echo "✅ 已添加: CONFIG_IEEE80211AX=y"
-            elif grep -q "CONFIG_IEEE80211AX=$" .config; then
-              # 如果是空的，改为启用
-              sed -i 's/CONFIG_IEEE80211AX=$/CONFIG_IEEE80211AX=y/' .config
-              echo "✅ 已修改: CONFIG_IEEE80211AX=$ → CONFIG_IEEE80211AX=y"
-            else
-              echo "📋 CONFIG_IEEE80211AX 已配置，无需修改"
-            fi
-            
-            # 显示相关配置
-            echo ""
-            echo "📊 相关 WiFi 配置状态:"
-            grep -E "CONFIG_IEEE80211(AX|AC|BE|N)" .config || true
-          else
-            echo "⚠️  配置文件 .config 不存在"
+          # 确保 CONFIG_IEEE80211AX 启用
+          if [ -f ".config" ] && ! grep -q "CONFIG_IEEE80211AX=y" .config; then
+            echo "CONFIG_IEEE80211AX=y" >> .config
           fi
-          
-          echo ""
-          echo "======================================"
-          echo "✅ 修复步骤完成，继续编译..."
-          echo "======================================"
 
       - name: Compile Firmware
         if: inputs.TEST_MODE == false
@@ -634,7 +598,6 @@ jobs:
       - name: Package Firmware
         if: inputs.TEST_MODE == false
         run: |
-          # 设置环境变量用于发布标签
           echo "TAG_NAME=Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
           
           cd ./wrt/ && mkdir ./upload/
@@ -642,7 +605,7 @@ jobs:
           # 保存配置
           cp -f ./.config ./upload/Custom-Config-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M).txt
           
-          # 重命名固件
+          # 复制固件
           for FILE in $(find ./bin/targets/ -type f -iname "*.bin" -o -iname "*.img.gz"); do
             cp -f $FILE ./upload/
           done
@@ -652,15 +615,23 @@ jobs:
           sha256sum *.* > SHA256SUMS.txt
           md5sum *.* > MD5SUMS.txt
           
-          # 生成固件信息
           cat > FIRMWARE_INFO.md << EOF
           # 自定义编译固件信息
           
           **编译时间**: $(date '+%Y-%m-%d %H:%M:%S')
           **源码**: ${{ inputs.WRT_SOURCE }}
-          **分支**: ${{ inputs.TARGET_PLATFORM }}
           **平台**: ${{ inputs.TARGET_PLATFORM }}
           **主题**: ${{ inputs.THEME }}
+          
+          ## 登录信息
+          
+          | 项目 | 值 |
+          |------|-----|
+          | IP 地址 | ${{ inputs.LAN_IP }} |
+          | 用户名 | ${{ inputs.LOGIN_USERNAME }} |
+          | 密码 | ${{ inputs.LOGIN_PASSWORD }} |
+          | WiFi 名称 | ${{ inputs.WIFI_SSID }} |
+          | WiFi 密码 | ${{ inputs.WIFI_PASSWORD }} |
           
           ## 插件列表
           
@@ -688,9 +659,4 @@ jobs:
           files: ./wrt/.config
           body: |
             ## 自定义配置文件
-            
-            **生成时间**: $(date '+%Y-%m-%d %H:%M:%S')
-            **源码**: ${{ inputs.WRT_SOURCE }}
             **平台**: ${{ inputs.TARGET_PLATFORM }}
-            
-            此配置文件可用于手动编译。

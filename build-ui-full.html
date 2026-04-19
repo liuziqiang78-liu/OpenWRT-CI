@@ -22,7 +22,31 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; color: #555; font-weight: 600; font-size: 14px; }
         .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; -webkit-appearance: none; appearance: none; }
-        .form-group select:focus, .form-group input:focus { outline: none; border-color: #667eea; }
+        .form-group select:focus, .form-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        
+        /* 设备选择器 */
+        .device-selector { margin-bottom: 15px; }
+        .platform-tabs { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
+        .platform-tabs::-webkit-scrollbar { display: none; }
+        .platform-tab { padding: 10px 18px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; font-weight: 600; flex-shrink: 0; user-select: none; }
+        .platform-tab.active { background: #667eea; color: white; }
+        .platform-tab:hover:not(.active) { background: #f0f0ff; }
+        .platform-tab .wifi-icon { margin-left: 4px; }
+        
+        .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .device-card { background: white; padding: 14px; border-radius: 10px; border: 2px solid #e0e0e0; cursor: pointer; transition: all 0.2s; position: relative; }
+        .device-card:hover { border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); }
+        .device-card.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
+        .device-card .device-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .device-card .device-chip { font-size: 11px; color: #888; margin-bottom: 2px; }
+        .device-card.selected .device-chip { color: rgba(255,255,255,0.8); }
+        .device-card .device-wifi { font-size: 11px; color: #4CAF50; margin-top: 4px; }
+        .device-card.selected .device-wifi { color: rgba(255,255,255,0.9); }
+        .device-card .check-circle { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; }
+        .device-card.selected .check-circle { background: #4CAF50; border-color: #4CAF50; color: white; }
+        
+        .device-count { font-size: 13px; color: #666; margin-top: 10px; text-align: center; }
+        
         .plugin-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
         .plugin-tabs::-webkit-scrollbar { display: none; }
         .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; user-select: none; -webkit-user-select: none; pointer-events: auto; touch-action: manipulation; }
@@ -54,64 +78,17 @@
         .plugin-item:not(.expanded) .expand-indicator::before { content: '展开 ▼'; }
         .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
         .plugin-item.disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
-        .plugin-item.disabled:hover { transform: none; box-shadow: none; }
         
-        /* 编译进度弹窗 - 移动端优化 */
-        #build-progress {
-            bottom: max(20px, env(safe-area-inset-bottom));
-            right: max(20px, env(safe-area-inset-right));
-        }
-        
-        /* 加载动画优化 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .plugin-item {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        /* 按钮点击反馈 */
-        .btn:active {
-            transform: scale(0.98);
-        }
-        
-        /* 输入框焦点动画 */
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        /* 骨架屏加载 */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-        }
-        
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
         .search-box { margin-bottom: 15px; position: relative; background: #f8f9fa; padding: 10px 0; }
-        .plugin-tabs { position: relative; z-index: 10; }
         .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
         .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
         .btn:active { transform: scale(0.98); }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .status-box { padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
-        .status-box.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-        .status-box.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-        .badge { display: inline-block; padding: 4px 10px; background: #667eea; color: white; border-radius: 15px; font-size: 12px; margin: 2px; }
         .plugin-count { background: #667eea; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; margin-left: 8px; display: inline-block; }
         .select-all-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
         .btn-small { padding: 6px 12px; font-size: 13px; border-radius: 20px; border: 2px solid #667eea; background: white; color: #667eea; cursor: pointer; flex-shrink: 0; }
         .btn-small:active { transform: scale(0.95); background: #667eea; color: white; }
-        #category-count { font-size: 13px; color: #666; }
         
-        /* 移动端优化 */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .header { padding: 15px; }
@@ -119,27 +96,17 @@
             .content { padding: 10px; }
             .section { padding: 12px; }
             .plugin-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .device-grid { grid-template-columns: repeat(2, 1fr); }
             .plugin-item { padding: 10px; }
             .plugin-name { font-size: 13px; }
             .plugin-desc { font-size: 10px; }
-            .select-all-bar { justify-content: center; }
-            #summary div { font-size: 13px; }
         }
-        
         @media (max-width: 480px) {
             .header h1 { font-size: 1.3em; }
             .plugin-grid { grid-template-columns: 1fr; }
+            .device-grid { grid-template-columns: 1fr; }
             .plugin-tab { font-size: 12px; padding: 6px 12px; }
             .btn { font-size: 15px; padding: 12px 20px; }
-        }
-        
-        /* 横屏优化 */
-        @media (max-height: 600px) and (orientation: landscape) {
-            .header { padding: 10px; }
-            .header h1 { font-size: 1.4em; }
-            .content { padding: 10px; }
-            .section { padding: 10px; margin-bottom: 15px; }
-            .plugin-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
         }
     </style>
 </head>
@@ -147,7 +114,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 OpenWRT 自定义构建</h1>
-            <p>支持 100+ 插件，来自 openwrt.ai</p>
+            <p>选择你的设备 · 选择插件 · 一键编译</p>
         </div>
         
         <div class="content">
@@ -166,13 +133,14 @@
                 
                 <!-- OpenWRT 源码 -->
                 <div class="section">
-                    <h2>OpenWRT 源码</h2>
+                    <h2>📦 OpenWRT 源码</h2>
                     <div class="form-group">
                         <label>源码仓库 *</label>
                         <select id="wrt_source" required>
                             <option value="VIKINGYFY/immortalwrt" selected>VIKINGYFY/immortalwrt (推荐)</option>
                             <option value="immortalwrt/immortalwrt">immortalwrt/immortalwrt (官方)</option>
                             <option value="LiBwrt/openwrt-6.x">LiBwrt/openwrt-6.x (6.x 内核)</option>
+                            <option value="qosmio/openwrt-ipq">qosmio/openwrt-ipq (高通专用)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -185,31 +153,30 @@
                     </div>
                 </div>
                 
-                <!-- 目标平台 -->
+                <!-- 目标设备 -->
                 <div class="section">
-                    <h2>目标平台</h2>
-                    <div class="form-group">
-                        <label>设备平台 *</label>
-                        <select id="target_platform" required>
-                            <option value="MEDIATEK" selected>MEDIATEK (联发科)</option>
-                            <option value="ROCKCHIP">ROCKCHIP (瑞芯微)</option>
-                            <option value="X86">X86 (PC/虚拟机)</option>
-                            <option value="IPQ60XX-WIFI-YES">IPQ60XX (带 WiFi)</option>
-                            <option value="IPQ60XX-WIFI-NO">IPQ60XX (无 WiFi)</option>
-                        </select>
+                    <h2>🎯 目标设备</h2>
+                    <div class="device-selector">
+                        <div class="platform-tabs" id="platform-tabs">
+                            <div class="platform-tab active" data-platform="MEDIATEK" onclick="switchPlatform('MEDIATEK')">📱 联发科</div>
+                            <div class="platform-tab" data-platform="ROCKCHIP" onclick="switchPlatform('ROCKCHIP')">💎 瑞芯微</div>
+                            <div class="platform-tab" data-platform="X86" onclick="switchPlatform('X86')">💻 X86</div>
+                            <div class="platform-tab" data-platform="IPQ60XX" onclick="switchPlatform('IPQ60XX')">📡 IPQ60XX</div>
+                            <div class="platform-tab" data-platform="IPQ807X" onclick="switchPlatform('IPQ807X')">📡 IPQ807X</div>
+                            <div class="platform-tab" data-platform="IPQ50XX" onclick="switchPlatform('IPQ50XX')">📡 IPQ50XX</div>
+                        </div>
+                        <div id="device-grid" class="device-grid"></div>
+                        <div class="device-count" id="device-count"></div>
+                        <input type="hidden" id="target_platform" value="MEDIATEK">
                     </div>
                 </div>
                 
                 <!-- 插件选择 -->
                 <div class="section">
                     <h2>📦 插件选择 <span class="plugin-count" id="total-count">已选 0 个</span></h2>
-                    
-                    <!-- 搜索框 -->
                     <div class="search-box">
-                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件...（支持跨分类搜索）" oninput="debounceSearch()">
+                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="debounceSearch()">
                     </div>
-                    
-                    <!-- 分类标签 -->
                     <div class="plugin-tabs" id="plugin-tabs">
                         <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
                         <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
@@ -217,85 +184,68 @@
                         <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
                         <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
                     </div>
-                    
-                    <!-- 全选栏 -->
                     <div class="select-all-bar">
                         <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
                         <button type="button" class="btn-small" onclick="deselectAllCurrent()">取消全选</button>
                         <span id="category-count" style="color: #666;">已选 0 个</span>
                     </div>
-                    
-                    <!-- 插件网格 -->
                     <div id="plugin-grid" class="plugin-grid"></div>
                 </div>
                 
-                <!-- 主题选择 -->
+                <!-- 主题 -->
                 <div class="section">
-                    <h2>UI 主题</h2>
+                    <h2>🎨 UI 主题</h2>
                     <div class="form-group">
                         <label>选择主题 *</label>
                         <select id="theme" required>
                             <option value="argon" selected>🎨 Argon (推荐)</option>
                             <option value="aurora">🌅 Aurora</option>
                             <option value="kucat">🐱 Kucat</option>
-                            <option value="material">Material</option>
                             <option value="none">⚪ 默认主题</option>
                         </select>
                     </div>
                 </div>
                 
-                <!-- 防火墙选择 -->
+                <!-- 防火墙 -->
                 <div class="section">
-                    <h2>🛡️ 防火墙选择</h2>
-                    
+                    <h2>🛡️ 防火墙</h2>
                     <div class="form-group">
                         <label>防火墙类型 *</label>
                         <select id="firewall_type" required>
                             <option value="firewall4" selected>🔥 Firewall4 (NFTables - 推荐)</option>
                             <option value="iptables">📋 Iptables (传统兼容)</option>
                         </select>
-                        <div class="help-text">Firewall4 性能更好，Iptables 兼容性更好</div>
                     </div>
                 </div>
                 
                 <!-- 路由器配置 -->
                 <div class="section">
                     <h2>🔧 路由器配置</h2>
-                    
                     <div class="form-group">
                         <label>路由器默认 IP *</label>
                         <input type="text" id="lan_ip" value="192.168.1.1" placeholder="192.168.1.1">
-                        <div class="help-text">默认：192.168.1.1</div>
                     </div>
-                    
                     <div class="form-group">
                         <label>登录用户名 *</label>
                         <input type="text" id="login_username" value="root" placeholder="root">
-                        <div class="help-text">默认：root</div>
                     </div>
-                    
                     <div class="form-group">
                         <label>登录密码</label>
                         <input type="password" id="login_password" value="" placeholder="留空表示无密码">
-                        <div class="help-text">建议设置密码以保护路由器安全</div>
                     </div>
-                    
                     <div class="form-group">
                         <label>WiFi 名称 *</label>
                         <input type="text" id="wifi_ssid" value="OpenWrt" placeholder="OpenWrt">
-                        <div class="help-text">默认：OpenWrt</div>
                     </div>
-                    
                     <div class="form-group">
                         <label>WiFi 密码 *</label>
                         <input type="password" id="wifi_password" value="12345678" placeholder="12345678">
-                        <div class="help-text">默认：12345678 (建议修改)</div>
                     </div>
                 </div>
                 
-                <!-- 高级选项 -->
+                <!-- 高级 -->
                 <div class="section">
-                    <h2>高级选项</h2>
+                    <h2>⚙️ 高级选项</h2>
                     <div class="form-group">
                         <label>其他插件 (用空格分隔包名)</label>
                         <input type="text" id="other_plugins" placeholder="例如：luci-app-vlmcsd automount btop">
@@ -313,19 +263,11 @@
                     <h3>📋 配置摘要</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div><strong>源码:</strong> <span id="summary-source">VIKINGYFY/immortalwrt</span></div>
-                        <div><strong>平台:</strong> <span id="summary-platform">MEDIATEK</span></div>
+                        <div><strong>设备:</strong> <span id="summary-device">未选择</span></div>
+                        <div><strong>平台:</strong> <span id="summary-platform">-</span></div>
                         <div><strong>主题:</strong> <span id="summary-theme">Argon</span></div>
                         <div><strong>已选插件:</strong> <span id="summary-plugins">0 个</span></div>
-                    </div>
-                    
-                    <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #667eea;">
-                        <h4 style="color: #667eea; margin-bottom: 10px;">🔧 路由器配置</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px;">
-                            <div><strong>默认 IP:</strong> <span id="summary-lan-ip">192.168.1.1</span></div>
-                            <div><strong>用户名:</strong> <span id="summary-username">root</span></div>
-                            <div><strong>WiFi 名称:</strong> <span id="summary-wifi-ssid">OpenWrt</span></div>
-                            <div><strong>WiFi 密码:</strong> <span id="summary-wifi-password">12345678</span></div>
-                        </div>
+                        <div><strong>WiFi:</strong> <span id="summary-wifi">OpenWrt</span></div>
                     </div>
                 </div>
                 
@@ -335,870 +277,335 @@
     </div>
     
     <script>
-        // 完整插件数据库 (100+ 个)
-        const PLUGINS = {
-            proxy: [
-                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具', features: '支持多种协议、高性能转发、规则分流、日志记录'},
-                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端', features: '规则代理、节点切换、流量统计、订阅管理、Game 规则'},
-                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具', features: '多协议支持、自动切换、负载均衡、节点测试'},
-                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版', features: '新版架构、更好性能、更多协议、优化界面'},
-                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理', features: 'SS/SSR/Vmess/Trojan、规则分流、KCP 加速'},
-                {name: 'Nikki', pkg: 'luci-app-nikki', desc: 'Mihomo 透明代理', features: 'Transparent Proxy、高性能、规则分流'},
-                {name: 'Momo', pkg: 'luci-app-momo', desc: '代理工具', features: '简洁界面、快速连接、自动更新'},
-                {name: 'FullCombo Shark!', pkg: 'luci-app-fc', desc: '全能代理', features: '全能协议、一键配置、智能分流'},
-                {name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'Xray 核心、VLESS/Vmess、XTLS、Reality'},
-                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议、规则管理'},
-                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'v2ray 核心、Web 管理、多用户支持'},
-                {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: 'V2Ray 核心、服务器管理、多协议支持'}
+        // ========== 设备数据库 ==========
+        const DEVICES = {
+            MEDIATEK: [
+                {name: '小米 AX3000T', chip: 'MT7981', id: 'xiaomi_mi-router-ax3000t'},
+                {name: '小米 AX3000T (uboot)', chip: 'MT7981', id: 'xiaomi_mi-router-ax3000t-ubootmod'},
+                {name: '小米 WR30U', chip: 'MT7981', id: 'xiaomi_mi-router-wr30u-stock'},
+                {name: '小米 WR30U (uboot)', chip: 'MT7981', id: 'xiaomi_mi-router-wr30u-ubootmod'},
+                {name: '红米 AX6000', chip: 'MT7986', id: 'xiaomi_redmi-router-ax6000-stock'},
+                {name: '红米 AX6000 (uboot)', chip: 'MT7986', id: 'xiaomi_redmi-router-ax6000-ubootmod'},
+                {name: '360 T7', chip: 'MT7981', id: 'qihoo_360t7'},
+                {name: '京东云 RE-CP-03', chip: 'MT7981', id: 'jdcloud_re-cp-03'},
+                {name: '华硕 TUF-AX4200', chip: 'MT7986', id: 'asus_tuf-ax4200'},
+                {name: '华硕 TUF-AX6000', chip: 'MT7986', id: 'asus_tuf-ax6000'},
+                {name: 'H3C NX30 Pro', chip: 'MT7981', id: 'h3c_magic-nx30-pro'},
+                {name: 'CMCC A10', chip: 'MT7981', id: 'cmcc_a10-stock'},
+                {name: 'CMCC RAX3000M', chip: 'MT7986', id: 'cmcc_rax3000m'},
+                {name: 'Nokia EA0326GMP', chip: 'MT7981', id: 'nokia_ea0326gmp'},
+                {name: 'GL.iNet MT3000', chip: 'MT7981', id: 'glinet_gl-mt3000'},
+                {name: 'GL.iNet MT6000', chip: 'MT7986', id: 'glinet_gl-mt6000'},
+                {name: 'TP-Link XDR6088', chip: 'MT7986', id: 'tplink_tl-xdr6088'},
+                {name: 'TP-Link XDR4288', chip: 'MT7986', id: 'tplink_tl-xdr4288'},
+                {name: '锐捷 X60 Pro', chip: 'MT7986', id: 'ruijie_rg-x60-pro'},
+                {name: 'Netcore N60', chip: 'MT7981', id: 'netcore_n60'},
+                {name: 'Netcore N60 Pro', chip: 'MT7986', id: 'netcore_n60-pro'},
+                {name: 'Cudy TR3000', chip: 'MT7981', id: 'cudy_tr3000-v1'},
+                {name: 'Comfast E393AX', chip: 'MT7986', id: 'comfast_cf-e393ax'},
+                {name: 'Comfast WR632AX', chip: 'MT7981', id: 'comfast_cf-wr632ax'},
             ],
-            storage: [
-                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、挂载、S.M.A.R.T 检测、RAID'},
-                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载、多线程、远程控制器、Web 界面'},
-                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅、Web 控制、限速设置'},
-                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面、计划任务、自动做种'},
-                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享、权限管理、多用户访问'},
-                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、匿名访问、用户认证、带宽限制'},
-                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理', features: 'Web 文件管理、上传下载、在线预览、用户管理'},
-                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务', features: 'WebDAV 协议、远程访问、加密传输'},
-                {name: 'Aliyundrive WebDAV', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘 WebDAV', features: '阿里云盘集成、Rust 实现、高性能、WebDAV 协议'},
-                {name: 'Clouddrive2', pkg: 'luci-app-clouddrive2', desc: '多云盘管理', features: '支持 20+ 云盘、WebDAV、挂载本地、自动同步'},
-                {name: 'Cloudreve', pkg: 'luci-app-cloudreve', desc: '私有云盘', features: '私有云存储、多用户、分享链接、在线预览'},
-                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘', features: '在线办公、文件管理、协同编辑、权限控制'},
-                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问、数据备份'},
-                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步', features: '支持 50+ 云盘、同步备份、加密传输、定时任务'},
-                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务器', features: '媒体推送、智能电视播放、音乐流媒体'},
-                {name: 'Alist', pkg: 'luci-app-alist', desc: '文件列表程序', features: '多存储支持、WebDAV、在线播放、文件管理'}
+            ROCKCHIP: [
+                {name: 'NanoPi R2S', chip: 'RK3328', id: 'friendlyarm_nanopi-r2s'},
+                {name: 'NanoPi R4S', chip: 'RK3399', id: 'friendlyarm_nanopi-r4s'},
+                {name: 'NanoPi R5S', chip: 'RK3568', id: 'friendlyarm_nanopi-r5s'},
+                {name: 'NanoPi R5C', chip: 'RK3568', id: 'friendlyarm_nanopi-r5c'},
+                {name: 'NanoPi R6S', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6s'},
+                {name: 'NanoPi R6C', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6c'},
+                {name: 'NanoPC T6', chip: 'RK3588', id: 'friendlyarm_nanopc-t6'},
+                {name: 'OrangePi 5', chip: 'RK3588S', id: 'xunlong_orangepi-5'},
+                {name: 'OrangePi 5 Plus', chip: 'RK3588', id: 'xunlong_orangepi-5-plus'},
+                {name: 'Fastrhino R66S', chip: 'RK3568', id: 'lunzn_fastrhino-r66s'},
+                {name: 'Fastrhino R68S', chip: 'RK3568', id: 'lunzn_fastrhino-r68s'},
+                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus'},
             ],
-            network: [
-                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连、加密传输、跨平台', arch: 'all'},
-                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网、跨网访问、免费节点、Moon 服务器', arch: 'all'},
-                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端、HTTP/TCP/UDP 穿透、HTTPS 支持', arch: 'all'},
-                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端、多客户端管理、仪表盘', arch: 'all'},
-                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析、自动更新、支持 20+ 服务商', arch: 'all'},
-                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS、支持阿里云/腾讯云/Cloudflare、Web 界面', arch: 'all'},
-                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告、缓存加速、DoH/DoT 加密', arch: 'all'},
-                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、IP 优选、防污染、加速解析、自定义规则', arch: 'all'},
-                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS、Web 服务、反向代理、IPv6 支持', arch: 'all'},
-                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist、多存储支持、在线播放、WebDAV', arch: 'all'},
-                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网、自动 NAT 穿透、低延迟', arch: 'all'},
-                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议、高性能、低延迟、移动端支持', arch: 'all'},
-                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端、SSL 加密、证书管理', arch: 'all'},
-                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理、优先级设置、实时监控、智能限速', arch: 'all'},
-                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理、自动速率调整、降低延迟', arch: 'all'},
-                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时性能监控、图表展示、告警通知、历史数据', arch: 'all'},
-                {name: 'FastNet', pkg: 'luci-app-fastnet', desc: '网络体检/测速', features: '网络诊断、速度测试、延迟检测、路由追踪', arch: 'all'},
-                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计、历史数据、导出报表、实时监控', arch: 'all'},
-                {name: 'NPC', pkg: 'luci-app-npc', desc: 'NPS 客户端', features: 'NPS 内网穿透、多协议支持、加密传输', arch: 'all'},
-                {name: 'DDNSTO', pkg: 'luci-app-ddnsto', desc: '内网穿透', features: '免费内网穿透、HTTPS 访问、多线路', arch: 'all'},
-                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动端口映射、UPnP、NAT-PMP、STUN', arch: 'all'},
-                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发、SSL 加密、多路复用', arch: 'all'},
-                {name: 'Thunder', pkg: 'luci-app-thunder', desc: '迅雷下载', features: '迅雷下载、远程下载、离线下载、云盘备份', arch: 'all'},
-                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控限速', features: '实时流量、限速设置、设备管理、历史记录', arch: 'all'},
-                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速、上下行控制、优先级设置', arch: 'all'},
-                {name: 'My DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤、广告屏蔽、自定义规则、家长控制', arch: 'all'},
-                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告、家长控制、隐私保护、统计报表', arch: 'all'},
-                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告、视频广告过滤、网页净化', arch: 'all'},
-                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别、行为管理、上网行为分析、时间控制', arch: 'all'},
-                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口、负载均衡、故障转移、策略路由', arch: 'all'},
-                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播、UDP 转 HTTP、节目单管理', arch: 'all'},
-                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: 'Mesh 网络、无缝漫游、自动优化', arch: 'all'},
-                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速、流量加速、NAT 加速、BBR 优化', arch: 'all'},
-                {name: 'Btop', pkg: 'btop', desc: '性能监控', features: '系统监控、资源占用、进程管理、图表展示', arch: 'all'},
-                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理、HTTPS 传输、低延迟', arch: 'all'},
-                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 容器管理', features: '容器管理、镜像管理、网络管理、卷管理', arch: 'x86-rockchip-mediatek'}
+            X86: [
+                {name: '通用 x86_64', chip: 'X86_64', id: 'generic'},
             ],
-            theme: [
-                {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果、多种配色、自定义背景、响应式设计'},
-                {name: 'Aurora', pkg: 'luci-theme-aurora', desc: '极光主题', features: '渐变效果、夜间模式、简洁界面'},
-                {name: 'Kucat', pkg: 'luci-theme-kucat', desc: '可爱主题', features: '多彩配色、圆角设计、卡通风格'},
-                {name: 'Material', pkg: 'luci-theme-material', desc: 'Material 设计', features: 'Material Design、卡片布局、动画效果'},
-                {name: 'Material3', pkg: 'luci-theme-material3', desc: 'Material3', features: 'Material3 设计、新配色系统、动态主题'},
-                {name: 'Design', pkg: 'luci-theme-design', desc: 'neobird 改版', features: '现代化界面、简洁风格、优化布局'},
-                {name: 'Alpha', pkg: 'luci-theme-alpha', desc: 'Alpha 主题', features: '简洁风格、清爽界面'},
-                {name: 'Spectra', pkg: 'luci-theme-spectra', desc: 'Spectra 主题', features: '多彩渐变、现代感强'},
-                {name: 'Routerich', pkg: 'luci-theme-routerich', desc: 'Routerich 主题', features: '专业风格、商务范'},
-                {name: 'Lightblue', pkg: 'luci-theme-lightblue', desc: '浅蓝主题', features: '清爽界面、蓝色系'},
-                {name: 'OpenWrt2020', pkg: 'luci-theme-openwrt-2020', desc: 'OpenWrt2020', features: '经典风格、传统界面'},
-                {name: 'OpenWrt', pkg: 'luci-theme-openwrt', desc: '经典主题', features: '原始风格、怀旧经典'},
-                {name: 'Teleofis', pkg: 'luci-theme-teleofis', desc: 'Teleofis 主题', features: '工业风格、专业感'}
+            IPQ60XX: [
+                {name: '京东云 RE-CS-02', chip: 'IPQ6010', id: 'jdcloud_re-cs-02'},
+                {name: '京东云 RE-CS-07', chip: 'IPQ6010', id: 'jdcloud_re-cs-07'},
+                {name: '京东云 RE-SS-01', chip: 'IPQ6000', id: 'jdcloud_re-ss-01'},
+                {name: '红米 AX5', chip: 'IPQ6000', id: 'redmi_ax5'},
+                {name: '红米 AX5 (京东)', chip: 'IPQ6000', id: 'redmi_ax5-jdcloud'},
+                {name: '小米 AX1800', chip: 'IPQ6010', id: 'xiaomi_ax1800'},
+                {name: '360 V6', chip: 'IPQ6010', id: 'qihoo_360v6'},
+                {name: 'GL.iNet AX1800', chip: 'IPQ6010', id: 'glinet_gl-ax1800'},
+                {name: 'GL.iNet AXT1800', chip: 'IPQ6010', id: 'glinet_gl-axt1800'},
+                {name: 'Linksys MR7350', chip: 'IPQ6010', id: 'linksys_mr7350'},
+                {name: 'Linksys MR7500', chip: 'IPQ6018', id: 'linksys_mr7500'},
+                {name: 'Philips LY1800', chip: 'IPQ6000', id: 'philips_ly1800'},
+                {name: 'Anysafe E1', chip: 'IPQ6000', id: 'anysafe_e1'},
+                {name: 'CMIOT AX18', chip: 'IPQ6010', id: 'cmiot_ax18'},
+                {name: 'Link NN6000 v1', chip: 'IPQ6000', id: 'link_nn6000-v1'},
+                {name: 'SY Y6010', chip: 'IPQ6010', id: 'sy_y6010'},
+                {name: 'ZN M2', chip: 'IPQ6000', id: 'zn_m2'},
             ],
-            system: [
-                {name: 'TTYD', pkg: 'luci-app-ttyd', desc: '网页终端', features: 'SSH 访问、多会话支持、Web 命令行'},
-                {name: 'Automount', pkg: 'automount', desc: '自动挂载', features: 'USB 设备识别、热插拔支持、自动挂载'},
-                {name: 'HD-Idle', pkg: 'luci-app-hd-idle', desc: '硬盘休眠', features: '节能保护、定时休眠、延长寿命'},
-                {name: 'PartExp', pkg: 'luci-app-partexp', desc: '分区扩容', features: '调整大小、移动分区、无损扩容'},
-                {name: 'AccessControl', pkg: 'luci-app-accesscontrol-plus', desc: '访问控制', features: 'MAC 过滤、时间段限制、设备管理'},
-                {name: 'ParentControl', pkg: 'luci-app-parentcontrol', desc: '家长控制', features: '网站过滤、时间管理、健康上网'},
-                {name: 'TimeControl', pkg: 'luci-app-nft-timecontrol', desc: '上网时间控制', features: '定时断网、学习计划、时间管理'},
-                {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi', features: '隔离网络、临时密码、安全管理'},
-                {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划', features: '定时开关、节能模式、自动管理'},
-                {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务', features: '定时执行、开机任务、循环执行'},
-                {name: 'TimedReboot', pkg: 'luci-app-timedreboot', desc: '定时重启', features: '计划任务、系统维护、自动重启'},
-                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测重启', features: '网络监控、自动重启、故障恢复'},
-                {name: 'TimeWOL', pkg: 'luci-app-timewol', desc: '网络唤醒', features: '定时唤醒、远程开机、Wake-on-LAN'},
-                {name: 'ARPBind', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定、防欺骗、网络安全'},
-                {name: 'HomeAssistant', pkg: 'luci-app-homeassistant', desc: '智能家居', features: '设备联动、自动化、智能控制'},
-                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务器', features: 'Windows 激活、Office 激活、KMS 服务'},
-                {name: 'CUPS', pkg: 'luci-app-cupsd', desc: '打印服务', features: '网络打印、多打印机支持、打印管理'},
-                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控', features: '设备管理、性能统计、网络监控'},
-                {name: 'SubConverter', pkg: 'luci-app-subconverter', desc: '订阅转换', features: '规则生成、节点筛选、格式转换'},
-                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书', features: '自动续签、多域名支持、Let\'s Encrypt'},
-                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2', features: '音频流、多房间同步、无线播放'},
-                {name: 'WeChatPush', pkg: 'luci-app-wechatpush', desc: '通知推送', features: '微信推送、Telegram、企业微信、多渠道通知'},
-                {name: 'UnblockNeteaseMusic', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权歌曲解锁、音源替换、自动更新'},
-                {name: 'TVHelper', pkg: 'tvhelper', desc: '盒子助手', features: '直播源管理、EPG 节目单、电视助手'},
-                {name: 'Store', pkg: 'luci-app-store', desc: 'iStore 补充', features: '应用商店、软件管理、扩展安装'},
-                {name: 'UU Game Booster', pkg: 'luci-app-uugamebooster', desc: '网易 UU 加速器', features: '游戏加速、降低延迟、官方支持'},
-                {name: 'OAF', pkg: 'luci-app-oaf', desc: '家长控制', features: '游戏/视频/应用过滤、时间控制、行为管理'},
-                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理、一键安装、固件集成'}
+            IPQ807X: [
+                {name: '小米 AX3600', chip: 'IPQ8071A', id: 'xiaomi_ax3600'},
+                {name: '小米 AX3600 (原版)', chip: 'IPQ8071A', id: 'xiaomi_ax3600-stock'},
+                {name: '小米 AX9000', chip: 'IPQ8072A', id: 'xiaomi_ax9000'},
+                {name: '小米 AX9000 (原版)', chip: 'IPQ8072A', id: 'xiaomi_ax9000-stock'},
+                {name: '红米 AX6', chip: 'IPQ8071A', id: 'redmi_ax6'},
+                {name: '红米 AX6 (原版)', chip: 'IPQ8071A', id: 'redmi_ax6-stock'},
+                {name: 'Linksys MX4200 v1', chip: 'IPQ8072A', id: 'linksys_mx4200v1'},
+                {name: 'Linksys MX4200 v2', chip: 'IPQ8072A', id: 'linksys_mx4200v2'},
+                {name: 'Linksys MX4300', chip: 'IPQ8072A', id: 'linksys_mx4300'},
+                {name: 'Linksys MX5300', chip: 'IPQ8074A', id: 'linksys_mx5300'},
+                {name: 'Linksys MX8500', chip: 'IPQ8074A', id: 'linksys_mx8500'},
+                {name: 'QNAP 301W', chip: 'IPQ8072A', id: 'qnap_301w'},
+                {name: '阿里云 AP8220', chip: 'IPQ8070A', id: 'aliyun_ap8220'},
+                {name: 'Linksys HOMEWRK', chip: 'IPQ8072A', id: 'linksys_homewrk'},
+            ],
+            IPQ50XX: [
+                {name: '京东云 RE-CS-03', chip: 'IPQ5018', id: 'jdcloud_re-cs-03'},
             ]
         };
+        
+        // 设备到平台的映射
+        let selectedDevice = null; // {name, platform, id}
+        let currentPlatform = 'MEDIATEK';
+        
+        // 渲染设备列表
+        function renderDevices(platform) {
+            const grid = document.getElementById('device-grid');
+            grid.innerHTML = '';
+            const devices = DEVICES[platform] || [];
+            
+            devices.forEach(device => {
+                const isSelected = selectedDevice && selectedDevice.id === device.id && selectedDevice.platform === platform;
+                const card = document.createElement('div');
+                card.className = 'device-card' + (isSelected ? ' selected' : '');
+                card.innerHTML = `
+                    <div class="check-circle">${isSelected ? '✓' : ''}</div>
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-chip">${device.chip}</div>
+                    <div class="device-wifi">📡 含 WiFi 驱动</div>
+                `;
+                card.onclick = () => selectDevice(device, platform);
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('device-count').textContent = `共 ${devices.length} 款设备`;
+        }
+        
+        function selectDevice(device, platform) {
+            selectedDevice = {name: device.name, platform: platform, id: device.id};
+            document.getElementById('target_platform').value = platform;
+            renderDevices(platform);
+            updateSummary();
+        }
+        
+        function switchPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.platform === platform);
+            });
+            renderDevices(platform);
+        }
+        
+        // ========== 插件数据库 ==========
+        const PLUGINS = {
+            proxy: [
+                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具', features: '支持多种协议、高性能转发、规则分流'},
+                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端', features: '规则代理、节点切换、流量统计、订阅管理'},
+                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具', features: '多协议支持、自动切换、负载均衡'},
+                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版', features: '新版架构、更好性能'},
+                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理', features: 'SS/SSR/Vmess/Trojan、规则分流'},
+                {name: 'Nikki', pkg: 'luci-app-nikki', desc: 'Mihomo 透明代理', features: 'Transparent Proxy、高性能'},
+                {name: 'Momo', pkg: 'luci-app-momo', desc: '代理工具', features: '简洁界面、快速连接'},
+                {name: 'FullCombo Shark!', pkg: 'luci-app-fc', desc: '全能代理', features: '全能协议、一键配置'},
+                {name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'VLESS/Vmess/XTLS/Reality'},
+                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议'},
+                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
+                {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
+            ],
+            storage: [
+                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、S.M.A.R.T'},
+                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载'},
+                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅'},
+                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
+                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享'},
+                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、用户认证'},
+                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理', features: 'Web 文件管理'},
+                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务', features: 'WebDAV 协议'},
+                {name: '阿里云盘 WebDAV', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘', features: '阿里云盘集成'},
+                {name: 'Clouddrive2', pkg: 'luci-app-clouddrive2', desc: '多云盘管理', features: '20+ 云盘支持'},
+                {name: 'Cloudreve', pkg: 'luci-app-cloudreve', desc: '私有云盘', features: '私有云存储'},
+                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步', features: '50+ 云盘、同步备份'},
+                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务', features: '媒体推送'},
+                {name: 'Alist', pkg: 'luci-app-alist', desc: '文件列表', features: '多存储支持、在线播放'},
+                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问'},
+                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘', features: '在线办公'},
+            ],
+            network: [
+                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连'},
+                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网'},
+                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端'},
+                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端'},
+                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析'},
+                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS'},
+                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告'},
+                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、防污染'},
+                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS'},
+                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网'},
+                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
+                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: 'OpenVPN 服务端/客户端'},
+                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理'},
+                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理'},
+                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时监控'},
+                {name: 'FastNet', pkg: 'luci-app-fastnet', desc: '网络测速', features: '速度测试'},
+                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计'},
+                {name: 'NPC', pkg: 'luci-app-npc', desc: 'NPS 客户端', features: '内网穿透'},
+                {name: 'DDNSTO', pkg: 'luci-app-ddnsto', desc: '内网穿透', features: '免费穿透'},
+                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动映射'},
+                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发'},
+                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控', features: '实时流量'},
+                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速'},
+                {name: 'DNS Filter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤'},
+                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告'},
+                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告'},
+                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别'},
+                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
+                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播'},
+                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: '无缝漫游'},
+                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速'},
+                {name: 'Btop', pkg: 'btop', desc: '性能监控', features: '系统监控'},
+                {name: 'Thunder', pkg: 'luci-app-thunder', desc: '迅雷下载', features: '远程下载'},
+                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
+                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理'},
+                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '原 Alist'},
+            ],
+            theme: [
+                {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果'},
+                {name: 'Aurora', pkg: 'luci-theme-aurora', desc: '极光主题', features: '渐变效果'},
+                {name: 'Kucat', pkg: 'luci-theme-kucat', desc: '可爱主题', features: '多彩配色'},
+                {name: 'Material', pkg: 'luci-theme-material', desc: 'Material 设计', features: '卡片布局'},
+                {name: 'Material3', pkg: 'luci-theme-material3', desc: 'Material3', features: '动态主题'},
+                {name: 'Design', pkg: 'luci-theme-design', desc: 'Design 主题', features: '现代界面'},
+                {name: 'Alpha', pkg: 'luci-theme-alpha', desc: 'Alpha 主题', features: '简洁风格'},
+                {name: 'Spectra', pkg: 'luci-theme-spectra', desc: 'Spectra', features: '多彩渐变'},
+                {name: 'Routerich', pkg: 'luci-theme-routerich', desc: 'Routerich', features: '商务风格'},
+                {name: 'Lightblue', pkg: 'luci-theme-lightblue', desc: '浅蓝主题', features: '清爽界面'},
+                {name: 'OpenWrt2020', pkg: 'luci-theme-openwrt-2020', desc: 'OpenWrt2020', features: '经典风格'},
+                {name: 'OpenWrt', pkg: 'luci-theme-openwrt', desc: '经典主题', features: '原始风格'},
+                {name: 'Teleofis', pkg: 'luci-theme-teleofis', desc: 'Teleofis', features: '工业风格'},
+            ],
+            system: [
+                {name: 'TTYD', pkg: 'luci-app-ttyd', desc: '网页终端', features: 'SSH 访问'},
+                {name: 'Automount', pkg: 'automount', desc: '自动挂载', features: 'USB 热插拔'},
+                {name: 'HD-Idle', pkg: 'luci-app-hd-idle', desc: '硬盘休眠', features: '节能保护'},
+                {name: 'PartExp', pkg: 'luci-app-partexp', desc: '分区扩容', features: '无损扩容'},
+                {name: '访问控制', pkg: 'luci-app-accesscontrol-plus', desc: '访问控制', features: 'MAC 过滤'},
+                {name: '家长控制', pkg: 'luci-app-parentcontrol', desc: '家长控制', features: '网站过滤'},
+                {name: '时间控制', pkg: 'luci-app-nft-timecontrol', desc: '上网时间', features: '定时断网'},
+                {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi', features: '隔离网络'},
+                {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划', features: '定时开关'},
+                {name: '定时重启', pkg: 'luci-app-timedreboot', desc: '定时重启', features: '自动重启'},
+                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测', features: '自动恢复'},
+                {name: '网络唤醒', pkg: 'luci-app-timewol', desc: 'Wake on LAN', features: '远程开机'},
+                {name: 'ARP 绑定', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定'},
+                {name: 'HomeAssistant', pkg: 'luci-app-homeassistant', desc: '智能家居', features: '设备联动'},
+                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务', features: '激活服务'},
+                {name: 'CUPS', pkg: 'luci-app-cupsd', desc: '打印服务', features: '网络打印'},
+                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控', features: '设备管理'},
+                {name: 'SubConverter', pkg: 'luci-app-subconverter', desc: '订阅转换', features: '规则生成'},
+                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书', features: '自动续签'},
+                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2', features: '音频流'},
+                {name: '微信推送', pkg: 'luci-app-wechatpush', desc: '通知推送', features: '微信/Telegram'},
+                {name: '网易云解锁', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权解锁'},
+                {name: 'TVHelper', pkg: 'tvhelper', desc: '盒子助手', features: '直播源'},
+                {name: 'Store', pkg: 'luci-app-store', desc: 'iStore', features: '应用商店'},
+                {name: 'UU 加速', pkg: 'luci-app-uugamebooster', desc: 'UU 加速器', features: '游戏加速'},
+                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '行为管理'},
+                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
+                {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务', features: '计划执行'},
+            ]
+        };
+        
+        const pluginConflicts = [
+            ['luci-app-openclash', 'luci-app-clash', 'Clash 客户端'],
+            ['luci-app-ssr-plus', 'luci-app-shadowsocks-libev', 'SS 客户端'],
+            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
+            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
+            ['luci-app-mosdns', 'luci-app-smartdns', 'DNS 转发器'],
+            ['firewall4', 'iptables', '防火墙类型'],
+        ];
         
         let currentTab = 'proxy';
         let selectedPlugins = {};
         
-        // 插件冲突检测
-        const pluginConflicts = [
-            // 客户端冲突
-            ['luci-app-openclash', 'luci-app-clash', 'Clash 客户端'],
-            ['luci-app-ssr-plus', 'luci-app-shadowsocks-libev', 'SS 客户端'],
-            
-            // 版本冲突
-            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
-            
-            // 功能冲突
-            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
-            ['firewall4', 'iptables', '防火墙类型'],
-            
-            // 资源冲突（需要大量内存）
-            ['luci-app-dockerman', 'luci-app-qbittorrent', '内存密集型 (建议 1GB+ RAM)'],
-            
-            // DNS 冲突
-            ['luci-app-mosdns', 'luci-app-smartdns', 'DNS 转发器']
-        ];
+        // ========== 初始化 ==========
+        function init() {
+            loadToken();
+            loadConfig();
+            renderDevices('MEDIATEK');
+            renderPlugins('proxy');
+            startBuildMonitor();
+            updateSummary();
+        }
         
-        // 插件依赖关系
-        const pluginDependencies = {
-            'luci-app-dockerman': ['docker', 'dockerd', 'cgroupfs-mount'],
-            'luci-app-openclash': ['coreutils', 'curl', 'dnsmasq-full', 'ca-bundle'],
-            'luci-app-mosdns': ['mosdns'],
-            'luci-app-adguardhome': ['adguardhome'],
-            'luci-app-qbittorrent': ['qbittorrent', 'libtorrent-rasterbar'],
-            'luci-app-transmission': ['transmission-daemon'],
-            'luci-app-vsftpd': ['vsftpd'],
-            'luci-app-minidlna': ['minidlna'],
-            'luci-app-wireguard': ['wireguard-tools'],
-            'luci-app-vlmcsd': ['vlmcsd']
-        };
-        
-        // 插件大小估算 (MB) - 更完整的列表
-        const pluginSizes = {
-            // 科学上网
-            'luci-app-openclash': 15,
-            'luci-app-passwall': 12,
-            'luci-app-passwall2': 12,
-            'luci-app-homeproxy': 10,
-            'luci-app-ssr-plus': 8,
-            'luci-app-nikki': 10,
-            'luci-app-momo': 8,
-            'luci-app-fc': 15,
-            'luci-app-xray': 12,
-            'luci-app-nekobox': 10,
-            'luci-app-v2raya': 12,
-            'luci-app-v2ray-server': 12,
-            'luci-app-shadowsocks-libev': 6,
-            'naiveproxy': 5,
-            
-            // 存储管理
-            'luci-app-diskman': 5,
-            'luci-app-aria2': 6,
-            'luci-app-qbittorrent': 20,
-            'luci-app-transmission': 15,
-            'luci-app-samba4': 8,
-            'luci-app-vsftpd': 5,
-            'luci-app-filebrowser': 8,
-            'luci-app-webdav': 5,
-            'luci-app-aliyundrive-webdav': 6,
-            'luci-app-clouddrive2': 8,
-            'luci-app-cloudreve': 10,
-            'luci-app-kodexplorer': 12,
-            'luci-app-linkease': 8,
-            'luci-app-rclone': 10,
-            'luci-app-minidlna': 6,
-            'luci-app-alist': 8,
-            
-            // 网络工具
-            'luci-app-tailscale-community': 10,
-            'luci-app-zerotier': 8,
-            'luci-app-frpc': 5,
-            'luci-app-frps': 5,
-            'luci-app-ddns': 3,
-            'luci-app-ddns-go': 4,
-            'luci-app-mosdns': 8,
-            'luci-app-smartdns': 6,
-            'luci-app-lucky': 8,
-            'luci-app-openlist2': 10,
-            'luci-app-easytier': 6,
-            'luci-app-wireguard': 5,
-            'luci-app-openvpn-server-client': 8,
-            'luci-app-qosmate': 4,
-            'luci-app-sqm-autorate': 4,
-            'luci-app-netdata': 12,
-            'luci-app-fastnet': 5,
-            'luci-app-nlbwmon': 4,
-            'luci-app-npc': 6,
-            'luci-app-ddnsto': 5,
-            'luci-app-natmap': 3,
-            'luci-app-socat': 4,
-            'luci-app-thunder': 15,
-            'luci-app-bandix': 4,
-            'luci-app-eqosplus': 3,
-            'luci-app-my-dnsfilter': 3,
-            'luci-app-adguardhome': 10,
-            'luci-app-adbyby-plus': 5,
-            'luci-app-oaf': 5,
-            'luci-app-mwan3': 4,
-            'luci-app-iptvhelper': 3,
-            'luci-app-easymesh': 4,
-            'luci-app-turboacc': 3,
-            'btop': 3,
-            'luci-app-dockerman': 50,
-            
-            // 主题
-            'luci-theme-argon': 3,
-            'luci-theme-aurora': 3,
-            'luci-theme-kucat': 3,
-            'luci-theme-material': 2,
-            'luci-theme-material3': 2,
-            'luci-theme-design': 3,
-            'luci-theme-alpha': 2,
-            'luci-theme-spectra': 3,
-            'luci-theme-routerich': 3,
-            'luci-theme-lightblue': 2,
-            'luci-theme-openwrt-2020': 2,
-            'luci-theme-openwrt': 2,
-            'luci-theme-teleofis': 2,
-            
-            // 系统工具
-            'luci-app-ttyd': 2,
-            'automount': 2,
-            'luci-app-hd-idle': 1,
-            'luci-app-partexp': 2,
-            'luci-app-accesscontrol-plus': 3,
-            'luci-app-parentcontrol': 3,
-            'luci-app-nft-timecontrol': 3,
-            'luci-app-guest-wifi': 2,
-            'luci-app-wifischedule': 2,
-            'luci-app-taskplan': 2,
-            'luci-app-timedreboot': 1,
-            'luci-app-watchcat': 2,
-            'luci-app-timewol': 2,
-            'luci-app-arpbind': 2,
-            'luci-app-homeassistant': 15,
-            'luci-app-vlmcsd': 3,
-            'luci-app-cupsd': 8,
-            'luci-app-snmpd': 4,
-            'luci-app-subconverter': 5,
-            'luci-app-acme': 4,
-            'luci-app-airplay2': 5,
-            'luci-app-wechatpush': 3,
-            'luci-app-unblockneteasemusic': 4,
-            'tvhelper': 3,
-            'luci-app-store': 5,
-            'luci-app-uugamebooster': 8,
-            'luci-app-oaf': 5,
-            'luci-app-istore': 5,
-            
-            // 默认大小
-            'default': 7
-        };
-        
-        // 初始化
-        // 加载上次配置
+        // ========== 配置持久化 ==========
         function loadConfig() {
             try {
                 const saved = localStorage.getItem('openwrt-ci-last-config');
                 if (!saved) return;
-                
                 const config = JSON.parse(saved);
                 
-                // 恢复表单字段
-                const fields = [
-                    'wrt_source', 'wrt_branch', 'target_platform',
-                    'firewall_type', 'theme', 'lan_ip',
-                    'login_username', 'login_password', 'wifi_ssid',
-                    'wifi_password', 'other_plugins', 'test_mode'
-                ];
-                
-                fields.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element && config[id] !== undefined) {
-                        if (element.type === 'checkbox') {
-                            element.checked = config[id];
-                        } else {
-                            element.value = config[id];
-                        }
+                ['wrt_source', 'wrt_branch', 'firewall_type', 'theme', 'lan_ip',
+                 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode'
+                ].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && config[id] !== undefined) {
+                        if (el.type === 'checkbox') el.checked = config[id];
+                        else el.value = config[id];
                     }
                 });
                 
-                // 恢复选中的插件
-                if (config.selectedPlugins) {
-                    selectedPlugins = config.selectedPlugins;
-                    updateTabCounts();
-                    renderPlugins(currentTab);
+                if (config.selectedPlugins) selectedPlugins = config.selectedPlugins;
+                if (config.selectedDevice) {
+                    selectedDevice = config.selectedDevice;
+                    document.getElementById('target_platform').value = selectedDevice.platform;
+                    switchPlatform(selectedDevice.platform);
                 }
                 
-                console.log('✅ 已加载上次配置');
-            } catch (e) {
-                console.warn('加载配置失败:', e);
-            }
+                renderPlugins(currentTab);
+                updateTabCounts();
+            } catch(e) {}
         }
         
-        // 保存当前配置
         function saveConfig() {
             try {
-                const config = {
-                    selectedPlugins: {...selectedPlugins}
-                };
-                
-                // 保存表单字段
-                const fields = [
-                    'wrt_source', 'wrt_branch', 'target_platform',
-                    'firewall_type', 'theme', 'lan_ip',
-                    'login_username', 'login_password', 'wifi_ssid',
-                    'wifi_password', 'other_plugins', 'test_mode'
-                ];
-                
-                fields.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        if (element.type === 'checkbox') {
-                            config[id] = element.checked;
-                        } else {
-                            config[id] = element.value;
-                        }
-                    }
+                const config = {selectedPlugins: {...selectedPlugins}, selectedDevice};
+                ['wrt_source', 'wrt_branch', 'target_platform', 'firewall_type', 'theme',
+                 'lan_ip', 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode'
+                ].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) config[id] = el.type === 'checkbox' ? el.checked : el.value;
                 });
-                
                 localStorage.setItem('openwrt-ci-last-config', JSON.stringify(config));
-                console.log('✅ 配置已保存');
-            } catch (e) {
-                console.warn('保存配置失败:', e);
-            }
+            } catch(e) {}
         }
         
-        function init() {
-            loadToken();
-            loadConfig();  // 加载上次配置
-            updateTabCounts();  // 更新标签计数
-            renderPlugins('proxy');
-            startBuildMonitor();
-            
-            // 页面卸载时清理定时器
-            window.addEventListener('beforeunload', () => {
-                if (buildMonitorInterval) {
-                    clearInterval(buildMonitorInterval);
-                    buildMonitorInterval = null;
-                    console.log('🧹 清理编译监控定时器');
-                }
-            });
+        // ========== Token ==========
+        function loadToken() {
+            const enc = localStorage.getItem('github_token');
+            if (enc) try { document.getElementById('github_token').value = atob(enc); } catch(e) {}
         }
+        function saveToken(t) { if (t) try { localStorage.setItem('github_token', btoa(t)); } catch(e) {} }
+        document.getElementById('github_token').addEventListener('input', e => saveToken(e.target.value.trim()));
         
-        // 渲染插件
+        // ========== 插件渲染 ==========
         function renderPlugins(category) {
             const grid = document.getElementById('plugin-grid');
             grid.innerHTML = '';
-            
-            const currentPlatform = document.getElementById('target_platform').value;
-            
-            PLUGINS[category].forEach(plugin => {
-                const isSelected = selectedPlugins[plugin.pkg];
-                const isCompatible = checkArchitecture(plugin, currentPlatform);
-                const item = document.createElement('div');
-                item.className = 'plugin-item' + (isSelected ? ' selected' : '') + (!isCompatible ? ' disabled' : '');
-                item.dataset.pkg = plugin.pkg;
-                
-                const archWarning = !isCompatible ? '<div style="font-size: 9px; color: #ff6b6b; margin-top: 4px;">⚠️ 不支持当前架构</div>' : '';
-                
-                item.innerHTML = `
-                    <div class="plugin-header" onclick="event.stopPropagation(); ${isCompatible ? `togglePlugin('${plugin.pkg}', '${plugin.name}')` : ''}">
-                        <div class="plugin-name">${plugin.name} ${!isCompatible ? '⚠️' : ''}</div>
-                        <div class="checkmark"></div>
-                    </div>
-                    <div class="plugin-desc">${plugin.desc}</div>
-                    ${archWarning}
-                    ${isCompatible ? `<div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
-                    <div class="plugin-expand">
-                        <div class="plugin-expand-title">📦 包名：<strong>${plugin.pkg}</strong></div>
-                        <div class="plugin-expand-list">
-                            <strong>🔧 功能特性：</strong><br>
-                            ${plugin.features || '暂无详细信息'}
-                        </div>
-                        <div class="plugin-expand-list" style="margin-top: 6px;">
-                            <strong>📁 分类：</strong> ${getCategoryName(category)}
-                        </div>
-                        <div class="plugin-expand-list" style="margin-top: 6px;">
-                            <strong>💾 架构：</strong> ${getArchName(plugin.arch || 'all')}
-                        </div>
-                    </div>` : ''}
-                `;
-                
-                if (isCompatible) {
-                    item.onclick = (e) => {
-                        if (!e.target.closest('.expand-indicator')) {
-                            togglePlugin(plugin.pkg, plugin.name);
-                        }
-                    };
-                }
-                
-                grid.appendChild(item);
-            });
-            
-            updateCounts();
-        }
-        
-        // 检查架构兼容性
-        function checkArchitecture(plugin, platform) {
-            const arch = plugin.arch || 'all';
-            if (arch === 'all') return true;
-            
-            const archMap = {
-                'x86': ['X86'],
-                'rockchip': ['ROCKCHIP'],
-                'mediatek': ['MEDIATEK'],
-                'x86-rockchip-mediatek': ['X86', 'ROCKCHIP', 'MEDIATEK']
-            };
-            
-            return archMap[arch]?.includes(platform) || false;
-        }
-        
-        // 获取架构名称
-        function getArchName(arch) {
-            const names = {
-                'all': '✅ 所有架构',
-                'x86': '💻 X86',
-                'rockchip': '🔷 ROCKCHIP',
-                'mediatek': '📱 MEDIATEK',
-                'x86-rockchip-mediatek': '💻🔷📱 X86/ROCKCHIP/MEDIATEK'
-            };
-            return names[arch] || arch;
-        }
-        
-        // 展开/收起插件详情
-        function toggleExpand(pkg) {
-            const item = document.querySelector(`.plugin-item[data-pkg="${pkg}"]`);
-            if (item) {
-                item.classList.toggle('expanded');
-            }
-        }
-        
-        // 切换插件
-        function togglePlugin(pkg, name) {
-            // 检查冲突
-            if (selectedPlugins[pkg]) {
-                delete selectedPlugins[pkg];
-                
-                // 移除后重新检测剩余冲突
-                const remainingConflicts = checkConflicts(selectedPlugins);
-                if (remainingConflicts.length > 0) {
-                    console.warn('⚠️ 剩余冲突:', remainingConflicts);
-                }
-            } else {
-                // 临时添加检测
-                const tempPlugins = {...selectedPlugins, [pkg]: name};
-                const conflicts = checkConflicts(tempPlugins);
-                
-                if (conflicts.length > 0) {
-                    alert('⚠️ 插件冲突检测：\n\n' + conflicts.join('\n') + '\n\n请取消冲突的插件后再选择');
-                    return;
-                }
-                selectedPlugins[pkg] = name;
-            }
-            renderPlugins(currentTab);
-            updateSummary();
-        }
-        
-        // 检查插件冲突
-        function checkConflicts(plugins) {
-            const conflicts = [];
-            const selectedPkgs = Object.keys(plugins);
-            
-            pluginConflicts.forEach(([pkg1, pkg2, desc]) => {
-                if (selectedPkgs.includes(pkg1) && selectedPkgs.includes(pkg2)) {
-                    conflicts.push(`❌ ${desc}冲突：${pkg1} 和 ${pkg2} 不能同时安装`);
-                }
-            });
-            
-            return conflicts;
-        }
-        
-        // 获取所有插件（包含依赖，支持递归，限制深度）
-        function getAllPluginsWithDependencies() {
-            const allPlugins = new Set();
-            const dependencies = [];
-            const visited = new Set();
-            
-            function addWithDeps(pkg, depth = 0) {
-                const MAX_DEPTH = 10;
-                
-                if (depth > MAX_DEPTH) {
-                    console.warn(`⚠️ 依赖链过长：${pkg} (深度 ${depth})`);
-                    return;
-                }
-                
-                if (visited.has(pkg)) return;
-                visited.add(pkg);
-                allPlugins.add(pkg);
-                
-                if (pluginDependencies[pkg]) {
-                    pluginDependencies[pkg].forEach(dep => {
-                        dependencies.push(`${pkg} → ${dep}`);
-                        addWithDeps(dep, depth + 1);
-                    });
-                }
-            }
-            
-            Object.keys(selectedPlugins).forEach(pkg => {
-                addWithDeps(pkg, 0);
-            });
-            
-            return {plugins: allPlugins, dependencies};
-        }
-        
-        // 估算固件大小（考虑架构）
-        function estimateFirmwareSize() {
             const platform = document.getElementById('target_platform').value;
             
-            // 不同架构基础大小不同
-            const baseSizes = {
-                'X86': 100,
-                'ROCKCHIP': 80,
-                'MEDIATEK': 80,
-                'IPQ60XX-WIFI-YES': 70,
-                'IPQ60XX-WIFI-NO': 70,
-                'IPQ50XX-WIFI-YES': 60,
-                'IPQ50XX-WIFI-NO': 60,
-                'IPQ807X-WIFI-YES': 70,
-                'IPQ807X-WIFI-NO': 70
-            };
-            
-            let totalSize = baseSizes[platform] || 80;
-            
-            const {plugins} = getAllPluginsWithDependencies();
-            plugins.forEach(pkg => {
-                totalSize += pluginSizes[pkg] || pluginSizes.default;
-            });
-            
-            // 添加 10% 缓冲
-            return Math.ceil(totalSize * 1.1);
-        }
-        
-        // 切换标签
-        function switchTab(category) {
-            console.log('🏷️ 切换分类:', category);
-            currentTab = category;
-            
-            // 清空搜索框
-            document.getElementById('plugin-search').value = '';
-            
-            // 更新标签激活状态
-            document.querySelectorAll('.plugin-tab').forEach(tab => {
-                const isActive = tab.dataset.category === category;
-                tab.classList.toggle('active', isActive);
-                console.log(`标签 ${tab.dataset.category}: ${isActive ? '激活' : '未激活'}`);
-            });
-            
-            renderPlugins(category);
-        }
-        
-        // 更新标签计数
-        function updateTabCounts() {
-            Object.keys(PLUGINS).forEach(category => {
-                const count = PLUGINS[category].length;
-                const tab = document.querySelector(`.plugin-tab[data-category="${category}"]`);
-                if (tab) {
-                    tab.querySelector('.count').textContent = count;
-                }
-            });
-        }
-        
-        // 全选当前分类（检查架构兼容性）
-        function selectAllCurrent() {
-            const currentPlatform = document.getElementById('target_platform').value;
-            
-            PLUGINS[currentTab].forEach(plugin => {
-                const isCompatible = checkArchitecture(plugin, currentPlatform);
-                if (isCompatible) {
-                    selectedPlugins[plugin.pkg] = plugin.name;
-                }
-            });
-            renderPlugins(currentTab);
-            updateSummary();
-        }
-        
-        // 取消全选
-        function deselectAllCurrent() {
-            PLUGINS[currentTab].forEach(plugin => {
-                delete selectedPlugins[plugin.pkg];
-            });
-            renderPlugins(currentTab);
-            updateCounts();  // 确保计数更新
-            updateSummary();
-        }
-        
-        // 更新计数
-        function updateCounts() {
-            const currentCount = PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length;
-            const totalCount = Object.keys(selectedPlugins).length;
-            
-            document.getElementById('category-count').textContent = `已选 ${currentCount} 个`;
-            document.getElementById('total-count').textContent = `已选 ${totalCount} 个`;
-        }
-        
-        // 更新摘要
-        function updateSummary() {
-            const {plugins, dependencies} = getAllPluginsWithDependencies();
-            const firmwareSize = estimateFirmwareSize();
-            const conflicts = checkConflicts(selectedPlugins);
-            
-            // 更新插件计数
-            document.getElementById('summary-plugins').textContent = `${Object.keys(selectedPlugins).length} 个插件 (含依赖共 ${plugins.size} 个)`;
-            
-            // 更新路由器配置摘要
-            document.getElementById('summary-lan-ip').textContent = document.getElementById('lan_ip').value || '192.168.1.1';
-            document.getElementById('summary-username').textContent = document.getElementById('login_username').value || 'root';
-            document.getElementById('summary-wifi-ssid').textContent = document.getElementById('wifi_ssid').value || 'OpenWrt';
-            document.getElementById('summary-wifi-password').textContent = document.getElementById('wifi_password').value || '12345678';
-            
-            // 更新固件大小估算
-            let sizeElement = document.getElementById('summary-firmware-size');
-            if (!sizeElement) {
-                sizeElement = document.createElement('div');
-                sizeElement.id = 'summary-firmware-size';
-                sizeElement.style.marginTop = '15px';
-                sizeElement.style.padding = '10px';
-                sizeElement.style.background = '#e8f5e9';
-                sizeElement.style.borderRadius = '6px';
-                document.querySelector('#summary > div').appendChild(sizeElement);
-            }
-            
-            const sizeStatus = firmwareSize > 64 ? '⚠️ 较大' : (firmwareSize > 48 ? '⚠️ 中等' : '✅ 合适');
-            sizeElement.innerHTML = `
-                <strong>💾 固件大小估算：</strong>
-                <span style="color: ${firmwareSize > 64 ? '#ff6b6b' : '#4CAF50'}">
-                    ${firmwareSize} MB ${sizeStatus}
-                </span>
-                ${dependencies.length > 0 ? `<br><strong>📦 自动添加依赖：</strong> ${dependencies.length} 个` : ''}
-                ${conflicts.length > 0 ? `<br><strong style="color: #ff6b6b">⚠️ 检测到 ${conflicts.length} 个冲突</strong>` : ''}
-            `;
-        }
-        
-        // 监听路由器配置变化
-        ['lan_ip', 'login_username', 'wifi_ssid', 'wifi_password'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updateSummary);
-        });
-        
-        // 监听平台变化，重新渲染插件（检查架构兼容性）
-        document.getElementById('target_platform').addEventListener('change', function() {
-            renderPlugins(currentTab);
-        });
-        
-        // 编译进度监控
-        let buildMonitorInterval = null;
-        let lastBuildId = null;
-        let consecutiveFailures = 0;
-        const MAX_FAILURES = 3;
-        
-        function startBuildMonitor() {
-            // 每 10 秒检查一次编译状态
-            buildMonitorInterval = setInterval(async () => {
-                const token = localStorage.getItem('github_token');
-                
-                try {
-                    const response = await fetch(
-                        'https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1',
-                        {
-                            headers: {
-                                'Accept': 'application/vnd.github.v3+json',
-                                'Authorization': token ? `token ${token}` : ''
-                            }
-                        }
-                    );
-                    
-                    consecutiveFailures = 0;  // 重置失败计数
-                    
-                    // 处理 API 限流
-                    if (response.status === 403) {
-                        console.warn('⚠️ GitHub API 限流，稍后重试');
-                        const progressEl = document.getElementById('build-progress');
-                        if (progressEl) {
-                            progressEl.innerHTML = '<div style="color: #ff6b6b;">⚠️ API 限流，请稍后查看</div>';
-                        }
-                        return;
-                    }
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    if (data.total_count > 0) {
-                        const run = data.workflow_runs[0];
-                        
-                        // 检测新的编译任务
-                        if (lastBuildId !== run.id) {
-                            lastBuildId = run.id;
-                            console.log('🆕 检测到新编译任务:', run.id);
-                        }
-                        
-                        showBuildProgress(run);
-                    }
-                } catch (error) {
-                    consecutiveFailures++;
-                    console.error(`❌ 编译监控失败 (${consecutiveFailures}/${MAX_FAILURES}):`, error);
-                    
-                    // 连续失败 3 次显示网络错误
-                    if (consecutiveFailures >= MAX_FAILURES) {
-                        console.error('❌ 连续 3 次监控失败，可能是网络问题');
-                        const progressEl = document.getElementById('build-progress');
-                        if (progressEl) {
-                            progressEl.innerHTML = '<div style="color: #ff6b6b;">⚠️ 网络连接失败，请检查网络</div>';
-                        }
-                    }
-                }
-            }, 10000);  // 10 秒
-        }
-        
-        function showBuildProgress(run) {
-            let progressElement = document.getElementById('build-progress');
-            if (!progressElement) {
-                progressElement = document.createElement('div');
-                progressElement.id = 'build-progress';
-                progressElement.style.position = 'fixed';
-                progressElement.style.bottom = '20px';
-                progressElement.style.right = '20px';
-                progressElement.style.background = 'white';
-                progressElement.style.padding = '15px';
-                progressElement.style.borderRadius = '10px';
-                progressElement.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
-                progressElement.style.zIndex = '1000';
-                progressElement.style.maxWidth = '300px';
-                document.body.appendChild(progressElement);
-            }
-            
-            const status = run.status;
-            const conclusion = run.conclusion;
-            
-            if (status === 'in_progress') {
-                progressElement.innerHTML = `
-                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 10px;"></div>
-                        <strong>编译中...</strong>
-                    </div>
-                    <div style="background: #f0f0f0; border-radius: 4px; overflow: hidden;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 8px; width: 50%;"></div>
-                    </div>
-                    <div style="margin-top: 8px; font-size: 12px; color: #666;">
-                        运行时间：${Math.floor((Date.now() - new Date(run.created_at).getTime()) / 60000)} 分钟
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <a href="${run.html_url}" target="_blank" style="color: #667eea; font-size: 12px;">查看详情 →</a>
-                    </div>
-                `;
-            } else if (conclusion === 'success') {
-                progressElement.innerHTML = `
-                    <div style="color: #4CAF50;">
-                        <strong>✅ 编译成功！</strong>
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank" style="color: #667eea; font-size: 12px;">下载固件 →</a>
-                    </div>
-                `;
-                
-                // 清除定时器
-                if (buildMonitorInterval) {
-                    clearInterval(buildMonitorInterval);
-                    buildMonitorInterval = null;
-                }
-                
-                setTimeout(() => progressElement.remove(), 10000);
-            } else if (conclusion === 'failure') {
-                progressElement.innerHTML = `
-                    <div style="color: #ff6b6b;">
-                        <strong>❌ 编译失败</strong>
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <a href="${run.html_url}" target="_blank" style="color: #667eea; font-size: 12px;">查看日志 →</a>
-                    </div>
-                `;
-                
-                // 清除定时器
-                if (buildMonitorInterval) {
-                    clearInterval(buildMonitorInterval);
-                    buildMonitorInterval = null;
-                }
-                
-                setTimeout(() => progressElement.remove(), 10000);
-            }
-        }
-        
-        // 搜索防抖
-        let searchTimeout = null;
-        function debounceSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                filterPlugins();
-            }, 150);  // 150ms 更灵敏
-        }
-        
-        // 搜索插件 - 跨分类搜索
-        function filterPlugins() {
-            const search = document.getElementById('plugin-search').value.toLowerCase().trim();
-            
-            // 如果没有搜索内容，重新渲染当前分类
-            if (!search) {
-                renderPlugins(currentTab);
-                document.getElementById('category-count').textContent = `已选 ${PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length} 个`;
-                return;
-            }
-            
-            // 搜索所有分类
-            const allPlugins = [];
-            ['proxy', 'storage', 'network', 'theme', 'system'].forEach(category => {
-                PLUGINS[category].forEach(plugin => {
-                    const matchName = plugin.name.toLowerCase().includes(search);
-                    const matchDesc = plugin.desc.toLowerCase().includes(search);
-                    const matchPkg = plugin.pkg.toLowerCase().includes(search);
-                    const matchFeatures = plugin.features && plugin.features.toLowerCase().includes(search);
-                    
-                    if (matchName || matchDesc || matchPkg || matchFeatures) {
-                        allPlugins.push({...plugin, category: category});
-                    }
-                });
-            });
-            
-            // 渲染搜索结果
-            const grid = document.getElementById('plugin-grid');
-            grid.innerHTML = '';
-            
-            if (allPlugins.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;"><p style="font-size: 18px;">😕 未找到匹配的插件</p><p>试试搜索其他关键词，如 "代理"、"下载"、"DNS" 等</p></div>';
-                document.getElementById('category-count').textContent = '已选 0 个';
-                document.getElementById('total-count').textContent = `已选 ${Object.keys(selectedPlugins).length} 个`;
-                return;
-            }
-            
-            // 更新标签显示
-            document.querySelectorAll('.plugin-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            allPlugins.forEach(plugin => {
+            PLUGINS[category].forEach(plugin => {
                 const isSelected = selectedPlugins[plugin.pkg];
                 const item = document.createElement('div');
                 item.className = 'plugin-item' + (isSelected ? ' selected' : '');
                 item.dataset.pkg = plugin.pkg;
-                
                 item.innerHTML = `
                     <div class="plugin-header" onclick="event.stopPropagation(); togglePlugin('${plugin.pkg}', '${plugin.name}')">
                         <div class="plugin-name">${plugin.name}</div>
@@ -1207,214 +614,217 @@
                     <div class="plugin-desc">${plugin.desc}</div>
                     <div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
                     <div class="plugin-expand">
-                        <div class="plugin-expand-title">📦 包名：<strong>${plugin.pkg}</strong></div>
-                        <div class="plugin-expand-list">
-                            <strong>🔧 功能特性：</strong><br>
-                            ${plugin.features || '暂无详细信息'}
-                        </div>
-                        <div class="plugin-expand-list" style="margin-top: 6px;">
-                            <strong>📁 分类：</strong> ${getCategoryName(plugin.category)}
-                        </div>
+                        <div class="plugin-expand-title">📦 ${plugin.pkg}</div>
+                        <div class="plugin-expand-list"><strong>🔧</strong> ${plugin.features || '无'}</div>
                     </div>
                 `;
-                
-                item.onclick = (e) => {
-                    if (!e.target.closest('.expand-indicator')) {
-                        togglePlugin(plugin.pkg, plugin.name);
-                    }
-                };
-                
+                item.onclick = e => { if (!e.target.closest('.expand-indicator')) togglePlugin(plugin.pkg, plugin.name); };
                 grid.appendChild(item);
             });
-            
             updateCounts();
+        }
+        
+        function toggleExpand(pkg) {
+            const item = document.querySelector(`.plugin-item[data-pkg="${pkg}"]`);
+            if (item) item.classList.toggle('expanded');
+        }
+        
+        function togglePlugin(pkg, name) {
+            if (selectedPlugins[pkg]) {
+                delete selectedPlugins[pkg];
+            } else {
+                const temp = {...selectedPlugins, [pkg]: name};
+                const conflicts = checkConflicts(temp);
+                if (conflicts.length) { alert('⚠️ 插件冲突：\n' + conflicts.join('\n')); return; }
+                selectedPlugins[pkg] = name;
+            }
+            renderPlugins(currentTab);
             updateSummary();
         }
         
-        // 获取分类中文名
-        function getCategoryName(category) {
-            const names = {
-                'proxy': '🔐 科学上网',
-                'storage': '💾 存储管理',
-                'network': '🌐 网络工具',
-                'theme': '🎨 主题',
-                'system': '🔧 系统工具'
-            };
-            return names[category] || category;
+        function checkConflicts(plugins) {
+            const pkgs = Object.keys(plugins);
+            const conflicts = [];
+            pluginConflicts.forEach(([p1, p2, desc]) => {
+                if (pkgs.includes(p1) && pkgs.includes(p2)) conflicts.push(`❌ ${desc}：${p1} 与 ${p2}`);
+            });
+            return conflicts;
         }
         
-        // Token 管理（简单加密）
-        function loadToken() {
-            const encrypted = localStorage.getItem('github_token');
-            if (encrypted) {
-                try {
-                    const token = atob(encrypted);  // Base64 解码
-                    document.getElementById('github_token').value = token;
-                } catch (e) {
-                    console.error('Token 解密失败:', e);
-                    localStorage.removeItem('github_token');
-                }
-            }
+        function switchTab(cat) {
+            currentTab = cat;
+            document.getElementById('plugin-search').value = '';
+            document.querySelectorAll('.plugin-tab').forEach(t => t.classList.toggle('active', t.dataset.category === cat));
+            renderPlugins(cat);
         }
         
-        function saveToken(token) {
-            if (token) {
-                try {
-                    const encrypted = btoa(token);  // Base64 编码
-                    localStorage.setItem('github_token', encrypted);
-                } catch (e) {
-                    console.error('Token 加密失败:', e);
-                }
-            }
+        function selectAllCurrent() {
+            PLUGINS[currentTab].forEach(p => selectedPlugins[p.pkg] = p.name);
+            renderPlugins(currentTab); updateSummary();
+        }
+        function deselectAllCurrent() {
+            PLUGINS[currentTab].forEach(p => delete selectedPlugins[p.pkg]);
+            renderPlugins(currentTab); updateCounts(); updateSummary();
         }
         
-        document.getElementById('github_token').addEventListener('input', function(e) {
-            saveToken(e.target.value.trim());
+        function updateCounts() {
+            const cur = PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length;
+            document.getElementById('category-count').textContent = `已选 ${cur} 个`;
+            document.getElementById('total-count').textContent = `已选 ${Object.keys(selectedPlugins).length} 个`;
+        }
+        function updateTabCounts() {
+            Object.keys(PLUGINS).forEach(cat => {
+                const tab = document.querySelector(`.plugin-tab[data-category="${cat}"]`);
+                if (tab) tab.querySelector('.count').textContent = PLUGINS[cat].length;
+            });
+        }
+        
+        function updateSummary() {
+            const d = selectedDevice;
+            document.getElementById('summary-device').textContent = d ? d.name : '未选择';
+            document.getElementById('summary-platform').textContent = d ? d.platform : '-';
+            document.getElementById('summary-plugins').textContent = `${Object.keys(selectedPlugins).length} 个`;
+            document.getElementById('summary-source').textContent = document.getElementById('wrt_source').value;
+            document.getElementById('summary-theme').textContent = document.getElementById('theme').value;
+            document.getElementById('summary-wifi').textContent = document.getElementById('wifi_ssid').value || 'OpenWrt';
+        }
+        
+        // 搜索
+        let searchTimeout;
+        function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(filterPlugins, 150); }
+        function filterPlugins() {
+            const q = document.getElementById('plugin-search').value.toLowerCase().trim();
+            if (!q) { renderPlugins(currentTab); return; }
+            
+            const results = [];
+            Object.keys(PLUGINS).forEach(cat => PLUGINS[cat].forEach(p => {
+                if (p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.pkg.toLowerCase().includes(q))
+                    results.push({...p, category: cat});
+            }));
+            
+            const grid = document.getElementById('plugin-grid');
+            grid.innerHTML = '';
+            if (!results.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">😕 未找到</div>'; return; }
+            
+            results.forEach(p => {
+                const sel = selectedPlugins[p.pkg];
+                const item = document.createElement('div');
+                item.className = 'plugin-item' + (sel ? ' selected' : '');
+                item.dataset.pkg = p.pkg;
+                item.innerHTML = `
+                    <div class="plugin-header"><div class="plugin-name">${p.name}</div><div class="checkmark"></div></div>
+                    <div class="plugin-desc">${p.desc}</div>
+                `;
+                item.onclick = () => togglePlugin(p.pkg, p.name);
+                grid.appendChild(item);
+            });
+        }
+        
+        ['lan_ip', 'login_username', 'wifi_ssid', 'wifi_password', 'wrt_source', 'theme'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateSummary);
+            document.getElementById(id).addEventListener('change', updateSummary);
         });
         
-        // 表单提交
+        // ========== 编译监控 ==========
+        let buildMonitorInterval, lastBuildId;
+        function startBuildMonitor() {
+            buildMonitorInterval = setInterval(async () => {
+                const token = localStorage.getItem('github_token');
+                try {
+                    const r = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1', {
+                        headers: {'Accept': 'application/vnd.github.v3+json', 'Authorization': token ? `token ${token}` : ''}
+                    });
+                    if (!r.ok) return;
+                    const d = await r.json();
+                    if (d.total_count > 0) showBuildProgress(d.workflow_runs[0]);
+                } catch(e) {}
+            }, 15000);
+        }
+        
+        function showBuildProgress(run) {
+            let el = document.getElementById('build-progress');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'build-progress';
+                el.style.cssText = 'position:fixed;bottom:20px;right:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:1000;max-width:300px';
+                document.body.appendChild(el);
+            }
+            if (run.status === 'in_progress') {
+                el.innerHTML = `<strong>🔄 编译中...</strong><div style="margin-top:8px;font-size:12px;color:#666">运行 ${Math.floor((Date.now()-new Date(run.created_at))/60000)} 分钟</div><a href="${run.html_url}" target="_blank" style="color:#667eea;font-size:12px">查看详情 →</a>`;
+            } else if (run.conclusion === 'success') {
+                el.innerHTML = `<strong style="color:#4CAF50">✅ 编译成功！</strong><a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank" style="display:block;margin-top:8px;color:#667eea;font-size:12px">下载固件 →</a>`;
+                setTimeout(() => el.remove(), 10000);
+            } else if (run.conclusion === 'failure') {
+                el.innerHTML = `<strong style="color:#ff6b6b">❌ 编译失败</strong><a href="${run.html_url}" target="_blank" style="display:block;margin-top:8px;color:#667eea;font-size:12px">查看日志 →</a>`;
+                setTimeout(() => el.remove(), 10000);
+            }
+        }
+        
+        // ========== 表单提交 ==========
         document.getElementById('buildForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
+            const btn = document.getElementById('submitBtn');
             const token = document.getElementById('github_token').value.trim();
             
-            if (!token) {
-                alert('请先配置 GitHub Token！');
-                return;
-            }
+            if (!token) { alert('请先配置 GitHub Token！'); return; }
+            if (!selectedDevice) { alert('请先选择目标设备！'); return; }
             
-            // 最终冲突检测
-            const finalConflicts = checkConflicts(selectedPlugins);
-            if (finalConflicts.length > 0) {
-                alert('❌ 检测到插件冲突：\n\n' + finalConflicts.join('\n\n') + '\n\n请解决冲突后再编译');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '🚀 开始编译';
-                return;
-            }
-            
-            if (!validateForm()) {
-                return;
-            }
+            const conflicts = checkConflicts(selectedPlugins);
+            if (conflicts.length) { alert('❌ 插件冲突：\n' + conflicts.join('\n')); return; }
             
             saveToken(token);
             
-            const {plugins, dependencies} = getAllPluginsWithDependencies();
-            const firmwareSize = estimateFirmwareSize();
+            const platform = selectedDevice.platform;
+            const proxyPkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.proxy.find(p => p.pkg === pk)).join(',');
+            const storagePkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.storage.find(p => p.pkg === pk)).join(',');
+            const networkPkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.network.find(p => p.pkg === pk)).join(',');
             
-            const confirmMsg = `
-确认配置：
-
-【源码配置】
-源码：${document.getElementById('wrt_source').value}
-分支：${document.getElementById('wrt_branch').value}
-平台：${document.getElementById('target_platform').value}
-防火墙：${document.getElementById('firewall_type').value === 'firewall4' ? 'Firewall4 (NFTables)' : 'Iptables'}
-主题：${document.getElementById('theme').value}
-
-【路由器配置】
-默认 IP: ${document.getElementById('lan_ip').value}
-用户名：${document.getElementById('login_username').value}
-密码：${document.getElementById('login_password').value || '无'}
-WiFi 名称：${document.getElementById('wifi_ssid').value}
-WiFi 密码：${document.getElementById('wifi_password').value}
-
-【插件配置】
-已选插件：${Object.keys(selectedPlugins).length} 个
-含依赖：${plugins.size} 个
-自动添加依赖：${dependencies.length} 个
-预计固件大小：${firmwareSize} MB
-
-是否开始编译？
-            `;
+            if (!confirm(`确认编译？\n\n设备：${selectedDevice.name}\n平台：${platform}\n主题：${document.getElementById('theme').value}\nWiFi：${document.getElementById('wifi_ssid').value}\n插件：${Object.keys(selectedPlugins).length} 个`)) return;
             
-            if (!confirm(confirmMsg)) {
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span>正在触发编译...';
-            
-            const apiEndpoint = `https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/dispatches`;
-            
-            const requestBody = {
-                ref: 'main',
-                inputs: {
-                    WRT_SOURCE: document.getElementById('wrt_source').value,
-                    WRT_BRANCH: document.getElementById('wrt_branch').value,
-                    TARGET_PLATFORM: document.getElementById('target_platform').value,
-                    FIREWALL_TYPE: document.getElementById('firewall_type').value,
-                    THEME: document.getElementById('theme').value,
-                    PROXY_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.proxy.find(p => p.pkg === pkg)).join(','),
-                    STORAGE_PLUGIN: Object.keys(selectedPlugins).filter(pkg => PLUGINS.storage.find(p => p.pkg === pkg)).join(','),
-                    NETWORK_TOOL: Object.keys(selectedPlugins).filter(pkg => PLUGINS.network.find(p => p.pkg === pkg)).join(','),
-                    LAN_IP: document.getElementById('lan_ip').value,
-                    LOGIN_USERNAME: document.getElementById('login_username').value,
-                    LOGIN_PASSWORD: document.getElementById('login_password').value,
-                    WIFI_SSID: document.getElementById('wifi_ssid').value,
-                    WIFI_PASSWORD: document.getElementById('wifi_password').value,
-                    OTHER_PLUGIN: document.getElementById('other_plugins').value,
-                    TEST_MODE: document.getElementById('test_mode').checked.toString()
-                }
-            };
+            btn.disabled = true;
+            btn.innerHTML = '⏳ 正在触发编译...';
             
             try {
-                const response = await fetch(apiEndpoint, {
+                const r = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/dispatches', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
+                    headers: {'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        ref: 'main',
+                        inputs: {
+                            WRT_SOURCE: document.getElementById('wrt_source').value,
+                            WRT_BRANCH: document.getElementById('wrt_branch').value,
+                            TARGET_PLATFORM: platform,
+                            FIREWALL_TYPE: document.getElementById('firewall_type').value,
+                            THEME: document.getElementById('theme').value,
+                            PROXY_PLUGIN: proxyPkgs,
+                            STORAGE_PLUGIN: storagePkgs,
+                            NETWORK_TOOL: networkPkgs,
+                            LAN_IP: document.getElementById('lan_ip').value,
+                            LOGIN_USERNAME: document.getElementById('login_username').value,
+                            LOGIN_PASSWORD: document.getElementById('login_password').value,
+                            WIFI_SSID: document.getElementById('wifi_ssid').value,
+                            WIFI_PASSWORD: document.getElementById('wifi_password').value,
+                            OTHER_PLUGIN: document.getElementById('other_plugins').value,
+                            TEST_MODE: document.getElementById('test_mode').checked.toString()
+                        }
+                    })
                 });
                 
-                if (response.status === 401) throw new Error('Token 无效或已过期');
-                if (response.status === 403) throw new Error('Token 权限不足');
-                if (response.status === 404) throw new Error('工作流不存在');
-                if (!response.ok) throw new Error(`GitHub API 错误：${response.status}`);
+                if (r.status === 401) throw new Error('Token 无效');
+                if (r.status === 403) throw new Error('Token 权限不足');
+                if (!r.ok) throw new Error(`GitHub API: ${r.status}`);
                 
-                submitBtn.innerHTML = '✅ 编译已触发！';
-                saveConfig();  // 保存当前配置
+                btn.innerHTML = '✅ 编译已触发！';
+                saveConfig();
                 window.open('https://github.com/liuziqiang78-liu/OpenWRT-CI/actions', '_blank');
-                
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '🚀 开始编译';
-                }, 3000);
-                
-            } catch (error) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '🚀 开始编译';
-                alert('❌ 触发失败：' + error.message);
+                setTimeout(() => { btn.disabled = false; btn.innerHTML = '🚀 开始编译'; }, 3000);
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '🚀 开始编译';
+                alert('❌ 失败：' + err.message);
             }
         });
         
-        function validateForm() {
-            const required = ['github_token', 'wrt_source', 'wrt_branch', 'target_platform', 'theme'];
-            for (const id of required) {
-                if (!document.getElementById(id).value) {
-                    alert(`请填写必填项`);
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        // 触摸优化
-        document.addEventListener('touchstart', function() {}, {passive: true});
-        
-        // 防止双击缩放
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(e) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        
-        // 启动
         init();
     </script>
 </body>
