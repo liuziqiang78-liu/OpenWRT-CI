@@ -4,5 +4,6 @@
     "description": "流量控制",
     "features": "带宽管理",
     "category": "network",
-    "repository": "https://github.com/sirpdboy/luci-app-eqosplus.git"
+    "repository": "https://github.com/hudra0/luci-app-qosmate.git",
+    "note": ""
 }

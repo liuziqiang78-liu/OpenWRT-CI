@@ -4,6 +4,6 @@
     "description": "订阅转换",
     "features": "规则生成",
     "category": "system",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
+    "repository": "https://github.com/0x2196f3/luci-app-subconverter.git",
+    "note": ""
 }

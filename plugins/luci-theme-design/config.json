@@ -4,6 +4,6 @@
     "description": "Design 主题",
     "features": "现代界面",
     "category": "theme",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
+    "repository": "https://github.com/0x676e67/luci-theme-design.git",
+    "note": ""
 }

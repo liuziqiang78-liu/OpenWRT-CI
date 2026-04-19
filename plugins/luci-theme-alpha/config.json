@@ -4,6 +4,6 @@
     "description": "Alpha 主题",
     "features": "简洁风格",
     "category": "theme",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
+    "repository": "https://github.com/derisamedia/luci-theme-alpha.git",
+    "note": ""
 }

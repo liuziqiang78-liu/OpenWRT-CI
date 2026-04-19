@@ -4,6 +4,6 @@
     "description": "通知推送",
     "features": "微信/Telegram",
     "category": "system",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
+    "repository": "https://github.com/tty228/luci-app-wechatpush.git",
+    "note": ""
 }

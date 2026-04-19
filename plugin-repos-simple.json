@@ -46,5 +46,15 @@
     "luci-app-watchcat": "https://github.com/sbwml/luci.git",
     "luci-app-wifischedule": "https://github.com/sbwml/luci.git",
     "luci-app-zerotier": "https://github.com/sbwml/openwrt_pkgs.git",
-    "luci-app-aliyundrive-webdav": "https://github.com/sbwml/aliyundrive-webdav.git"
+    "luci-app-aliyundrive-webdav": "https://github.com/sbwml/aliyundrive-webdav.git",
+    "luci-app-bandix": "https://github.com/timsaya/luci-app-bandix.git",
+    "luci-app-wechatpush": "https://github.com/tty228/luci-app-wechatpush.git",
+    "luci-app-nekobox": "https://github.com/Thaolga/openwrt-nekobox.git",
+    "luci-app-subconverter": "https://github.com/0x2196f3/luci-app-subconverter.git",
+    "luci-app-kodexplorer": "https://github.com/danchexiaoyang/luci-app-kodexplorer.git",
+    "luci-app-qosmate": "https://github.com/hudra0/luci-app-qosmate.git",
+    "luci-app-cupsd": "https://github.com/sirpdboy/luci-app-cupsd.git",
+    "luci-theme-alpha": "https://github.com/derisamedia/luci-theme-alpha.git",
+    "luci-theme-design": "https://github.com/0x676e67/luci-theme-design.git",
+    "luci-theme-material3": "https://github.com/KawaiiHachimi/luci-theme-material3.git"
 }

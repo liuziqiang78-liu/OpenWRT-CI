@@ -163,16 +163,29 @@ UPDATE_PACKAGE "lucky" "gdy666/luci-app-lucky" "main"
 UPDATE_PACKAGE "ssr-plus" "fw876/helloworld" "main" "pkg"
 UPDATE_PACKAGE "adguardhome" "rufengsuixing/luci-app-adguardhome" "main"
 
+
+# ============================================================
+# 新发现的替代仓库 (原仓库已删除，找到新维护者)
+# ============================================================
+
+UPDATE_PACKAGE "bandix" "timsaya/luci-app-bandix" "main"
+UPDATE_PACKAGE "wechatpush" "tty228/luci-app-wechatpush" "main"
+UPDATE_PACKAGE "nekobox" "Thaolga/openwrt-nekobox" "main"
+UPDATE_PACKAGE "subconverter" "0x2196f3/luci-app-subconverter" "main"
+UPDATE_PACKAGE "kodexplorer" "danchexiaoyang/luci-app-kodexplorer" "master"
+UPDATE_PACKAGE "qosmate" "hudra0/luci-app-qosmate" "main"
+UPDATE_PACKAGE "cupsd" "sirpdboy/luci-app-cupsd" "main"
+UPDATE_PACKAGE "alpha" "derisamedia/luci-theme-alpha" "main"
+UPDATE_PACKAGE "design" "0x676e67/luci-theme-design" "main"
+UPDATE_PACKAGE "material3" "KawaiiHachimi/luci-theme-material3" "main"
+
 # ============================================================
 # 已删除且无替代的插件 (不再可用)
 # ============================================================
-# 以下插件的源仓库已被作者删除，且不在任何合并仓库中:
-# luci-app-bandix, luci-app-clouddrive2, luci-app-cloudreve,
-# luci-app-ddnsto, luci-app-fc, luci-app-homeassistant,
-# luci-app-kodexplorer, luci-app-linkease, luci-app-nekobox,
-# luci-app-npc, luci-app-subconverter, luci-app-thunder,
-# luci-app-wechatpush, luci-theme-aurora(已失效),
-# tvhelper, btop, luci-app-aliyundrive-webdav
+# 以下插件的源仓库已被作者删除，且在全网找不到替代:
+# luci-app-clouddrive2, luci-app-fc, luci-app-homeassistant,
+# luci-app-npc, luci-app-thunder, tvhelper, btop
+# luci-theme-lightblue, luci-theme-routerich, luci-theme-spectra, luci-theme-teleofis
 # 如需要请寻找替代方案或自行维护 fork
 
 # 更新软件包版本
