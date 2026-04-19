@@ -427,10 +427,45 @@ jobs:
             fi
           else
             echo "⚠️  未指定设备，将编译该平台所有设备"
-            # 未指定设备时，加载平台下所有设备
+            # 未指定设备时，仅加载当前平台的设备配置
+            PLATFORM_LOWER="${WRT_CONFIG,,}"
+            LOADED=0
             for DEV_FILE in $GITHUB_WORKSPACE/Config/device/*.txt; do
-              cat "$DEV_FILE" >> .config
+              # 检查设备配置是否属于当前平台
+              if grep -qi "$PLATFORM_LOWER\|qualcommax\|mediatek_filogic\|rockchip_armv8\|x86_64" "$DEV_FILE" 2>/dev/null; then
+                # 更精确匹配：文件中的 CONFIG_TARGET_DEVICE 行必须匹配当前平台
+                if grep -q "CONFIG_TARGET_DEVICE_${PLATFORM_LOWER}\|CONFIG_TARGET_DEVICE_qualcommax_ipq\|CONFIG_TARGET_DEVICE_mediatek\|CONFIG_TARGET_DEVICE_rockchip\|CONFIG_TARGET_x86" "$DEV_FILE" 2>/dev/null; then
+                  # 进一步验证平台子目标匹配
+                  DEV_MATCH=false
+                  case "$PLATFORM_LOWER" in
+                    ipq60xx)
+                      grep -q "qualcommax_ipq60xx\|qualcommax_ipq50xx\|qualcommax_ipq807x" "$DEV_FILE" && \
+                      grep -q "qualcommax_ipq60xx" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                    ipq807x)
+                      grep -q "qualcommax_ipq807x" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                    ipq50xx)
+                      grep -q "qualcommax_ipq50xx" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                    mediatek)
+                      grep -q "mediatek_filogic" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                    rockchip)
+                      grep -q "rockchip_armv8" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                    x86)
+                      grep -q "x86" "$DEV_FILE" && DEV_MATCH=true
+                      ;;
+                  esac
+                  if [ "$DEV_MATCH" = true ]; then
+                    cat "$DEV_FILE" >> .config
+                    LOADED=$((LOADED + 1))
+                  fi
+                fi
+              fi
             done
+            echo "✅ 已加载 $LOADED 个 ${WRT_CONFIG} 平台设备配置"
           fi
           
           # 添加用户自定义配置
