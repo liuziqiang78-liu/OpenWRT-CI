@@ -148,6 +148,10 @@ permissions:
   contents: write
   packages: write
 
+concurrency:
+  group: build-${{ github.event.inputs.TARGET_PLATFORM }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -642,6 +646,12 @@ jobs:
             echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
           fi
           
+          # ========== ccache 加速编译 ==========
+          echo "CONFIG_CCACHE=y" >> .config
+          echo "CCACHE_DIR=$(pwd)/.ccache" >> $GITHUB_ENV
+          echo "CCACHE_MAXSIZE=5G" >> $GITHUB_ENV
+          echo "✅ ccache 已启用"
+
           # ========== make defconfig ==========
           echo ""
           echo "🔧 运行 make defconfig..."

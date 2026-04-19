@@ -41,6 +41,10 @@ on:
         required: false
         type: string
 
+concurrency:
+  group: core-${{ inputs.WRT_CONFIG }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   WRT_CONFIG: ${{inputs.WRT_CONFIG}}
@@ -172,6 +176,10 @@ jobs:
           fi
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
+
+          echo "CONFIG_CCACHE=y" >> .config
+          export CCACHE_DIR=$(pwd)/.ccache
+          export CCACHE_MAXSIZE=5G
 
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
