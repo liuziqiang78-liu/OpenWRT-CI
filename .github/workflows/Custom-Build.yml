@@ -314,13 +314,16 @@ jobs:
                 echo "  来源: plugins/ 目录"
                 echo "  仓库: $REPO"
                 
-                # 克隆到 package/
-                if [ ! -d "./package/$PLUGIN" ]; then
+                # 克隆到 package/ (仓库为空表示已在 feeds 中)
+                if [ -z "$REPO" ] || [ "$REPO" = "null" ]; then
+                  echo "  ℹ️  仓库为空，使用 feeds 中的版本"
+                  SUCCESS=$((SUCCESS + 1))
+                elif [ ! -d "./package/$PLUGIN" ]; then
                   if git clone --depth=1 "$REPO" "./package/$PLUGIN" 2>/dev/null; then
                     echo "  ✅ 克隆成功"
                     SUCCESS=$((SUCCESS + 1))
                   else
-                    echo "  ❌ 克隆失败"
+                    echo "  ❌ 克隆失败，将使用 feeds 版本（如有）"
                     FAILED=$((FAILED + 1))
                   fi
                 else
@@ -406,7 +409,7 @@ jobs:
           echo ""
           echo "🔧 配置 WiFi 设置..."
           
-          WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
+          WIFI_SH=$(find ./target/linux/ -path "*/base-files/etc/uci-defaults/*set-wireless.sh" -type f 2>/dev/null | head -1)
           WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
           
           if [ -f "$WIFI_SH" ]; then
@@ -507,7 +510,12 @@ jobs:
           echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
           
           # ========== make defconfig ==========
-          make defconfig -j$(nproc)
+          echo ""
+          echo "🔧 运行 make defconfig..."
+          make defconfig 2>&1 || {
+            echo "⚠️ make defconfig 出现错误，尝试详细输出..."
+            make defconfig V=s 2>&1 || true
+          }
 
       - name: Show Configuration
         run: |

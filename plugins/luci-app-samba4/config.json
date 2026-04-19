@@ -4,5 +4,6 @@
     "description": "文件共享",
     "features": "SMB/CIFS 共享",
     "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-samba4.git"
+    "repository": "",
+    "note": "已在 immortalwrt/luci feeds 中，无需单独克隆"
 }
