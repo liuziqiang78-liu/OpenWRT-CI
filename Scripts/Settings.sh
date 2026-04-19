@@ -39,9 +39,17 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
-# 添加iptables相关配置
-echo "# 使用iptables作为防火墙后端" >> ./.config
-echo "CONFIG_PACKAGE_iptables=y" >> ./.config
+# 添加防火墙核心包
+echo "# 核心系统包" >> ./.config
+echo "CONFIG_PACKAGE_firewall4=y" >> ./.config
+echo "CONFIG_PACKAGE_dnsmasq-full=y" >> ./.config
+echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
+echo "CONFIG_PACKAGE_odhcpd-ipv6only=y" >> ./.config
+echo "CONFIG_PACKAGE_uhttpd=y" >> ./.config
+echo "CONFIG_PACKAGE_uhttpd-ubus=y" >> ./.config
+# 添加iptables相关配置 (使用 iptables-nft 兼容 firewall4)
+echo "# 使用iptables-nft兼容firewall4" >> ./.config
+echo "CONFIG_PACKAGE_iptables-nft=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> ./.config
@@ -50,8 +58,8 @@ echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> ./.config
 # 确保UPnP服务与iptables兼容
 if [ -n "$WRT_PACKAGE" ] && [[ "$WRT_PACKAGE" == *"luci-app-upnp"* ]]; then
     # 如果启用了UPnP应用，则确保依赖项正确
-    echo "CONFIG_PACKAGE_miniupnpd-iptables=y" >> ./.config
-    echo "# CONFIG_PACKAGE_miniupnpd-nftables is not set" >> ./.config
+    echo "CONFIG_PACKAGE_miniupnpd-nftables=y" >> ./.config
+    echo "# CONFIG_PACKAGE_miniupnpd-iptables is not set" >> ./.config
 fi
 
 # 手动调整的插件

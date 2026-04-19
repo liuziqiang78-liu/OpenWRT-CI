@@ -534,9 +534,9 @@ jobs:
             echo "✅ 路由器 IP: ${WRT_IP}"
           fi
           
-          # ========== iptables 配置 ==========
-          echo "# 使用 iptables 作为防火墙后端" >> .config
-          echo "CONFIG_PACKAGE_iptables=y" >> .config
+          # ========== 防火墙/iptables 配置 ==========
+          echo "# 使用 iptables-nft 兼容 firewall4" >> .config
+          echo "CONFIG_PACKAGE_iptables-nft=y" >> .config
           echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
           echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
           echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
