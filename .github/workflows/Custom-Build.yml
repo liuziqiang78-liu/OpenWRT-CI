@@ -36,6 +36,14 @@ on:
           - IPQ60XX
           - IPQ807X
         default: 'MEDIATEK'
+
+      # 目标设备
+      TARGET_DEVICE:
+        description: '目标设备 (留空编译全部，填写设备名如 jdcloud_re-cs-02 则只编译该设备)'
+        required: false
+        type: string
+        default: ''
+        placeholder: 'jdcloud_re-cs-02'
       
       # 科学上网插件
       PROXY_PLUGIN:
@@ -402,6 +410,29 @@ jobs:
           cat "$CONFIG_FILE" > .config
           cat $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
           
+          # ========== 加载设备独立配置 ==========
+          DEVICE_NAME="${{ inputs.TARGET_DEVICE }}"
+          if [ -n "$DEVICE_NAME" ]; then
+            DEVICE_CONFIG="$GITHUB_WORKSPACE/Config/device/${DEVICE_NAME}.txt"
+            if [ -f "$DEVICE_CONFIG" ]; then
+              echo ""
+              echo "🎯 加载设备配置: $DEVICE_NAME"
+              cat "$DEVICE_CONFIG" >> .config
+              echo "✅ 设备配置已加载: $DEVICE_CONFIG"
+            else
+              echo "❌ 设备配置文件不存在: $DEVICE_CONFIG"
+              echo "可用设备:"
+              ls $GITHUB_WORKSPACE/Config/device/*.txt | xargs -I{} basename {} .txt | tr '\n' ' '
+              exit 1
+            fi
+          else
+            echo "⚠️  未指定设备，将编译该平台所有设备"
+            # 未指定设备时，加载平台下所有设备
+            for DEV_FILE in $GITHUB_WORKSPACE/Config/device/*.txt; do
+              cat "$DEV_FILE" >> .config
+            done
+          fi
+          
           # 添加用户自定义配置
           echo "# 自定义插件配置" >> .config
           
@@ -534,6 +565,7 @@ jobs:
           echo "源码：${{ inputs.WRT_SOURCE }}"
           echo "分支：${{ inputs.WRT_BRANCH }}"
           echo "平台：${{ inputs.TARGET_PLATFORM }}"
+          echo "设备：${{ inputs.TARGET_DEVICE || '全部设备' }}"
           echo "主题：${{ inputs.THEME }}"
           echo "WiFi SSID：${{ inputs.WIFI_SSID }}"
           echo "插件列表：${{ needs.parse-config.outputs.plugin-list }}"
@@ -593,7 +625,12 @@ jobs:
       - name: Package Firmware
         if: inputs.TEST_MODE == false
         run: |
-          echo "TAG_NAME=Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+          DEVICE_TAG="${{ inputs.TARGET_DEVICE }}"
+          if [ -n "$DEVICE_TAG" ]; then
+            echo "TAG_NAME=Custom-Build-${{ inputs.TARGET_PLATFORM }}-${DEVICE_TAG}-$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=Custom-Build-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+          fi
           
           cd ./wrt/ && mkdir ./upload/
           
@@ -616,6 +653,7 @@ jobs:
           **编译时间**: $(date '+%Y-%m-%d %H:%M:%S')
           **源码**: ${{ inputs.WRT_SOURCE }}
           **平台**: ${{ inputs.TARGET_PLATFORM }}
+          **设备**: ${{ inputs.TARGET_DEVICE || '全部设备' }}
           **主题**: ${{ inputs.THEME }}
           
           ## 登录信息

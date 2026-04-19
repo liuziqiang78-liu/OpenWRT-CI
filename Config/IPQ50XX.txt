@@ -1,8 +1,7 @@
 #设备平台
 CONFIG_TARGET_qualcommax=y
 CONFIG_TARGET_qualcommax_ipq50xx=y
-#设备列表
-CONFIG_TARGET_DEVICE_qualcommax_ipq50xx_DEVICE_jdcloud_re-cs-03=y
+#设备配置请从 Config/device/ 目录加载对应设备文件
 #WIFI驱动 (IPQ5018 ath11k)
 CONFIG_PACKAGE_kmod-ath11k=y
 CONFIG_PACKAGE_kmod-ath11k-ahb=y
