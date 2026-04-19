@@ -79,6 +79,18 @@ install_plugin() {
     echo "=== 安装: $name ($plugin) ==="
     echo "  仓库: $repo"
     
+    # 检查仓库是否可用
+    if [ -z "$repo" ] || [ "$repo" = "null" ]; then
+        local note=$(jq -r '.note // ""' "$plugin_dir/config.json" 2>/dev/null)
+        if echo "$note" | grep -q "不可用\|已删除"; then
+            log_warn "插件 $name 暂不可用 (源仓库已删除): $note"
+            return 1
+        else
+            log_warn "仓库为空，使用 feeds 中的版本: $name"
+            return 0
+        fi
+    fi
+
     # 克隆仓库
     local target_dir="$WRT_DIR/package/$plugin"
     if [ -d "$target_dir" ]; then

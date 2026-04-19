@@ -43,11 +43,93 @@ UPDATE_PACKAGE() {
 	    fi
 }
 
-# 调用示例
-# UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
-# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
+# 批量从合并仓库提取插件（一次性克隆，提取多个包）
+EXTRACT_FROM_CONSOLIDATED() {
+    local CONSOLIDATED_REPO=$1
+    local CONSOLIDATED_BRANCH=$2
+    shift 2
+    local PACKAGES=("$@")
+    local REPO_NAME=${CONSOLIDATED_REPO#*/}
 
+    echo " "
+    echo "=== 从合并仓库提取插件: $CONSOLIDATED_REPO ==="
+
+    # 删除 feeds 中可能存在的同名包
+    for PKG in "${PACKAGES[@]}"; do
+        local FOUND_DIRS=$(find ../feeds/luci/ ../feeds/packages/ -maxdepth 3 -type d -iname "*$PKG*" 2>/dev/null)
+        if [ -n "$FOUND_DIRS" ]; then
+            while read -r DIR; do
+                rm -rf "$DIR"
+                echo "Delete feeds directory: $DIR"
+            done <<< "$FOUND_DIRS"
+        fi
+    done
+
+    # 一次性克隆合并仓库
+    git clone --depth=1 --single-branch --branch $CONSOLIDATED_BRANCH "https://github.com/$CONSOLIDATED_REPO.git"
+
+    # 提取每个包
+    for PKG in "${PACKAGES[@]}"; do
+        local FOUND=$(find ./$REPO_NAME/ -maxdepth 4 -type d -iname "$PKG" | head -1)
+        if [ -n "$FOUND" ]; then
+            cp -rf "$FOUND" ./
+            echo "✅ 已提取: $PKG (来自 $FOUND)"
+        else
+            echo "⚠️  未找到: $PKG"
+        fi
+    done
+
+    # 清理
+    rm -rf ./$REPO_NAME/
+    echo "=== 合并仓库处理完成 ==="
+}
+
+# 调用示例
 # UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
+
+# ============================================================
+# 合并仓库批量提取 (2024-2025 sbwml 仓库整合)
+# ============================================================
+
+# sbwml/luci - 大量标准 LuCI 插件已合并到此仓库
+EXTRACT_FROM_CONSOLIDATED "sbwml/luci" "main" \
+    "luci-app-aria2" \
+    "luci-app-acme" \
+    "luci-app-ddns" \
+    "luci-app-frpc" \
+    "luci-app-frps" \
+    "luci-app-hd-idle" \
+    "luci-app-minidlna" \
+    "luci-app-mwan3" \
+    "luci-app-nlbwmon" \
+    "luci-app-samba4" \
+    "luci-app-smartdns" \
+    "luci-app-snmpd" \
+    "luci-app-transmission" \
+    "luci-app-ttyd" \
+    "luci-app-upnp" \
+    "luci-app-watchcat" \
+    "luci-app-wifischedule"
+
+# sbwml/openwrt_pkgs - 自定义插件包
+EXTRACT_FROM_CONSOLIDATED "sbwml/openwrt_pkgs" "main" \
+    "luci-app-adguardhome" \
+    "luci-app-netdata" \
+    "luci-app-socat" \
+    "luci-app-vlmcsd" \
+    "luci-app-vsftpd" \
+    "luci-app-zerotier"
+
+# sbwml/openwrt-package - 旧版兼容包
+EXTRACT_FROM_CONSOLIDATED "sbwml/openwrt-package" "main" \
+    "automount" \
+    "luci-app-arpbind" \
+    "luci-app-samba4"
+
+# ============================================================
+# 单独仓库插件 (仍保持独立的仓库)
+# ============================================================
+
 UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
 UPDATE_PACKAGE "aurora" "eamonxg/luci-theme-aurora" "master"
 UPDATE_PACKAGE "aurora-config" "eamonxg/luci-app-aurora-config" "master"
@@ -77,8 +159,22 @@ UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
 UPDATE_PACKAGE "quickfile" "sbwml/luci-app-quickfile" "main"
 UPDATE_PACKAGE "viking" "VIKINGYFY/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
-UPDATE_PACKAGE "lucky" "sirpdboy/luci-app-lucky" "main"
-	
+UPDATE_PACKAGE "lucky" "gdy666/luci-app-lucky" "main"
+UPDATE_PACKAGE "ssr-plus" "fw876/helloworld" "main" "pkg"
+UPDATE_PACKAGE "adguardhome" "rufengsuixing/luci-app-adguardhome" "main"
+
+# ============================================================
+# 已删除且无替代的插件 (不再可用)
+# ============================================================
+# 以下插件的源仓库已被作者删除，且不在任何合并仓库中:
+# luci-app-bandix, luci-app-clouddrive2, luci-app-cloudreve,
+# luci-app-ddnsto, luci-app-fc, luci-app-homeassistant,
+# luci-app-kodexplorer, luci-app-linkease, luci-app-nekobox,
+# luci-app-npc, luci-app-subconverter, luci-app-thunder,
+# luci-app-wechatpush, luci-theme-aurora(已失效),
+# tvhelper, btop, luci-app-aliyundrive-webdav
+# 如需要请寻找替代方案或自行维护 fork
+
 # 更新软件包版本
 UPDATE_VERSION() {
     local PKG_NAME=$1
@@ -93,13 +189,13 @@ UPDATE_VERSION() {
     echo -e "\n$PKG_NAME version update has started!"
 
     for PKG_FILE in $PKG_FILES; do
-        local PKG_REPO=$(grep -Po "PKG_SOURCE_URL:=https://.*github.com/\K[^/]+/[^/]+(?=.*)" $PKG_FILE)
+        local PKG_REPO=$(grep -Po "PKG_SOURCE_URL:=https://.*github.com/\\K[^/]+/[^/]+(?=.*)" $PKG_FILE)
         local PKG_TAG=$(curl -sL "https://api.github.com/repos/$PKG_REPO/releases" | jq -r "map(select(.prerelease == $PKG_MARK)) | first | .tag_name")
 
-        local OLD_VER=$(grep -Po "PKG_VERSION:=\K.*" "$PKG_FILE")
-        local OLD_URL=$(grep -Po "PKG_SOURCE_URL:=\K.*" "$PKG_FILE")
-        local OLD_FILE=$(grep -Po "PKG_SOURCE:=\K.*" "$PKG_FILE")
-        local OLD_HASH=$(grep -Po "PKG_HASH:=\K.*" "$PKG_FILE")
+        local OLD_VER=$(grep -Po "PKG_VERSION:=\\K.*" "$PKG_FILE")
+        local OLD_URL=$(grep -Po "PKG_SOURCE_URL:=\\K.*" "$PKG_FILE")
+        local OLD_FILE=$(grep -Po "PKG_SOURCE:=\\K.*" "$PKG_FILE")
+        local OLD_HASH=$(grep -Po "PKG_HASH:=\\K.*" "$PKG_FILE")
 
         local PKG_URL=$([[ "$OLD_URL" == *"releases"* ]] && echo "${OLD_URL%/}/$OLD_FILE" || echo "${OLD_URL%/}")
 

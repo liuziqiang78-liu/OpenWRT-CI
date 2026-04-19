@@ -4,5 +4,6 @@
     "description": "多功能工具",
     "features": "端口转发、DDNS",
     "category": "network",
-    "repository": "https://github.com/gdy666/luci-app-lucky.git"
+    "repository": "https://github.com/gdy666/luci-app-lucky.git",
+    "note": ""
 }

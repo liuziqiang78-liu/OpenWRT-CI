@@ -4,6 +4,6 @@
     "description": "极光主题",
     "features": "渐变效果",
     "category": "theme",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
+    "repository": "https://github.com/eamonxg/luci-theme-aurora.git",
+    "note": ""
 }
