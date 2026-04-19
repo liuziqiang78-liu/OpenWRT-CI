@@ -2,8 +2,10 @@
 
 # 移除luci-app-attendedsysupgrade
 sed -i "/attendedsysupgrade/d" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-# 修改默认主题
-sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+# 修改默认主题 (none 时跳过，使用源码默认主题)
+if [ "$WRT_THEME" != "none" ]; then
+    sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+fi
 # 修改immortalwrt.lan关联IP
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
 # 添加编译日期标识
@@ -36,19 +38,28 @@ sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" $CFG_FILE
 # 配置文件修改
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
 echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
-echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
-echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
+if [ "$WRT_THEME" != "none" ]; then
+    echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
+    echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
+fi
 
-# 添加防火墙核心包
+# 添加防火墙核心包 (根据用户选择)
 echo "# 核心系统包" >> ./.config
-echo "CONFIG_PACKAGE_firewall4=y" >> ./.config
 echo "CONFIG_PACKAGE_dnsmasq-full=y" >> ./.config
 echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd-ubus=y" >> ./.config
-# 添加iptables相关配置 (使用 iptables-nft 兼容 firewall4)
-echo "# 使用iptables-nft兼容firewall4" >> ./.config
-echo "CONFIG_PACKAGE_iptables-nft=y" >> ./.config
+if [ "$WRT_FIREWALL" = "iptables" ]; then
+    echo "# 用户选择 iptables" >> ./.config
+    echo "# CONFIG_PACKAGE_firewall4 is not set" >> ./.config
+    echo "CONFIG_PACKAGE_firewall=y" >> ./.config
+    echo "CONFIG_PACKAGE_iptables=y" >> ./.config
+else
+    echo "# 用户选择 firewall4 (默认)" >> ./.config
+    echo "CONFIG_PACKAGE_firewall4=y" >> ./.config
+    echo "# 使用 iptables-nft 兼容 firewall4" >> ./.config
+    echo "CONFIG_PACKAGE_iptables-nft=y" >> ./.config
+fi
 echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> ./.config
@@ -91,29 +102,42 @@ fi
 
 echo "Detected target architecture: $ARCH for target ${WRT_TARGET}"
 
+# 动态检测 OpenWrt 版本号
+OPENWRT_VERSION="24.10-SNAPSHOT"
+if [ -f "./include/version.mk" ]; then
+    DETECTED_VER=$(grep -oP 'VERSION_NUMBER:=\K[^"]+' ./include/version.mk 2>/dev/null | head -1)
+    if [ -n "$DETECTED_VER" ]; then
+        OPENWRT_VERSION="$DETECTED_VER"
+        echo "Detected OpenWrt version: $OPENWRT_VERSION"
+    fi
+elif [ -f "./version" ]; then
+    OPENWRT_VERSION=$(cat ./version 2>/dev/null | head -1)
+    echo "Detected OpenWrt version from ./version: $OPENWRT_VERSION"
+fi
+
 # 替换软件源为Vsean镜像
 DISTFEEDS_CONF="./repositories.conf"
 if [ -f "$DISTFEEDS_CONF" ]; then
     echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/base/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/luci/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/packages/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/routing/" >> $DISTFEEDS_CONF.new
-    echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/base/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/luci/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/packages/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/routing/" >> $DISTFEEDS_CONF.new
+    echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF.new
     mv $DISTFEEDS_CONF.new $DISTFEEDS_CONF
-    echo "Updated package feeds to Vsean mirror sources for $ARCH architecture"
+    echo "Updated package feeds to Vsean mirror sources for $ARCH architecture (version: $OPENWRT_VERSION)"
 else
     # 如果 repositories.conf 不存在，则尝试 distfeeds.conf 路径
     DISTFEEDS_CONF_ALT="./packagefeeds.conf"
     if [ -f "$DISTFEEDS_CONF_ALT" ]; then
         echo "# Vsean OpenWrt Mirror" > $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/base/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/luci/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/packages/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/routing/" >> $DISTFEEDS_CONF_ALT.new
-        echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/24.10-SNAPSHOT/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_base https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/base/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_luci https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/luci/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_packages https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/packages/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_routing https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/routing/" >> $DISTFEEDS_CONF_ALT.new
+        echo "src/gz openwrt_telephony https://mirrors.vsean.net/openwrt/releases/$OPENWRT_VERSION/packages/$ARCH/telephony/" >> $DISTFEEDS_CONF_ALT.new
         mv $DISTFEEDS_CONF_ALT.new $DISTFEEDS_CONF_ALT
-        echo "Updated package feeds to Vsean mirror sources for $ARCH architecture (alt path)"
+        echo "Updated package feeds to Vsean mirror sources for $ARCH architecture (alt path, version: $OPENWRT_VERSION)"
     fi
 fi
 

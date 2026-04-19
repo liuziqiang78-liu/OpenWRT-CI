@@ -3,7 +3,7 @@ name: Deploy Build UI
 on:
   push:
     paths:
-      - 'build-ui.html'
+      - 'build-ui-full.html'
   workflow_dispatch:
 
 permissions:

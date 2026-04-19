@@ -1,66 +1,21 @@
-# OpenWRT-CI 插件版本配置文件
-# 最后更新：2026-04-11
-# 
-# 格式说明:
-#   PLUGIN_NAME=REPO@BRANCH@VERSION
-#   - VERSION 可选，留空表示使用分支最新
-#   - VERSION 可以是 Tag (v1.2.3) 或 Commit Hash (a1b2c3d)
-#
-# 策略说明:
-#   - 核心插件 (代理/科学): 固定版本，避免突然变更
-#   - 主题插件: 固定版本，保证 UI 一致性
-#   - 工具插件: 可使用分支最新，快速获得修复
-#   - 实验插件: 使用分支最新，随时接受变更
+# 插件版本配置文件
+# 格式: 插件名=仓库地址@分支@版本号(可选)
+# 示例: openclash=vernesong/OpenClash@dev@v0.45.0
 
-# ==================== 主题插件 (固定版本) ====================
+# 科学上网
+openclash=vernesong/OpenClash@dev
+passwall=Openwrt-Passwall/openwrt-passwall@main
+ssr-plus=fw876/helloworld@main
+nikki=nikkinikki-org/OpenWrt-nikki@main
 
-THEME_ARGON=sbwml/luci-theme-argon@openwrt-25.12@v3.2.1
-THEME_AURORA=eamonxg/luci-theme-aurora@master@v1.5.0
-THEME_AURORA_CONFIG=eamonxg/luci-app-aurora-config@master@v1.5.0
-THEME_KUCAT=sirpdboy/luci-theme-kucat@master
-THEME_KUCAT_CONFIG=sirpdboy/luci-app-kucat-config@master
+# 存储
+samba4=sbwml/luci-app-samba4@main
+qbittorrent=sbwml/luci-app-qbittorrent@master
 
-# ==================== 代理插件 (固定版本) ====================
+# 网络
+tailscale=Tokisaki-Galaxy/luci-app-tailscale-community@master
+ddns-go=sirpdboy/luci-app-ddns-go@main
 
-PROXY_OPENCLASH=vernesong/OpenClash@dev@v0.45.87
-PROXY_PASSWALL=Openwrt-Passwall/openwrt-passwall@main@v2.8.3
-PROXY_PASSWALL2=Openwrt-Passwall/openwrt-passwall2@main@v1.5.2
-PROXY_HOMESPROXY=VIKINGYFY/homeproxy@main@v1.9.5
-PROXY_NIKKI=nikkinikki-org/OpenWrt-nikki@main
-PROXY_MOMO=nikkinikki-org/OpenWrt-momo@main
-
-# ==================== 网络工具 ====================
-
-NET_TAILSCALE=Tokisaki-Galaxy/luci-app-tailscale-community@master
-NET_DDNS_GO=sirpdboy/luci-app-ddns-go@main
-NET_EASYTIER=EasyTier/luci-app-easytier@main
-NET_VNT=lmq8267/luci-app-vnt@main
-NET_LUCKY=sirpdboy/luci-app-lucky@main
-
-# ==================== 存储工具 ====================
-
-STORAGE_DISKMAN=lisaac/luci-app-diskman@master@v0.5.0
-STORAGE_QBITTORRENT=sbwml/luci-app-qbittorrent@master
-STORAGE_OPENLIST2=sbwml/luci-app-openlist2@main
-STORAGE_QUICKFILE=sbwml/luci-app-quickfile@main
-STORAGE_PARTEXP=sirpdboy/luci-app-partexp@main
-
-# ==================== 系统工具 ====================
-
-SYS_FANCONTROL=rockjake/luci-app-fancontrol@main
-SYS_MOSDNS=sbwml/luci-app-mosdns@v5@v5.2.0
-SYS_NETSPEEDTEST=sirpdboy/luci-app-netspeedtest@main
-SYS_QMODEM=FUjr/QModem@main
-SYS_VIKING=VIKINGYFY/packages@main
-SYS_GECOOSAC=laipeng668/luci-app-gecoosac@main
-
-# ==================== 源码仓库 (固定分支) ====================
-
-SOURCE_IMMORTALWRT_OFFICIAL=immortalwrt/immortalwrt@owrt
-SOURCE_IMMORTALWRT_VIKING=VIKINGYFY/immortalwrt@owrt
-
-# ==================== U-Boot (固定分支) ====================
-
-UBOOT_EMMC=chenxin527/uboot-ipq60xx-emmc-build@main
-UBOOT_NAND=chenxin527/uboot-ipq60xx-nand-build@main
-UBOOT_NOR=chenxin527/uboot-ipq60xx-nor-build@main
+# 系统
+ttyd=sbwml/luci-app-ttyd@main
+lucky=gdy666/luci-app-lucky@main

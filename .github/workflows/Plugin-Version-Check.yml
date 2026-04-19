@@ -37,9 +37,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install @octokit/rest
-          npm install -g jq
+          sudo apt-get install -y jq
 
       - name: Check Plugin Versions
+        id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -184,7 +185,7 @@ jobs:
             console.log(`最新：${results.filter(r => r.status === 'latest').length}`);
             console.log(`错误：${results.filter(r => r.status === 'error').length}`);
             
-            // 如果有更新，创建 Issue
+            // 如果有更新，写入 GitHub Output
             if (updatesAvailable.length > 0) {
               console.log('\n发现可更新的插件，创建 Issue...');
               
@@ -192,12 +193,18 @@ jobs:
                 `- **${u.name}**: \`${u.currentVersion}\` → \`${u.latestVersion}\``
               ).join('\n');
               
-              console.log(`::set-output name=has_updates::true`);
-              console.log(`::set-output name=update_count::${updatesAvailable.length}`);
-              console.log(`::set-output name=issue_body::${issueBody.replace(/\n/g, '%0A')}`);
+              const outputFile = process.env.GITHUB_OUTPUT;
+              if (outputFile) {
+                fs.appendFileSync(outputFile, `has_updates=true\n`);
+                fs.appendFileSync(outputFile, `update_count=${updatesAvailable.length}\n`);
+                fs.appendFileSync(outputFile, `issue_body<<EOF\n${issueBody}\nEOF\n`);
+              }
             } else {
               console.log('\n所有插件都是最新版本');
-              console.log(`::set-output name=has_updates::false`);
+              const outputFile = process.env.GITHUB_OUTPUT;
+              if (outputFile) {
+                fs.appendFileSync(outputFile, `has_updates=false\n`);
+              }
             }
           }
 

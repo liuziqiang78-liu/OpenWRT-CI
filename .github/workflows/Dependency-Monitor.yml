@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install @octokit/rest
-          npm install -g jq
+          sudo apt-get install -y jq
 
       - name: Check Dependencies
         env:

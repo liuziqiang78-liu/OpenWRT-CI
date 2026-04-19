@@ -82,6 +82,11 @@ on:
           - argon
           - aurora
           - kucat
+          - alpha
+          - design
+          - material3
+          - openwrt-2020
+          - openwrt
           - none
         default: 'argon'
       
@@ -606,20 +611,36 @@ jobs:
             echo "✅ 路由器 IP: ${WRT_IP}"
           fi
           
-          # ========== 防火墙/iptables 配置 ==========
-          echo "# 使用 iptables-nft 兼容 firewall4" >> .config
-          echo "CONFIG_PACKAGE_iptables-nft=y" >> .config
-          echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
-          echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
-          echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
-          echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
+          # ========== 防火墙配置 (根据用户选择) ==========
+          if [ "${{ inputs.FIREWALL_TYPE }}" = "iptables" ]; then
+            echo "# 用户选择 iptables" >> .config
+            echo "# CONFIG_PACKAGE_firewall4 is not set" >> .config
+            echo "CONFIG_PACKAGE_firewall=y" >> .config
+            echo "CONFIG_PACKAGE_iptables=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
+          else
+            echo "# 用户选择 firewall4 (默认)" >> .config
+            echo "CONFIG_PACKAGE_firewall4=y" >> .config
+            echo "# 使用 iptables-nft 兼容 firewall4" >> .config
+            echo "CONFIG_PACKAGE_iptables-nft=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
+            echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
+          fi
           
           # ========== 中文配置 ==========
           echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
           echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
           THEME="${WRT_THEME:-argon}"
-          echo "CONFIG_DEFAULT_luci-theme-${THEME}=y" >> .config
-          echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
+          if [ "$THEME" != "none" ]; then
+            echo "CONFIG_LUCI_DEFAULT_THEME=luci-theme-${THEME}" >> .config
+            echo "CONFIG_PACKAGE_luci-theme-${THEME}=y" >> .config
+            echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
+          fi
           
           # ========== make defconfig ==========
           echo ""

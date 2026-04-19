@@ -1,8 +1,0 @@
-{
-    "name": "Alist",
-    "package": "luci-app-alist",
-    "description": "文件列表",
-    "features": "多存储支持",
-    "category": "storage",
-    "repository": "https://github.com/sbwml/luci-app-openlist2.git"
-}

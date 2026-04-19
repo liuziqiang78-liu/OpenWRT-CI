@@ -176,11 +176,11 @@
                         <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="debounceSearch()">
                     </div>
                     <div class="plugin-tabs" id="plugin-tabs">
-                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">12</span>)</div>
-                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">16</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">32</span>)</div>
-                        <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">13</span>)</div>
-                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">28</span>)</div>
+                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">10</span>)</div>
+                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">14</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">30</span>)</div>
+                        <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">8</span>)</div>
+                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">23</span>)</div>
                     </div>
                     <div class="select-all-bar">
                         <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
@@ -199,6 +199,11 @@
                             <option value="argon" selected>🎨 Argon (推荐)</option>
                             <option value="aurora">🌅 Aurora</option>
                             <option value="kucat">🐱 Kucat</option>
+                            <option value="alpha">🅰️ Alpha</option>
+                            <option value="design">🎨 Design</option>
+                            <option value="material3">📱 Material3</option>
+                            <option value="openwrt-2020">🔧 OpenWrt2020</option>
+                            <option value="openwrt">📋 OpenWrt 经典</option>
                             <option value="none">⚪ 默认主题</option>
                         </select>
                     </div>
@@ -307,13 +312,12 @@
         // ========== 设备数据库 ==========
         const DEVICES = {
             MEDIATEK: [
-                {name: '小米 AX3000T', chip: 'MT7981', id: 'xiaomi_mi-router-ax3000t'},
-                {name: '小米 AX3000T (uboot)', chip: 'MT7981', id: 'xiaomi_mi-router-ax3000t-ubootmod'},
-                {name: '小米 WR30U', chip: 'MT7981', id: 'xiaomi_mi-router-wr30u-stock'},
-                {name: '小米 WR30U (uboot)', chip: 'MT7981', id: 'xiaomi_mi-router-wr30u-ubootmod'},
-                {name: '红米 AX6000', chip: 'MT7986', id: 'xiaomi_redmi-router-ax6000-stock'},
-                {name: '红米 AX6000 (uboot)', chip: 'MT7986', id: 'xiaomi_redmi-router-ax6000-ubootmod'},
-                {name: '360 T7', chip: 'MT7981', id: 'qihoo_360t7'},
+                {name: '小米 AX3000T', chip: 'MT7981', id: 'xiaomi_ax3000t'},
+                {name: '小米 WR30U', chip: 'MT7981', id: 'xiaomi_wr30u-stock'},
+                {name: '小米 WR30U (uboot)', chip: 'MT7981', id: 'xiaomi_wr30u-ubootmod'},
+                {name: '红米 AX6000', chip: 'MT7986', id: 'redmi_ax6000-stock'},
+                {name: '红米 AX6000 (uboot)', chip: 'MT7986', id: 'redmi_ax6000-ubootmod'},
+                {name: '360 T7', chip: 'MT7981', id: '360_t7'},
                 {name: '京东云 RE-CP-03', chip: 'MT7981', id: 'jdcloud_re-cp-03'},
                 {name: '华硕 TUF-AX4200', chip: 'MT7986', id: 'asus_tuf-ax4200'},
                 {name: '华硕 TUF-AX4200Q', chip: 'MT7986', id: 'asus_tuf-ax4200q'},
@@ -356,31 +360,31 @@
             
             ],
             ROCKCHIP: [
-                {name: 'NanoPi R2S', chip: 'RK3328', id: 'friendlyarm_nanopi-r2s'},
-                {name: 'NanoPi R2C', chip: 'RK3328', id: 'friendlyarm_nanopi-r2c'},
-                {name: 'NanoPi R2C Plus', chip: 'RK3328', id: 'friendlyarm_nanopi-r2c-plus'},
-                {name: 'NanoPi R3S', chip: 'RK3566', id: 'friendlyarm_nanopi-r3s'},
-                {name: 'NanoPi R4S', chip: 'RK3399', id: 'friendlyarm_nanopi-r4s'},
-                {name: 'NanoPi R4SE', chip: 'RK3399', id: 'friendlyarm_nanopi-r4se'},
-                {name: 'NanoPi R4S 企业版', chip: 'RK3399', id: 'friendlyarm_nanopi-r4s-enterprise'},
-                {name: 'NanoPi R5S', chip: 'RK3568', id: 'friendlyarm_nanopi-r5s'},
-                {name: 'NanoPi R5C', chip: 'RK3568', id: 'friendlyarm_nanopi-r5c'},
-                {name: 'NanoPi R6S', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6s'},
-                {name: 'NanoPi R6C', chip: 'RK3588S', id: 'friendlyarm_nanopi-r6c'},
-                {name: 'NanoPi R76S', chip: 'RK3588', id: 'friendlyarm_nanopi-r76s'},
-                {name: 'NanoPC T4', chip: 'RK3399', id: 'friendlyarm_nanopc-t4'},
-                {name: 'NanoPC T6', chip: 'RK3588', id: 'friendlyarm_nanopc-t6'},
-                {name: 'OrangePi 5', chip: 'RK3588S', id: 'xunlong_orangepi-5'},
-                {name: 'OrangePi 5 Plus', chip: 'RK3588', id: 'xunlong_orangepi-5-plus'},
-                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus'},
-                {name: 'OrangePi R1 Plus LTS', chip: 'RK3328', id: 'xunlong_orangepi-r1-plus-lts'},
-                {name: 'Fastrhino R66S', chip: 'RK3568', id: 'lunzn_fastrhino-r66s'},
-                {name: 'Fastrhino R68S', chip: 'RK3568', id: 'lunzn_fastrhino-r68s'},
+                {name: 'NanoPi R2S', chip: 'RK3328', id: 'nanopi_r2s'},
+                {name: 'NanoPi R2C', chip: 'RK3328', id: 'nanopi_r2c'},
+                {name: 'NanoPi R2C Plus', chip: 'RK3328', id: 'nanopi_r2c-plus'},
+                {name: 'NanoPi R3S', chip: 'RK3566', id: 'nanopi_r3s'},
+                {name: 'NanoPi R4S', chip: 'RK3399', id: 'nanopi_r4s'},
+                {name: 'NanoPi R4SE', chip: 'RK3399', id: 'nanopi_r4se'},
+                {name: 'NanoPi R4S 企业版', chip: 'RK3399', id: 'nanopi_r4s-enterprise'},
+                {name: 'NanoPi R5S', chip: 'RK3568', id: 'nanopi_r5s'},
+                {name: 'NanoPi R5C', chip: 'RK3568', id: 'nanopi_r5c'},
+                {name: 'NanoPi R6S', chip: 'RK3588S', id: 'nanopi_r6s'},
+                {name: 'NanoPi R6C', chip: 'RK3588S', id: 'nanopi_r6c'},
+                {name: 'NanoPi R76S', chip: 'RK3588', id: 'nanopi_r76s'},
+                {name: 'NanoPC T4', chip: 'RK3399', id: 'nanopc-t4'},
+                {name: 'NanoPC T6', chip: 'RK3588', id: 'nanopc-t6'},
+                {name: 'OrangePi 5', chip: 'RK3588S', id: 'orangepi_5'},
+                {name: 'OrangePi 5 Plus', chip: 'RK3588', id: 'orangepi_5-plus'},
+                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'orangepi_r1-plus'},
+                {name: 'OrangePi R1 Plus LTS', chip: 'RK3328', id: 'orangepi_r1-plus-lts'},
+                {name: 'Fastrhino R66S', chip: 'RK3568', id: 'fastrhino_r66s'},
+                {name: 'Fastrhino R68S', chip: 'RK3568', id: 'fastrhino_r68s'},
                 {name: 'EZPRO MRKAIO M68S', chip: 'RK3568', id: 'ezpro_mrkaio-m68s'},
-            
+
             ],
             X86: [
-                {name: '通用 x86_64', chip: 'X86_64', id: 'generic'},
+                {name: '通用 x86_64', chip: 'X86_64', id: 'x86_generic'},
             ],
             IPQ60XX: [
                 {name: '京东云 RE-CS-02', chip: 'IPQ6010', id: 'jdcloud_re-cs-02'},
@@ -473,9 +477,12 @@
                 {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具', features: '多协议支持、自动切换、负载均衡'},
                 {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版', features: '新版架构、更好性能'},
                 {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理', features: 'SS/SSR/Vmess/Trojan、规则分流'},
-                {name: 'Nikki', pkg: 'luci-app-nikki', desc: 'Mihomo 透明代理', features: 'Transparent Proxy、高性能'},{name: 'luci-xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'VLESS/Vmess/XTLS/Reality'},                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
-                {name: 'V2Ray Server', pkg: 'luci-app-v2ray-server', desc: 'V2Ray 服务器', features: '服务器管理、多协议'},
-                ],
+                {name: 'Nikki', pkg: 'luci-app-nikki', desc: 'Mihomo 透明代理', features: 'Transparent Proxy、高性能'},
+                {name: 'Xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'VLESS/Vmess/XTLS/Reality'},
+                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
+                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理、HTTPS 传输'},
+                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议'},
+            ],
             storage: [
                 {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、S.M.A.R.T'},
                 {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载'},
@@ -487,8 +494,10 @@
                 {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务', features: 'WebDAV 协议'},
                 {name: '阿里云盘 WebDAV', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘', features: '阿里云盘集成'},                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步', features: '50+ 云盘、同步备份'},
                 {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务', features: '媒体推送'},
-                {name: 'Alist', pkg: 'luci-app-alist', desc: '文件列表', features: '多存储支持、在线播放'},
-                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问'},            ],
+                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '多存储支持、在线播放'},
+                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问'},
+                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘', features: '在线办公'},
+            ],
             network: [
                 {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连'},
                 {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网'},
@@ -505,20 +514,31 @@
                 {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
                 {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理'},
                 {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理'},
-                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时监控'},{name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计'},{name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动映射'},
-                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发'},                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速'},                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告'},
+                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时监控'},
+                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计'},
+                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动映射'},
+                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发'},
+                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速'},
+                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告'},
                 {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告'},
+                {name: 'DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤'},
                 {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别'},
                 {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播'},
                 {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: '无缝漫游'},
                 {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速'},
                 {name: 'VNT', pkg: 'luci-app-vnt', desc: 'VNT 组网', features: '异地组网'},
+                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控', features: '实时流量'},
+                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
             ],
             theme: [
                 {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果'},
                 {name: 'Kucat', pkg: 'luci-theme-kucat', desc: '可爱主题', features: '多彩配色'},
+                {name: 'Aurora', pkg: 'luci-theme-aurora', desc: '极光主题', features: '渐变效果'},
                 {name: 'OpenWrt2020', pkg: 'luci-theme-openwrt-2020', desc: 'OpenWrt2020', features: '经典风格'},
                 {name: 'OpenWrt', pkg: 'luci-theme-openwrt', desc: '经典主题', features: '原始风格'},
+                {name: 'Alpha', pkg: 'luci-theme-alpha', desc: 'Alpha 主题', features: '简洁风格'},
+                {name: 'Design', pkg: 'luci-theme-design', desc: 'Design 主题', features: '现代界面'},
+                {name: 'Material3', pkg: 'luci-theme-material3', desc: 'Material3', features: '动态主题'},
             ],
             system: [
                 {name: 'TTYD', pkg: 'luci-app-ttyd', desc: '网页终端', features: 'SSH 访问'},
@@ -531,11 +551,18 @@
                 {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi', features: '隔离网络'},
                 {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划', features: '定时开关'},
                 {name: '定时重启', pkg: 'luci-app-timedreboot', desc: '定时重启', features: '自动重启'},
-                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测', features: '自动恢复'},{name: 'ARP 绑定', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定'},                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务', features: '激活服务'},
+                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测', features: '自动恢复'},
+                {name: 'ARP 绑定', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定'},
+                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务', features: '激活服务'},
                 {name: 'CUPS', pkg: 'luci-app-cupsd', desc: '打印服务', features: '网络打印'},
-                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控', features: '设备管理'},                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书', features: '自动续签'},
-                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2', features: '音频流'},                {name: '网易云解锁', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权解锁'},{name: 'Store', pkg: 'luci-app-store', desc: 'iStore', features: '应用商店'},
-                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '行为管理'},
+                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控', features: '设备管理'},
+                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书', features: '自动续签'},
+                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2', features: '音频流'},
+                {name: '网易云解锁', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权解锁'},
+                {name: '微信推送', pkg: 'luci-app-wechatpush', desc: '通知推送', features: '微信/Telegram'},
+                {name: '订阅转换', pkg: 'luci-app-subconverter', desc: '订阅转换', features: '规则生成'},
+                {name: 'Store', pkg: 'luci-app-store', desc: 'iStore', features: '应用商店'},
+                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
                 {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务', features: '计划执行'},
             ]
         };
@@ -546,7 +573,6 @@
             ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
             ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
             ['luci-app-mosdns', 'luci-app-smartdns', 'DNS 转发器'],
-            ['firewall4', 'iptables', '防火墙类型'],
         ];
         
         let currentTab = 'proxy';
@@ -559,6 +585,7 @@
             updateBranches();
             renderDevices('MEDIATEK');
             renderPlugins('proxy');
+            updateTabCounts();
             startBuildMonitor();
             updateSummary();
         }
