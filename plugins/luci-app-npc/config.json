@@ -1,9 +1,0 @@
-{
-    "name": "NPC",
-    "package": "luci-app-npc",
-    "description": "NPS 客户端",
-    "features": "内网穿透",
-    "category": "network",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
-}

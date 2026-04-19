@@ -1,9 +1,0 @@
-{
-    "name": "FastNet",
-    "package": "luci-app-fastnet",
-    "description": "网络测速",
-    "features": "速度测试",
-    "category": "network",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
-}

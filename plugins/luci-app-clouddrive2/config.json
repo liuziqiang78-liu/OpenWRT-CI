@@ -1,9 +1,0 @@
-{
-    "name": "Clouddrive2",
-    "package": "luci-app-clouddrive2",
-    "description": "多云盘管理",
-    "features": "20+ 云盘支持",
-    "category": "storage",
-    "repository": "",
-    "note": "⚠️ 源仓库已删除，此插件暂时不可用"
-}

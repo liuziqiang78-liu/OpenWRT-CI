@@ -1,9 +1,0 @@
-{
-    "name": "TVHelper",
-    "package": "tvhelper",
-    "description": "盒子助手",
-    "features": "直播源",
-    "category": "system",
-    "repository": "",
-    "note": "源仓库已删除，使用 feeds 中的版本"
-}

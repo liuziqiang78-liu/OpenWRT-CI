@@ -1,9 +1,0 @@
-{
-    "name": "TimeWOL",
-    "package": "luci-app-timewol",
-    "description": "网络唤醒",
-    "features": "远程开机",
-    "category": "system",
-    "repository": "",
-    "note": "源仓库已删除，使用 feeds 中的版本"
-}
