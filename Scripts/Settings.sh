@@ -44,7 +44,6 @@ echo "# 核心系统包" >> ./.config
 echo "CONFIG_PACKAGE_firewall4=y" >> ./.config
 echo "CONFIG_PACKAGE_dnsmasq-full=y" >> ./.config
 echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
-echo "CONFIG_PACKAGE_odhcpd-ipv6only=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd-ubus=y" >> ./.config
 # 添加iptables相关配置 (使用 iptables-nft 兼容 firewall4)
