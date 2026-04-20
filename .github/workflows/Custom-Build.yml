@@ -622,56 +622,13 @@ jobs:
 
           chmod +x $GITHUB_WORKSPACE/Scripts/sources/apply-settings.sh
           source $GITHUB_WORKSPACE/Scripts/sources/apply-settings.sh
-          
-          # ========== 路由器基本配置 ==========
-          CFG_FILE="./package/base-files/files/bin/config_generate"
-          if [ -f "$CFG_FILE" ]; then
-            # 修改默认 IP 地址
-            sed -i "s/192\.168\.[0-9]*\.[0-9]*/${WRT_IP}/g" "$CFG_FILE"
-            # 修改默认主机名
-            sed -i "s/hostname='.*'/hostname='${WRT_NAME}'/g" "$CFG_FILE"
-            echo "✅ 路由器 IP: ${WRT_IP}"
-          fi
-          
-          # ========== 防火墙配置 (根据用户选择) ==========
-          if [ "${{ inputs.FIREWALL_TYPE }}" = "iptables" ]; then
-            echo "# 用户选择 iptables" >> .config
-            echo "# CONFIG_PACKAGE_firewall4 is not set" >> .config
-            echo "CONFIG_PACKAGE_firewall=y" >> .config
-            echo "CONFIG_PACKAGE_iptables=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
-          else
-            echo "# 用户选择 firewall4 (默认)" >> .config
-            echo "CONFIG_PACKAGE_firewall4=y" >> .config
-            echo "# 使用 iptables-nft 兼容 firewall4" >> .config
-            echo "CONFIG_PACKAGE_iptables-nft=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> .config
-            echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> .config
-          fi
-          
-          # ========== 中文配置 ==========
-          echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
-          echo "CONFIG_DEFAULT_luci-lang=zh_cn" >> .config
-          THEME="${WRT_THEME:-argon}"
-          if [ "$THEME" != "none" ]; then
-            echo "CONFIG_LUCI_DEFAULT_THEME=luci-theme-${THEME}" >> .config
-            echo "CONFIG_PACKAGE_luci-theme-${THEME}=y" >> .config
-            echo "CONFIG_PACKAGE_luci-app-${THEME}-config=y" >> .config
-          fi
-          
-          # ========== ccache 加速编译 ==========
+
+          # ========== ccache ==========
           echo "CONFIG_CCACHE=y" >> .config
           echo "CCACHE_DIR=$(pwd)/.ccache" >> $GITHUB_ENV
           echo "CCACHE_MAXSIZE=5G" >> $GITHUB_ENV
-          echo "✅ ccache 已启用"
 
           # ========== make defconfig ==========
-          echo ""
           echo "🔧 运行 make defconfig..."
           make defconfig 2>&1 || {
             echo "⚠️ make defconfig 出现错误，尝试详细输出..."
@@ -679,11 +636,9 @@ jobs:
           }
 
           # ========== 防冲突检查 ==========
-          # 检查并修复 odhcpd / odhcpd-ipv6only 冲突
           if grep -q '^CONFIG_PACKAGE_odhcpd=y' .config && grep -q '^CONFIG_PACKAGE_odhcpd-ipv6only=y' .config; then
-            echo "⚠️  检测到 odhcpd 与 odhcpd-ipv6only 同时启用，自动修复..."
             sed -i 's/^CONFIG_PACKAGE_odhcpd-ipv6only=y/# CONFIG_PACKAGE_odhcpd-ipv6only is not set/' .config
-            echo "✅ 已禁用 odhcpd-ipv6only（保留完整版 odhcpd）"
+            echo "✅ 已修复 odhcpd 冲突"
           fi
 
       - name: Show Configuration
