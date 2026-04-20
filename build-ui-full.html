@@ -209,6 +209,24 @@
                     </div>
                 </div>
                 
+                <!-- NSS 配置 (仅 NSS 源码可见) -->
+                <div class="section" id="nss-section" style="display:none;">
+                    <h2>📡 NSS 硬件加速</h2>
+                    <div class="form-group">
+                        <label>NSS 固件版本 *</label>
+                        <select id="nss_firmware_version">
+                            <option value="auto" selected>🤖 智能选择 (根据平台和插件自动匹配)</option>
+                            <option value="11_4">📦 11.4 (WDS/MESH 兼容，推荐需要漫游的场景)</option>
+                            <option value="12_2">📦 12.2 (IPQ50XX 专用)</option>
+                            <option value="12_5">📦 12.5 (最新版本，性能最优)</option>
+                        </select>
+                        <div style="margin-top:8px;padding:10px;background:#fff3cd;border-radius:6px;font-size:12px;">
+                            ⚠️ <strong>注意</strong>：11.4 固件支持 WDS/MESH 但可能缺少新特性；12.5 性能最优但不支持旧版 WDS。
+                            <br>IPQ50XX 设备请选 12.2。
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 防火墙 -->
                 <div class="section">
                     <h2>🛡️ 防火墙</h2>
@@ -216,8 +234,11 @@
                         <label>防火墙类型 *</label>
                         <select id="firewall_type" required>
                             <option value="firewall4" selected>🔥 Firewall4 (NFTables - 推荐)</option>
-                            <option value="iptables">📋 Iptables (传统兼容)</option>
+                            <option value="iptables">📋 Iptables (传统兼容 - NSS 推荐)</option>
                         </select>
+                        <div id="firewall-nss-warning" style="display:none;margin-top:8px;padding:10px;background:#fff3cd;border-radius:6px;font-size:12px;">
+                            💡 <strong>提示</strong>：使用 NSS 加速时，推荐选择 <strong>Iptables</strong> 以获得最佳兼容性。
+                        </div>
                     </div>
                 </div>
                 
@@ -307,7 +328,27 @@
             updateSummary();
         }
 
-        document.getElementById('wrt_source').addEventListener('change', updateBranches);
+        document.getElementById('wrt_source').addEventListener('change', function() {
+            updateBranches();
+            toggleNssSection();
+        });
+
+        // ========== NSS 源码判断 ==========
+        const NSS_SOURCES = ['LiBwrt/openwrt-6.x', 'qosmio/openwrt-ipq'];
+
+        function toggleNssSection() {
+            const src = document.getElementById('wrt_source').value;
+            const isNss = NSS_SOURCES.includes(src);
+            document.getElementById('nss-section').style.display = isNss ? 'block' : 'none';
+            document.getElementById('firewall-nss-warning').style.display = isNss ? 'block' : 'none';
+            // NSS 源码时默认推荐 iptables
+            if (isNss) {
+                document.getElementById('firewall_type').value = 'iptables';
+            } else {
+                document.getElementById('firewall_type').value = 'firewall4';
+            }
+            updateSummary();
+        }
 
         // ========== 设备数据库 ==========
         const DEVICES = {
@@ -583,6 +624,7 @@
             loadToken();
             loadConfig();
             updateBranches();
+            toggleNssSection();
             renderDevices('MEDIATEK');
             renderPlugins('proxy');
             updateTabCounts();
@@ -598,7 +640,8 @@
                 const config = JSON.parse(saved);
                 
                 ['wrt_source', 'wrt_branch', 'firewall_type', 'theme', 'lan_ip',
-                 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode'
+                 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode',
+                 'nss_firmware_version'
                 ].forEach(id => {
                     const el = document.getElementById(id);
                     if (el && config[id] !== undefined) {
@@ -623,7 +666,8 @@
             try {
                 const config = {selectedPlugins: {...selectedPlugins}, selectedDevice};
                 ['wrt_source', 'wrt_branch', 'target_platform', 'firewall_type', 'theme',
-                 'lan_ip', 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode'
+                 'lan_ip', 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode',
+                 'nss_firmware_version'
                 ].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) config[id] = el.type === 'checkbox' ? el.checked : el.value;
@@ -824,7 +868,9 @@
             const storagePkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.storage.find(p => p.pkg === pk)).join(',');
             const networkPkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.network.find(p => p.pkg === pk)).join(',');
             
-            if (!confirm(`确认编译？\n\n设备：${selectedDevice.name}\n平台：${platform}\n主题：${document.getElementById('theme').value}\nWiFi：${document.getElementById('wifi_ssid').value}\n插件：${Object.keys(selectedPlugins).length} 个`)) return;
+            const isNss = NSS_SOURCES.includes(document.getElementById('wrt_source').value);
+            const nssInfo = isNss ? `\nNSS固件：${document.getElementById('nss_firmware_version').value}` : '';
+            if (!confirm(`确认编译？\n\n设备：${selectedDevice.name}\n平台：${platform}\n主题：${document.getElementById('theme').value}\nWiFi：${document.getElementById('wifi_ssid').value}\n插件：${Object.keys(selectedPlugins).length} 个${nssInfo}`)) return;
             
             btn.disabled = true;
             btn.innerHTML = '⏳ 正在触发编译...';
@@ -842,6 +888,7 @@
                             TARGET_DEVICE: selectedDevice.id,
                             FIREWALL_TYPE: document.getElementById('firewall_type').value,
                             THEME: document.getElementById('theme').value,
+                            NSS_FIRMWARE_VERSION: document.getElementById('nss_firmware_version').value,
                             PROXY_PLUGIN: proxyPkgs,
                             STORAGE_PLUGIN: storagePkgs,
                             NETWORK_TOOL: networkPkgs,

@@ -142,6 +142,18 @@ on:
         type: string
         default: '12345678'
       
+      # NSS 固件版本 (仅 LiBwrt/qosmio 源码)
+      NSS_FIRMWARE_VERSION:
+        description: 'NSS 固件版本 (仅 LiBwrt/qosmio 源码，auto=智能选择)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - 11_4
+          - 12_2
+          - 12_5
+        default: 'auto'
+
       # 仅输出配置
       TEST_MODE:
         description: '仅输出配置，不编译固件'
@@ -590,35 +602,26 @@ jobs:
             echo "✅ 已创建 WiFi 初始化脚本"
           fi
           
-          # ========== QUALCOMMAX DTS 配置 ==========
-          if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]] || [[ "${WRT_TARGET^^}" == *"IPQ"* ]]; then
-            echo ""
-            echo "🔧 配置 QUALCOMMAX 平台设置..."
-            
-            # 高通平台调整
-            DTS_PATH="./target/linux/qualcommax/dts/"
-            
-            # 取消 nss 相关 feed
-            echo "CONFIG_FEED_nss_packages=n" >> .config
-            echo "CONFIG_FEED_sqm_scripts_nss=n" >> .config
-            
-            # 开启 sqm-nss 插件
-            echo "CONFIG_PACKAGE_luci-app-sqm=y" >> .config
-            echo "CONFIG_PACKAGE_sqm-scripts-nss=y" >> .config
-            
-            # 设置 NSS 版本
-            echo "CONFIG_NSS_FIRMWARE_VERSION_11_4=n" >> .config
-            if [[ "${WRT_CONFIG,,}" == *"ipq50"* ]]; then
-              echo "CONFIG_NSS_FIRMWARE_VERSION_12_2=y" >> .config
-            else
-              echo "CONFIG_NSS_FIRMWARE_VERSION_12_5=y" >> .config
-            fi
-            
-            # 其他调整
-            echo "CONFIG_PACKAGE_kmod-usb-serial-qualcomm=y" >> .config
-            
-            echo "✅ QUALCOMMAX 平台配置完成"
-          fi
+          # ========== 源码专用设置调度 ==========
+          echo ""
+          echo "=========================================="
+          echo "📋 执行源码设置调度器: ${{ inputs.WRT_SOURCE }}"
+          echo "=========================================="
+
+          export WRT_SOURCE="${{ inputs.WRT_SOURCE }}"
+          export WRT_CONFIG="${{ inputs.TARGET_PLATFORM }}"
+          export WRT_TARGET="${{ inputs.TARGET_PLATFORM }}"
+          export WRT_THEME="${{ inputs.THEME }}"
+          export WRT_SSID="${{ inputs.WIFI_SSID }}"
+          export WRT_WORD="${{ inputs.WIFI_PASSWORD }}"
+          export WRT_IP="${{ inputs.LAN_IP }}"
+          export WRT_NAME="${{ inputs.LOGIN_USERNAME }}"
+          export WRT_PW="${{ inputs.LOGIN_PASSWORD }}"
+          export WRT_FIREWALL="${{ inputs.FIREWALL_TYPE }}"
+          export NSS_FIRMWARE_VERSION="${{ inputs.NSS_FIRMWARE_VERSION }}"
+
+          chmod +x $GITHUB_WORKSPACE/Scripts/sources/apply-settings.sh
+          source $GITHUB_WORKSPACE/Scripts/sources/apply-settings.sh
           
           # ========== 路由器基本配置 ==========
           CFG_FILE="./package/base-files/files/bin/config_generate"
