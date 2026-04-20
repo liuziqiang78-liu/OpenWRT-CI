@@ -3,37 +3,54 @@
 # 通用设置 - 所有源码共享的基础配置
 # ============================================================
 
+# 设置默认值（防止变量未定义导致 sed 异常）
+WRT_MARK="${WRT_MARK:-Custom}"
+WRT_DATE="${WRT_DATE:-$(date +%Y%m%d)}"
+
 # 移除 luci-app-attendedsysupgrade
-sed -i "/attendedsysupgrade/d" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+_collections_makefile=$(find ./feeds/luci/collections/ -type f -name "Makefile" 2>/dev/null | head -1)
+if [ -n "$_collections_makefile" ]; then
+    sed -i "/attendedsysupgrade/d" "$_collections_makefile"
+fi
 
 # 修改默认主题 (none 时跳过，使用源码默认主题)
-if [ "$WRT_THEME" != "none" ]; then
-    sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+if [ "$WRT_THEME" != "none" ] && [ -n "$_collections_makefile" ]; then
+    sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" "$_collections_makefile"
 fi
 
 # 修改 immortalwrt.lan 关联 IP
-sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
+_flash_js=$(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js" 2>/dev/null | head -1)
+if [ -n "$_flash_js" ]; then
+    sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" "$_flash_js"
+fi
 
 # 添加编译日期标识
-sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
+_system_js=$(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js" 2>/dev/null | head -1)
+if [ -n "$_system_js" ]; then
+    sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" "$_system_js"
+fi
 
 # ========== WiFi 配置 ==========
-WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax,rockchip/armv8,x86}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
+WIFI_SH=$(find ./target/linux/ -path "*/base-files/etc/uci-defaults/*set-wireless.sh" -type f 2>/dev/null | head -1)
 WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
-if [ -f "$WIFI_SH" ]; then
-    sed -i "s/BASE_SSID='.*'/BASE_SSID='$WRT_SSID'/g" $WIFI_SH
-    sed -i "s/BASE_WORD='.*'/BASE_WORD='$WRT_WORD'/g" $WIFI_SH
+if [ -n "$WIFI_SH" ] && [ -f "$WIFI_SH" ]; then
+    sed -i "s/BASE_SSID='.*'/BASE_SSID='$WRT_SSID'/g" "$WIFI_SH"
+    sed -i "s/BASE_WORD='.*'/BASE_WORD='$WRT_WORD'/g" "$WIFI_SH"
 elif [ -f "$WIFI_UC" ]; then
-    sed -i "s/ssid='.*'/ssid='$WRT_SSID'/g" $WIFI_UC
-    sed -i "s/key='.*'/key='$WRT_WORD'/g" $WIFI_UC
-    sed -i "s/country='.*'/country='CN'/g" $WIFI_UC
-    sed -i "s/encryption='.*'/encryption='psk2+ccmp'/g" $WIFI_UC
+    sed -i "s/ssid='.*'/ssid='$WRT_SSID'/g" "$WIFI_UC"
+    sed -i "s/key='.*'/key='$WRT_WORD'/g" "$WIFI_UC"
+    sed -i "s/country='.*'/country='CN'/g" "$WIFI_UC"
+    sed -i "s/encryption='.*'/encryption='psk2+ccmp'/g" "$WIFI_UC"
 fi
 
 # ========== 路由器基础配置 ==========
 CFG_FILE="./package/base-files/files/bin/config_generate"
-sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $CFG_FILE
-sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" $CFG_FILE
+if [ -f "$CFG_FILE" ]; then
+    sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" "$CFG_FILE"
+    sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" "$CFG_FILE"
+else
+    echo "⚠️  config_generate 不存在，跳过路由器基础配置"
+fi
 
 # ========== LuCI 基础配置 ==========
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
