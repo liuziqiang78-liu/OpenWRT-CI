@@ -4,7 +4,7 @@
 # 保持向后兼容，内部调用新的分模块设置
 # ============================================================
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 如果有新的分模块脚本，使用它
 if [ -f "$SCRIPT_DIR/sources/apply-settings.sh" ]; then
