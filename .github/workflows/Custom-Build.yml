@@ -497,7 +497,7 @@ jobs:
 
               # 加载设备专属插件
               if [ -f "$DEVICE_DIR/plugins.txt" ]; then
-                DEVICE_PLUGINS=$(grep "^CONFIG_PACKAGE_" "$DEVICE_DIR/plugins.txt" 2>/dev/null | grep -v "^#")
+                DEVICE_PLUGINS=$(grep "^CONFIG_PACKAGE_" "$DEVICE_DIR/plugins.txt" 2>/dev/null | grep -v "^#" || true)
                 if [ -n "$DEVICE_PLUGINS" ]; then
                   echo ""
                   echo "📦 加载设备专属插件: $DEVICE_NAME"
