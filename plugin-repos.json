@@ -91,5 +91,6 @@
   "luci-theme-design": "https://github.com/0x676e67/luci-theme-design.git",
   "luci-theme-material": null,
   "luci-theme-material3": "https://github.com/KawaiiHachimi/luci-theme-material3.git",
-  "luci-theme-openwrt": "https://github.com/openwrt/luci.git"
+  "luci-theme-openwrt": "https://github.com/openwrt/luci.git",
+  "luci-app-athena-led": "https://github.com/NONGFAH/luci-app-athena-led.git"
 }

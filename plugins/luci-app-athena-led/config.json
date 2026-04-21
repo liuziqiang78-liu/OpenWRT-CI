@@ -1,0 +1,8 @@
+{
+    "name": "luci-app-athena-led",
+    "package": "luci-app-athena-led",
+    "description": "京东云雅典娜LED屏幕Web管理",
+    "features": "LED点阵屏控制、定时开关、显示内容配置",
+    "category": "system",
+    "repository": "https://github.com/NONGFAH/luci-app-athena-led.git"
+}

@@ -452,6 +452,29 @@ jobs:
             echo "⚠️  没有选择任何插件"
           fi
 
+      - name: Download athena-led binary (RE-CS-02 only)
+        if: inputs.TARGET_DEVICE == 'jdcloud_re-cs-02'
+        run: |
+          cd ./wrt/
+          echo "📥 下载 athena-led 二进制 (京东云 RE-CS-02 专属)..."
+          ATHENA_URL=$(curl -sL https://api.github.com/repos/sagan/athena-led/releases/latest | jq -r '.assets[] | select(.name | test("linux-arm64|linux.*arm64|aarch64")) | .browser_download_url' | head -1)
+          if [ -z "$ATHENA_URL" ]; then
+            # 回退: 尝试 arm 版本
+            ATHENA_URL=$(curl -sL https://api.github.com/repos/sagan/athena-led/releases/latest | jq -r '.assets[] | select(.name | test("linux-arm")) | .browser_download_url' | head -1)
+          fi
+          if [ -n "$ATHENA_URL" ]; then
+            mkdir -p ./files/usr/sbin
+            curl -sL "$ATHENA_URL" -o /tmp/athena-led.zip 2>/dev/null || curl -sL "$ATHENA_URL" -o ./files/usr/sbin/athena-led
+            if file /tmp/athena-led.zip 2>/dev/null | grep -q "Zip"; then
+              unzip -o /tmp/athena-led.zip -d /tmp/athena-led-extract/
+              cp /tmp/athena-led-extract/athena-led* ./files/usr/sbin/athena-led
+            fi
+            chmod +x ./files/usr/sbin/athena-led
+            echo "✅ athena-led 已安装到 /usr/sbin/athena-led"
+          else
+            echo "❌ 未找到 athena-led 预编译二进制"
+          fi
+
       - name: Generate Configuration
         env:
           WRT_CONFIG: ${{ inputs.TARGET_PLATFORM }}

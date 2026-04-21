@@ -1,3 +1,6 @@
 # 京东云 RE-CS-02 专属插件
 # 选了此设备就会自动编译这些插件，不需要在 WebUI 中手动选择
 # 格式：每行一个 CONFIG_PACKAGE_xxx=y
+
+# LED 点阵屏控制 (LuCI 管理界面)
+CONFIG_PACKAGE_luci-app-athena-led=y

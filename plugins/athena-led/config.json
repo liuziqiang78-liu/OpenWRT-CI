@@ -1,0 +1,9 @@
+{
+    "name": "athena-led",
+    "package": "athena-led",
+    "description": "京东云雅典娜LED屏幕控制程序",
+    "features": "LED点阵屏控制、CPU/内存/网速显示、天气符号",
+    "category": "system",
+    "repository": "https://github.com/sagan/athena-led.git",
+    "note": "Go二进制，需自定义安装"
+}
