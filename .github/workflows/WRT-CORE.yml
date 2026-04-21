@@ -190,7 +190,8 @@ jobs:
             echo "✅ 已禁用 odhcpd-ipv6only（保留完整版 odhcpd）"
           fi
 
-          make clean -j$(nproc)
+          # 注意：不在这里 make clean，否则会清掉刚恢复的工具链缓存 (staging_dir)
+          # clean 留到编译完成后 Release 阶段再做
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'

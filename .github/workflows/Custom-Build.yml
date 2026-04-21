@@ -146,6 +146,27 @@ on:
           - 12_5
         default: 'auto'
 
+      # 设备特定配置 (CMCC RAX3000ME 等多版本设备)
+      DEVICE_DDR_VERSION:
+        description: '内存版本 (仅 CMCC RAX3000ME 需要选择)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - ddr3
+          - ddr4
+        default: ''
+      
+      DEVICE_FLASH_TYPE:
+        description: '闪存类型 (仅 CMCC RAX3000ME 需要选择)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - nand
+          - emmc
+        default: ''
+
       # 仅输出配置
       TEST_MODE:
         description: '仅输出配置，不编译固件'
@@ -757,9 +778,63 @@ jobs:
           cp -f ./.config ./upload/Custom-Config-${{ inputs.TARGET_PLATFORM }}-$(date +%Y%m%d-%H%M).txt
           
           # 复制固件
-          for FILE in $(find ./bin/targets/ -type f -iname "*.bin" -o -iname "*.img.gz"); do
-            cp -f $FILE ./upload/
-          done
+          # 对于 RAX3000ME，根据 DDR 版本和闪存类型过滤预加载器和 FIP 文件
+          DEVICE_NAME="${{ inputs.TARGET_DEVICE }}"
+          DDR_VER="${{ inputs.DEVICE_DDR_VERSION }}"
+          FLASH_TP="${{ inputs.DEVICE_FLASH_TYPE }}"
+          
+          if [[ "$DEVICE_NAME" == "cmcc_rax3000me" && -n "$DDR_VER" && -n "$FLASH_TP" ]]; then
+            echo "🎯 RAX3000ME 特定配置: DDR=$DDR_VER, Flash=$FLASH_TP"
+            MATCHED=0
+            
+            for FILE in $(find ./bin/targets/ -type f -iname "*.bin" -o -iname "*.img.gz"); do
+              BASENAME=$(basename "$FILE")
+              
+              # sysupgrade.itb 和 emmc-gpt.bin 是通用文件，始终复制
+              if [[ "$BASENAME" == *"sysupgrade"* || "$BASENAME" == *"emmc-gpt"* || "$BASENAME" == *"recovery"* ]]; then
+                cp -f "$FILE" ./upload/
+                echo "  ✅ 通用: $BASENAME"
+                continue
+              fi
+              
+              # 预加载器和 FIP 文件：只复制匹配 DDR + Flash 的
+              if [[ "$BASENAME" == *"preloader"* || "$BASENAME" == *".fip" ]]; then
+                # 匹配 DDR 版本
+                if [[ "$DDR_VER" == "ddr3" && "$BASENAME" != *"ddr3"* ]]; then
+                  echo "  ⏭️ 跳过 (DDR 不匹配): $BASENAME"
+                  continue
+                fi
+                if [[ "$DDR_VER" == "ddr4" && "$BASENAME" == *"ddr3"* ]]; then
+                  echo "  ⏭️ 跳过 (DDR 不匹配): $BASENAME"
+                  continue
+                fi
+                
+                # 匹配闪存类型
+                if [[ "$FLASH_TP" == "nand" && "$BASENAME" == *"emmc"* ]]; then
+                  echo "  ⏭️ 跳过 (Flash 不匹配): $BASENAME"
+                  continue
+                fi
+                if [[ "$FLASH_TP" == "emmc" && "$BASENAME" == *"nand"* ]]; then
+                  echo "  ⏭️ 跳过 (Flash 不匹配): $BASENAME"
+                  continue
+                fi
+                
+                cp -f "$FILE" ./upload/
+                MATCHED=$((MATCHED + 1))
+                echo "  ✅ 匹配: $BASENAME"
+              else
+                # 其他文件正常复制
+                cp -f "$FILE" ./upload/
+              fi
+            done
+            
+            echo "📊 共匹配 $MATCHED 个预加载器/FIP 文件"
+          else
+            # 非 RAX3000ME 或未指定版本：全部复制
+            for FILE in $(find ./bin/targets/ -type f -iname "*.bin" -o -iname "*.img.gz"); do
+              cp -f $FILE ./upload/
+            done
+          fi
           
           # 生成校验和
           cd ./upload/
@@ -774,6 +849,17 @@ jobs:
           **平台**: ${{ inputs.TARGET_PLATFORM }}
           **设备**: ${{ inputs.TARGET_DEVICE || '全部设备' }}
           **主题**: ${{ inputs.THEME }}
+          EOF
+          
+          # RAX3000ME 特定信息
+          if [[ "${{ inputs.TARGET_DEVICE }}" == "cmcc_rax3000me" && -n "${{ inputs.DEVICE_DDR_VERSION }}" ]]; then
+            cat >> FIRMWARE_INFO.md << EOF
+          **内存版本**: DDR$(echo "${{ inputs.DEVICE_DDR_VERSION }}" | tr -d 'ddr' | tr 'a-z' 'A-Z')
+          **闪存类型**: $(echo "${{ inputs.DEVICE_FLASH_TYPE }}" | tr 'a-z' 'A-Z')
+          EOF
+          fi
+          
+          cat >> FIRMWARE_INFO.md << 'EOF'
           
           ## 登录信息
           

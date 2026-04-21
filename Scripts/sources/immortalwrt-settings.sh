@@ -15,6 +15,15 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]] || [[ "${WRT_TARGET^^}" == *"IPQ"* 
     echo "CONFIG_FEED_nss_packages=n" >> .config
     echo "CONFIG_FEED_sqm_scripts_nss=n" >> .config
 
+    # 清除平台配置中残留的 NSS 包 (这些包只存在于 LiBwrt/qosmio 源码)
+    sed -i '/CONFIG_PACKAGE_.*qca-nss/d' .config 2>/dev/null
+    sed -i '/CONFIG_PACKAGE_.*qca-ssdk/d' .config 2>/dev/null
+    sed -i '/CONFIG_NSS_FIRMWARE_VERSION/d' .config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_IPQ_MEM_PROFILE/d' .config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_SKB_RECYCLER/d' .config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_SKB_RECYCLE_SIZE/d' .config 2>/dev/null
+    echo "✅ 已清除残留的 NSS 包配置 (immortalwrt 不含 NSS)"
+
     # SQM 使用标准版本
     echo "CONFIG_PACKAGE_luci-app-sqm=y" >> .config
     echo "# CONFIG_PACKAGE_sqm-scripts-nss is not set" >> .config

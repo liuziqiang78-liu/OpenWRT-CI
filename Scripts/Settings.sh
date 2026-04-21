@@ -89,16 +89,19 @@ fi
 
 DTS_PATH="./target/linux/qualcommax/dts/"
 if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
+    # 清除平台配置中残留的 NSS 包 (非 NSS 源码兼容)
+    sed -i '/CONFIG_PACKAGE_.*qca-nss/d' ./.config 2>/dev/null
+    sed -i '/CONFIG_PACKAGE_.*qca-ssdk/d' ./.config 2>/dev/null
+    sed -i '/CONFIG_NSS_FIRMWARE_VERSION/d' ./.config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_IPQ_MEM_PROFILE/d' ./.config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_SKB_RECYCLER/d' ./.config 2>/dev/null
+    sed -i '/CONFIG_KERNEL_SKB_RECYCLE_SIZE/d' ./.config 2>/dev/null
+
     echo "CONFIG_FEED_nss_packages=n" >> ./.config
     echo "CONFIG_FEED_sqm_scripts_nss=n" >> ./.config
     echo "CONFIG_PACKAGE_luci-app-sqm=y" >> ./.config
-    echo "CONFIG_PACKAGE_sqm-scripts-nss=y" >> ./.config
-    echo "CONFIG_NSS_FIRMWARE_VERSION_11_4=n" >> ./.config
-    if [[ "${WRT_CONFIG,,}" == *"ipq50"* ]]; then
-        echo "CONFIG_NSS_FIRMWARE_VERSION_12_2=y" >> ./.config
-    else
-        echo "CONFIG_NSS_FIRMWARE_VERSION_12_5=y" >> ./.config
-    fi
+    # 非 NSS 源码使用标准 sqm-scripts (旧代码错误地启用了 sqm-scripts-nss)
+    echo "# CONFIG_PACKAGE_sqm-scripts-nss is not set" >> ./.config
     if [[ "${WRT_CONFIG,,}" == *"wifi"* && "${WRT_CONFIG,,}" == *"no"* ]]; then
         find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
     fi
