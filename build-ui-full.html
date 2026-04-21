@@ -481,7 +481,9 @@ const CF=[['luci-app-passwall','luci-app-passwall2','PassWall'],['luci-app-adgua
 let cT='proxy',sPl={};
 function init(){lT();uB();lC();tN();rD('MEDIATEK');rP('proxy');uTC();sMo();uS()}
 
-function lC(){try{const s=localStorage.getItem('owrt-ci');if(!s)return;const c=JSON.parse(s);['wrt_source','wrt_branch','lan_ip','login_password','wifi_ssid','wifi_password','other_plugins','test_mode','nv'].forEach(id=>{const e=document.getElementById(id);if(e&&c[id]!==undefined){e.type==='checkbox'?e.checked=c[id]:e.value=c[id]}});if(c.sp)sPl=c.sp;if(c.sth&&Array.isArray(c.sth))sThemes=c.sth;if(c.sd){selD=c.sd;document.getElementById('target_platform').value=selD.p;sP(selD.p)}
+function lC(){try{const s=localStorage.getItem('owrt-ci');if(!s)return;const c=JSON.parse(s);['wrt_source'].forEach(id=>{const e=document.getElementById(id);if(e&&c[id]!==undefined){e.value=c[id]}});
+uB();
+['wrt_branch','lan_ip','login_password','wifi_ssid','wifi_password','other_plugins','test_mode','nv'].forEach(id=>{const e=document.getElementById(id);if(e&&c[id]!==undefined){e.type==='checkbox'?e.checked=c[id]:e.value=c[id]}});if(c.sp)sPl=c.sp;if(c.sth&&Array.isArray(c.sth))sThemes=c.sth;if(c.sd){selD=c.sd;document.getElementById('target_platform').value=selD.p;sP(selD.p)}
 if(c.dv)deviceOpts=c.dv;
 if(selD){const opt=deviceOpts[selD.i];if(opt&&opt.ddr){const dv=DV[selD.i];const ddrLabel=dv?.ddr.options.find(o=>o.v===opt.ddr)?.n||opt.ddr;const flashLabel=dv?.flash.options.find(o=>o.v===opt.flash)?.n||opt.flash;document.getElementById('ds').textContent=`✓ ${selD.n} · ${ddrLabel} · ${flashLabel}`}else{document.getElementById('ds').textContent='✓ '+selD.n}}rTh();rP(cT);uTC()}catch(e){}}
 function sC(){try{const c={sp:{...sPl},sd:selD,sth:[...sThemes],dv:{...deviceOpts}};['wrt_source','wrt_branch','target_platform','lan_ip','login_password','wifi_ssid','wifi_password','other_plugins','test_mode','nv'].forEach(id=>{const e=document.getElementById(id);if(e)c[id]=e.type==='checkbox'?e.checked:e.value});localStorage.setItem('owrt-ci',JSON.stringify(c))}catch(e){}}
