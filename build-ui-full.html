@@ -1,929 +1,369 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="theme-color" content="#667eea">
-    <title>OpenWRT 自定义构建 - 完整插件版</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 10px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
-        .header h1 { font-size: 1.8em; margin-bottom: 8px; line-height: 1.3; }
-        .header p { font-size: 1em; opacity: 0.9; }
-        .content { padding: 15px; }
-        .section { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea; }
-        .section h2 { color: #333; margin-bottom: 15px; font-size: 1.3em; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; color: #555; font-weight: 600; font-size: 14px; }
-        .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; -webkit-appearance: none; appearance: none; }
-        .form-group select:focus, .form-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        
-        /* 设备选择器 */
-        .device-selector { margin-bottom: 15px; }
-        .platform-tabs { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
-        .platform-tabs::-webkit-scrollbar { display: none; }
-        .platform-tab { padding: 10px 18px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; font-weight: 600; flex-shrink: 0; user-select: none; }
-        .platform-tab.active { background: #667eea; color: white; }
-        .platform-tab:hover:not(.active) { background: #f0f0ff; }
-        .platform-tab .wifi-icon { margin-left: 4px; }
-        
-        .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .device-card { background: white; padding: 14px; border-radius: 10px; border: 2px solid #e0e0e0; cursor: pointer; transition: all 0.2s; position: relative; }
-        .device-card:hover { border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); }
-        .device-card.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
-        .device-card .device-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-        .device-card .device-chip { font-size: 11px; color: #888; margin-bottom: 2px; }
-        .device-card.selected .device-chip { color: rgba(255,255,255,0.8); }
-        .device-card .device-wifi { font-size: 11px; color: #4CAF50; margin-top: 4px; }
-        .device-card.selected .device-wifi { color: rgba(255,255,255,0.9); }
-        .device-card .check-circle { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; }
-        .device-card.selected .check-circle { background: #4CAF50; border-color: #4CAF50; color: white; }
-        
-        .device-count { font-size: 13px; color: #666; margin-top: 10px; text-align: center; }
-        
-        .plugin-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
-        .plugin-tabs::-webkit-scrollbar { display: none; }
-        .plugin-tab { padding: 8px 16px; background: white; border: 2px solid #667eea; border-radius: 25px; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-size: 14px; flex-shrink: 0; user-select: none; -webkit-user-select: none; pointer-events: auto; touch-action: manipulation; }
-        .plugin-tab:active { transform: scale(0.95); }
-        .plugin-tab.active { background: #667eea; color: white; }
-        .plugin-tab:hover { background: #f8f9fa; }
-        .plugin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        .plugin-item { background: white; padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0; cursor: pointer; transition: all 0.3s; position: relative; }
-        .plugin-item:active { transform: scale(0.98); }
-        .plugin-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; }
-        .plugin-item input[type="checkbox"] { display: none; }
-        .plugin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-        .plugin-name { font-weight: 600; font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .plugin-desc { font-size: 11px; color: #666; line-height: 1.3; margin-bottom: 8px; }
-        .plugin-item.selected .plugin-desc { color: rgba(255,255,255,0.85); }
-        .checkmark { width: 20px; height: 20px; border: 2px solid #e0e0e0; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; }
-        .plugin-item.selected .checkmark { background: #4CAF50; border-color: #4CAF50; color: white; }
-        .checkmark::after { content: '✓'; font-size: 12px; font-weight: bold; display: none; }
-        .plugin-item.selected .checkmark::after { display: block; }
-        .plugin-expand { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0; display: none; }
-        .plugin-item.expanded .plugin-expand { display: block; }
-        .plugin-expand-title { font-size: 11px; color: #667eea; font-weight: 600; margin-bottom: 6px; }
-        .plugin-expand-list { font-size: 10px; color: #666; line-height: 1.6; }
-        .plugin-expand-list strong { color: #333; }
-        .plugin-item.selected .plugin-expand-list { color: rgba(255,255,255,0.9); }
-        .plugin-item.selected .plugin-expand-list strong { color: white; }
-        .expand-indicator { font-size: 10px; color: #667eea; margin-top: 6px; text-align: center; }
-        .plugin-item.expanded .expand-indicator::before { content: '收起 ▲'; }
-        .plugin-item:not(.expanded) .expand-indicator::before { content: '展开 ▼'; }
-        .plugin-item.selected .expand-indicator { color: rgba(255,255,255,0.9); }
-        .plugin-item.disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
-        
-        .search-box { margin-bottom: 15px; position: relative; background: #f8f9fa; padding: 10px 0; }
-        .search-box input { width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 25px; font-size: 16px; }
-        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 25px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 600; }
-        .btn:active { transform: scale(0.98); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .plugin-count { background: #667eea; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; margin-left: 8px; display: inline-block; }
-        .select-all-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
-        .btn-small { padding: 6px 12px; font-size: 13px; border-radius: 20px; border: 2px solid #667eea; background: white; color: #667eea; cursor: pointer; flex-shrink: 0; }
-        .btn-small:active { transform: scale(0.95); background: #667eea; color: white; }
-        
-        @media (max-width: 768px) {
-            body { padding: 5px; }
-            .header { padding: 15px; }
-            .header h1 { font-size: 1.5em; }
-            .content { padding: 10px; }
-            .section { padding: 12px; }
-            .plugin-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .device-grid { grid-template-columns: repeat(2, 1fr); }
-            .plugin-item { padding: 10px; }
-            .plugin-name { font-size: 13px; }
-            .plugin-desc { font-size: 10px; }
-        }
-        @media (max-width: 480px) {
-            .header h1 { font-size: 1.3em; }
-            .plugin-grid { grid-template-columns: 1fr; }
-            .device-grid { grid-template-columns: 1fr; }
-            .plugin-tab { font-size: 12px; padding: 6px 12px; }
-            .btn { font-size: 15px; padding: 12px 20px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080c18">
+<title>OpenWRT 云编译</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<style>
+/* ═══════════════════════════════════════════
+   Design Tokens
+   ═══════════════════════════════════════════ */
+:root{
+  --bg:#080c18;--bg2:#0b1020;
+  --s1:rgba(12,18,36,.65);--s2:rgba(16,24,48,.55);
+  --brd:rgba(90,130,255,.08);--brd-h:rgba(90,130,255,.22);
+  --cyan:#38bdf8;--c-d:rgba(56,189,248,.1);--c-g:rgba(56,189,248,.18);
+  --vio:#a78bfa;--v-d:rgba(167,139,250,.1);
+  --grn:#34d399;--red:#f87171;--amb:#fbbf24;
+  --t1:#e8ecf4;--t2:#8b99b5;--t3:#4a5578;
+  --r:16px;--r2:12px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --sh:0 2px 20px rgba(0,0,0,.35);
+  --sh-g:0 0 30px rgba(56,189,248,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.65;overflow-x:hidden;font-size:14px}
+
+/* ═══════════════════════════════════════════
+   Ambient Background
+   ═══════════════════════════════════════════ */
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ambient::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.025) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000,transparent)}
+.ambient::after{content:'';position:absolute;top:-30%;left:-10%;width:55vw;height:55vw;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.06),transparent 65%);filter:blur(80px)}
+.orb{position:absolute;bottom:-25%;right:-8%;width:45vw;height:45vw;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.05),transparent 65%);filter:blur(80px)}
+
+/* ═══════════════════════════════════════════
+   Layout
+   ═══════════════════════════════════════════ */
+.shell{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 20px 80px}
+
+/* ═══════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════ */
+.hdr{position:sticky;top:0;z-index:100;padding:0 20px;background:rgba(8,12,24,.78);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-bottom:1px solid var(--brd)}
+.hdr-in{max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--vio));display:grid;place-items:center;font-size:17px;box-shadow:0 0 24px var(--c-g)}
+.hdr-t{font-size:1.05em;font-weight:800;letter-spacing:-.03em}
+.hdr-s{font-size:.72em;color:var(--t2);margin-top:1px;font-weight:500;letter-spacing:.02em}
+.pill{padding:3px 12px;border-radius:20px;font-size:.65em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--c-d);color:var(--cyan);border:1px solid rgba(56,189,248,.15)}
+
+/* ═══════════════════════════════════════════
+   Card
+   ═══════════════════════════════════════════ */
+.card{background:var(--s1);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid var(--brd);border-radius:var(--r);padding:28px;margin-bottom:20px;transition:border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.card:hover{border-color:var(--brd-h);box-shadow:var(--sh-g)}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.ch-i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.ch-i.c{background:var(--c-d)}.ch-i.v{background:var(--v-d)}
+.ch-t{font-size:.92em;font-weight:800;letter-spacing:-.01em}
+.ch-b{margin-left:auto;padding:3px 11px;border-radius:20px;font-size:.62em;font-weight:800;letter-spacing:.04em;background:var(--c-d);color:var(--cyan)}
+.ch-line{height:1px;background:linear-gradient(90deg,var(--brd),transparent);margin:0 0 0}
+
+/* ═══════════════════════════════════════════
+   Form Fields
+   ═══════════════════════════════════════════ */
+.f{margin-bottom:16px}.f:last-child{margin-bottom:0}
+.lb{display:block;margin-bottom:7px;font-size:.75em;color:var(--t2);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.lb .r{color:var(--red);margin-left:2px}
+.inp,.sel{width:100%;padding:11px 15px;background:rgba(6,10,22,.7);border:1px solid var(--brd);border-radius:var(--r2);font-size:14px;color:var(--t1);outline:none;transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.inp::placeholder{color:var(--t3)}
+.inp:focus,.sel:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--c-d),var(--sh-g)}
+.sel{-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238b99b5' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.hint{margin-top:8px;padding:10px 14px;border-radius:var(--r2);font-size:.72em;line-height:1.55;background:var(--c-d);border:1px solid rgba(56,189,248,.08);color:var(--cyan)}
+.hint.w{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.1);color:var(--amb)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ═══════════════════════════════════════════
+   Platform Tabs
+   ═══════════════════════════════════════════ */
+.tabs{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 18px;border-radius:22px;font-size:.78em;font-weight:700;background:rgba(12,18,36,.5);border:1px solid transparent;color:var(--t2);cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;flex-shrink:0;user-select:none}
+.tab:hover{color:var(--t1);background:rgba(20,30,55,.6)}
+.tab.on{background:var(--c-d);color:var(--cyan);border-color:rgba(56,189,248,.2);box-shadow:0 0 18px rgba(56,189,248,.08)}
+
+/* ═══════════════════════════════════════════
+   Device Grid
+   ═══════════════════════════════════════════ */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
+.dc{padding:15px 14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative;overflow:hidden}
+.dc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,248,.04),rgba(167,139,250,.04));opacity:0;transition:opacity .25s var(--ease)}
+.dc:hover{border-color:var(--brd-h);transform:translateY(-1px)}.dc:hover::after{opacity:1}
+.dc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 28px rgba(56,189,248,.1),inset 0 1px 0 rgba(255,255,255,.04)}
+.dc .n{font-weight:800;font-size:.8em;position:relative;z-index:1}
+.dc .c{font-size:.68em;color:var(--t2);margin-top:3px;position:relative;z-index:1}
+.dc.on .c{color:rgba(56,189,248,.6)}
+.dc .dot{position:absolute;top:11px;right:11px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;z-index:1;transition:all .25s var(--ease)}
+.dc.on .dot{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px var(--c-g)}
+.dm{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:.72em;color:var(--t3)}
+.dm .sn{color:var(--cyan);font-weight:700}
+
+/* ═══════════════════════════════════════════
+   Plugin
+   ═══════════════════════════════════════════ */
+.ptabs{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.ptabs::-webkit-scrollbar{display:none}
+.pt{padding:7px 15px;border-radius:20px;font-size:.76em;font-weight:600;background:rgba(12,18,36,.4);border:1px solid transparent;color:var(--t2);cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;flex-shrink:0;user-select:none}
+.pt:hover{color:var(--t1)}.pt.on{background:var(--c-d);color:var(--cyan);border-color:rgba(56,189,248,.18)}
+.pt .nm{display:inline-block;min-width:16px;text-align:center;background:rgba(56,189,248,.1);color:var(--cyan);border-radius:8px;padding:0 5px;font-size:.82em;font-weight:800;margin-left:3px}
+.sbar{position:relative;margin-bottom:14px}
+.sbar input{width:100%;padding:10px 14px 10px 38px;background:rgba(6,10,22,.5);border:1px solid var(--brd);border-radius:22px;font-size:13px;color:var(--t1);outline:none;transition:border-color .25s var(--ease)}
+.sbar input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--c-d)}
+.sbar input::placeholder{color:var(--t3)}
+.sbar::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;pointer-events:none}
+.abar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.bx{padding:5px 13px;font-size:.7em;font-weight:700;border-radius:18px;border:1px solid rgba(56,189,248,.15);background:transparent;color:var(--cyan);cursor:pointer;transition:all .2s var(--ease)}
+.bx:hover{background:var(--c-d)}
+.ac{margin-left:auto;font-size:.7em;color:var(--t3)}
+
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pc{padding:14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.45);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
+.pc:active{transform:scale(.97)}.pc:hover{border-color:var(--brd-h)}
+.pc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 22px rgba(56,189,248,.08)}
+.pc .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-bottom:5px}
+.pc .pn{font-weight:800;font-size:.8em}
+.pc .pd{font-size:.68em;color:var(--t2);line-height:1.45}
+.pc.on .pd{color:rgba(232,236,244,.65)}
+.pc .ck{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
+.pc.on .ck{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px var(--c-g)}
+.pc .det{margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:.63em;color:var(--t2);line-height:1.55;display:none}
+.pc.on .det{border-top-color:rgba(56,189,248,.12);color:rgba(232,236,244,.6)}
+.pc.ex .det{display:block}
+.pc .eb{text-align:center;margin-top:7px;font-size:.6em;color:var(--t3);cursor:pointer;transition:color .2s}
+.pc .eb:hover{color:var(--cyan)}.pc.on .eb{color:rgba(56,189,248,.55)}
+.pc.ex .eb::before{content:'收起 ▲'}.pc:not(.ex) .eb::before{content:'详情 ▼'}
+
+/* ═══════════════════════════════════════════
+   Checkbox Row
+   ═══════════════════════════════════════════ */
+.cr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:border-color .25s var(--ease)}
+.cr:hover{border-color:var(--brd-h)}
+.cr input[type=checkbox]{width:18px;height:18px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
+.cr .ct{font-size:.82em;font-weight:700}.cr .ci{font-size:.7em;color:var(--t3);margin-left:auto}
+
+/* ═══════════════════════════════════════════
+   Summary
+   ═══════════════════════════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.si{padding:14px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd)}
+.si .sl{font-size:.6em;color:var(--t3);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.si .sv{font-size:.92em;font-weight:800;margin-top:3px;color:var(--t1)}
+
+/* ═══════════════════════════════════════════
+   Submit
+   ═══════════════════════════════════════════ */
+.btn-go{display:block;width:100%;padding:16px;background:linear-gradient(135deg,var(--cyan),var(--vio));color:var(--bg);border:none;border-radius:var(--r);font-size:.95em;font-weight:900;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .25s var(--ease);position:relative;overflow:hidden;box-shadow:0 4px 30px rgba(56,189,248,.22)}
+.btn-go::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 25%,rgba(255,255,255,.14) 50%,transparent 75%);transform:translateX(-100%);transition:transform .55s var(--ease)}
+.btn-go:hover::before{transform:translateX(100%)}.btn-go:active{transform:scale(.97)}
+.btn-go:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}.btn-go:disabled::before{display:none}
+
+/* ═══════════════════════════════════════════
+   Toast
+   ═══════════════════════════════════════════ */
+.toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--s2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--brd-h);border-radius:var(--r);padding:20px 24px;max-width:300px;box-shadow:var(--sh);animation:tin .4s cubic-bezier(.16,1,.3,1)}
+@keyframes tin{from{opacity:0;transform:translateY(18px) scale(.95)}}
+.toast a{color:var(--cyan);text-decoration:none;font-weight:700;font-size:.78em}
+
+/* ═══════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════ */
+@media(max-width:640px){
+  .shell{padding:0 12px 60px}.card{padding:20px}
+  .hdr-in{height:52px}.hdr-t{font-size:.95em}
+  .pg{grid-template-columns:repeat(2,1fr)}.dg{grid-template-columns:repeat(2,1fr)}
+  .r2{grid-template-columns:1fr}.sg{grid-template-columns:1fr 1fr}
+}
+@media(max-width:380px){.pg{grid-template-columns:1fr}.dg{grid-template-columns:1fr}.sg{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 OpenWRT 自定义构建</h1>
-            <p>选择你的设备 · 选择插件 · 一键编译</p>
-        </div>
-        
-        <div class="content">
-            <form id="buildForm">
-                <!-- GitHub Token -->
-                <div class="section">
-                    <h2>🔑 GitHub Token 配置</h2>
-                    <div class="form-group">
-                        <label>Personal Access Token (PAT)</label>
-                        <input type="password" id="github_token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
-                        <div style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 6px;">
-                            ✅ <strong>自动保存</strong>：输入 Token 后会自动保存
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- OpenWRT 源码 -->
-                <div class="section">
-                    <h2>📦 OpenWRT 源码</h2>
-                    <div class="form-group">
-                        <label>源码仓库 *</label>
-                        <select id="wrt_source" required>
-                            <option value="VIKINGYFY/immortalwrt" selected>VIKINGYFY/immortalwrt (推荐)</option>
-                            <option value="immortalwrt/immortalwrt">immortalwrt/immortalwrt (官方)</option>
-                            <option value="LiBwrt/openwrt-6.x">LiBwrt/openwrt-6.x (满血NSS)</option>
-                            <option value="qosmio/openwrt-ipq">qosmio/openwrt-ipq (高通专用)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>源码分支 *</label>
-                        <select id="wrt_branch" required>
-                            <option value="main" selected>main</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- 目标设备 -->
-                <div class="section">
-                    <h2>🎯 目标设备</h2>
-                    <div class="device-selector">
-                        <div class="platform-tabs" id="platform-tabs">
-                            <div class="platform-tab active" data-platform="MEDIATEK" onclick="switchPlatform('MEDIATEK')">📱 联发科</div>
-                            <div class="platform-tab" data-platform="ROCKCHIP" onclick="switchPlatform('ROCKCHIP')">💎 瑞芯微</div>
-                            <div class="platform-tab" data-platform="X86" onclick="switchPlatform('X86')">💻 X86</div>
-                            <div class="platform-tab" data-platform="IPQ60XX" onclick="switchPlatform('IPQ60XX')">📡 IPQ60XX</div>
-                            <div class="platform-tab" data-platform="IPQ807X" onclick="switchPlatform('IPQ807X')">📡 IPQ807X</div>
-                            <div class="platform-tab" data-platform="IPQ50XX" onclick="switchPlatform('IPQ50XX')">📡 IPQ50XX</div>
-                        </div>
-                        <div id="device-grid" class="device-grid"></div>
-                        <div class="device-count" id="device-count"></div>
-                        <input type="hidden" id="target_platform" value="MEDIATEK">
-                    </div>
-                </div>
-                
-                <!-- 插件选择 -->
-                <div class="section">
-                    <h2>📦 插件选择 <span class="plugin-count" id="total-count">已选 0 个</span></h2>
-                    <div class="search-box">
-                        <input type="text" id="plugin-search" placeholder="🔍 搜索插件..." oninput="debounceSearch()">
-                    </div>
-                    <div class="plugin-tabs" id="plugin-tabs">
-                        <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">10</span>)</div>
-                        <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">14</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">34</span>)</div>
-                        <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">8</span>)</div>
-                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">24</span>)</div>
-                    </div>
-                    <div class="select-all-bar">
-                        <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
-                        <button type="button" class="btn-small" onclick="deselectAllCurrent()">取消全选</button>
-                        <span id="category-count" style="color: #666;">已选 0 个</span>
-                    </div>
-                    <div id="plugin-grid" class="plugin-grid"></div>
-                </div>
-                
-                <!-- 主题 -->
-                <div class="section">
-                    <h2>🎨 UI 主题</h2>
-                    <div class="form-group">
-                        <label>选择主题 *</label>
-                        <select id="theme" required>
-                            <option value="argon" selected>🎨 Argon (推荐)</option>
-                            <option value="aurora">🌅 Aurora</option>
-                            <option value="kucat">🐱 Kucat</option>
-                            <option value="alpha">🅰️ Alpha</option>
-                            <option value="design">🎨 Design</option>
-                            <option value="material3">📱 Material3</option>
-                            <option value="openwrt-2020">🔧 OpenWrt2020</option>
-                            <option value="openwrt">📋 OpenWrt 经典</option>
-                            <option value="none">⚪ 默认主题</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- NSS 配置 (仅 NSS 源码可见) -->
-                <div class="section" id="nss-section" style="display:none;">
-                    <h2>📡 NSS 硬件加速</h2>
-                    <div class="form-group">
-                        <label>NSS 固件版本 *</label>
-                        <select id="nss_firmware_version">
-                            <option value="auto" selected>🤖 智能选择 (根据平台和插件自动匹配)</option>
-                            <option value="11_4">📦 11.4 (WDS/MESH 兼容，推荐需要漫游的场景)</option>
-                            <option value="12_2">📦 12.2 (IPQ50XX 专用)</option>
-                            <option value="12_5">📦 12.5 (最新版本，性能最优)</option>
-                        </select>
-                        <div style="margin-top:8px;padding:10px;background:#fff3cd;border-radius:6px;font-size:12px;">
-                            ⚠️ <strong>注意</strong>：11.4 固件支持 WDS/MESH 但可能缺少新特性；12.5 性能最优但不支持旧版 WDS。
-                            <br>IPQ50XX 设备请选 12.2。
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 防火墙 -->
-                <div class="section">
-                    <h2>🛡️ 防火墙</h2>
-                    <div class="form-group">
-                        <label>防火墙类型 *</label>
-                        <select id="firewall_type" required>
-                            <option value="firewall4" selected>🔥 Firewall4 (NFTables - 推荐)</option>
-                            <option value="iptables">📋 Iptables (传统兼容 - NSS 推荐)</option>
-                        </select>
-                        <div id="firewall-nss-warning" style="display:none;margin-top:8px;padding:10px;background:#fff3cd;border-radius:6px;font-size:12px;">
-                            💡 <strong>提示</strong>：使用 NSS 加速时，推荐选择 <strong>Iptables</strong> 以获得最佳兼容性。
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 路由器配置 -->
-                <div class="section">
-                    <h2>🔧 路由器配置</h2>
-                    <div class="form-group">
-                        <label>路由器默认 IP *</label>
-                        <input type="text" id="lan_ip" value="192.168.1.1" placeholder="192.168.1.1">
-                    </div>
-                    <div class="form-group">
-                        <label>登录用户名 *</label>
-                        <input type="text" id="login_username" value="root" placeholder="root">
-                    </div>
-                    <div class="form-group">
-                        <label>登录密码</label>
-                        <input type="password" id="login_password" value="" placeholder="留空表示无密码">
-                    </div>
-                    <div class="form-group">
-                        <label>WiFi 名称 *</label>
-                        <input type="text" id="wifi_ssid" value="OpenWrt" placeholder="OpenWrt">
-                    </div>
-                    <div class="form-group">
-                        <label>WiFi 密码 *</label>
-                        <input type="password" id="wifi_password" value="12345678" placeholder="12345678">
-                    </div>
-                </div>
-                
-                <!-- 高级 -->
-                <div class="section">
-                    <h2>⚙️ 高级选项</h2>
-                    <div class="form-group">
-                        <label>其他插件 (用空格分隔包名)</label>
-                        <input type="text" id="other_plugins" placeholder="例如：luci-app-vlmcsd,automount,btop">
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="test_mode" style="width: auto;">
-                            仅输出配置，不编译固件 (测试模式)
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- 配置摘要 -->
-                <div class="section" id="summary">
-                    <h3>📋 配置摘要</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div><strong>源码:</strong> <span id="summary-source">VIKINGYFY/immortalwrt</span></div>
-                        <div><strong>设备:</strong> <span id="summary-device">未选择</span></div>
-                        <div><strong>平台:</strong> <span id="summary-platform">-</span></div>
-                        <div><strong>主题:</strong> <span id="summary-theme">Argon</span></div>
-                        <div><strong>已选插件:</strong> <span id="summary-plugins">0 个</span></div>
-                        <div><strong>WiFi:</strong> <span id="summary-wifi">OpenWrt</span></div>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn" id="submitBtn">🚀 开始编译</button>
-            </form>
-        </div>
+<div class="ambient"><div class="orb"></div></div>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-l">
+      <div class="hdr-logo">🚀</div>
+      <div><div class="hdr-t">OpenWRT 云编译</div><div class="hdr-s">自定义固件 · 一键触发</div></div>
     </div>
-    
-    <script>
-        // ========== 源码仓库与分支联动 ==========
-        const SOURCE_BRANCHES = {
-            'VIKINGYFY/immortalwrt': ['owrt', 'main'],
-            'immortalwrt/immortalwrt': ['main', 'openwrt-23.05', 'openwrt-24.10'],
-            'LiBwrt/openwrt-6.x': ['main-nss', '25.12-nss'],
-            'qosmio/openwrt-ipq': ['main']
-        };
+    <span class="pill">CI / CD</span>
+  </div>
+</header>
 
-        function updateBranches() {
-            const src = document.getElementById('wrt_source').value;
-            const branchEl = document.getElementById('wrt_branch');
-            const branches = SOURCE_BRANCHES[src] || ['main'];
-            const prev = branchEl.value;
-            branchEl.innerHTML = '';
-            branches.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b;
-                opt.textContent = b;
-                branchEl.appendChild(opt);
-            });
-            // 保留之前选的分支（如果存在），否则默认第一个
-            if (branches.includes(prev)) {
-                branchEl.value = prev;
-            }
-            updateSummary();
-        }
+<div class="shell">
+<form id="buildForm">
 
-        document.getElementById('wrt_source').addEventListener('change', function() {
-            updateBranches();
-            toggleNssSection();
-        });
+<!-- Token -->
+<div class="card">
+  <div class="ch"><div class="ch-i c">🔑</div><div class="ch-t">GitHub Token</div></div>
+  <div class="f"><label class="lb">Personal Access Token</label>
+    <input type="password" class="inp" id="github_token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+    <div class="hint">🔒 加密存储于本地浏览器，不会上传至任何服务器</div></div>
+</div>
 
-        // ========== NSS 源码判断 ==========
-        const NSS_SOURCES = ['LiBwrt/openwrt-6.x', 'qosmio/openwrt-ipq'];
+<!-- Source -->
+<div class="card">
+  <div class="ch"><div class="ch-i v">📦</div><div class="ch-t">源码选择</div></div>
+  <div class="f"><label class="lb">源码仓库 <span class="r">*</span></label>
+    <select class="sel" id="wrt_source" required>
+      <option value="VIKINGYFY/immortalwrt" selected>VIKINGYFY/immortalwrt — 推荐</option>
+      <option value="immortalwrt/immortalwrt">immortalwrt/immortalwrt — 官方</option>
+      <option value="LiBwrt/openwrt-6.x">LiBwrt/openwrt-6.x — 满血 NSS</option>
+      <option value="qosmio/openwrt-ipq">qosmio/openwrt-ipq — 高通专用</option>
+    </select></div>
+  <div class="f"><label class="lb">源码分支 <span class="r">*</span></label>
+    <select class="sel" id="wrt_branch" required><option value="main">main</option></select></div>
+</div>
 
-        function toggleNssSection() {
-            const src = document.getElementById('wrt_source').value;
-            const isNss = NSS_SOURCES.includes(src);
-            document.getElementById('nss-section').style.display = isNss ? 'block' : 'none';
-            document.getElementById('firewall-nss-warning').style.display = isNss ? 'block' : 'none';
-            // NSS 源码时默认推荐 iptables
-            if (isNss) {
-                document.getElementById('firewall_type').value = 'iptables';
-            } else {
-                document.getElementById('firewall_type').value = 'firewall4';
-            }
-            updateSummary();
-        }
+<!-- Device -->
+<div class="card">
+  <div class="ch"><div class="ch-i c">🎯</div><div class="ch-t">目标设备</div></div>
+  <div class="tabs" id="ptabs">
+    <div class="tab on" data-p="MEDIATEK" onclick="sP('MEDIATEK')">📱 联发科</div>
+    <div class="tab" data-p="ROCKCHIP" onclick="sP('ROCKCHIP')">💎 瑞芯微</div>
+    <div class="tab" data-p="X86" onclick="sP('X86')">💻 X86</div>
+    <div class="tab" data-p="IPQ60XX" onclick="sP('IPQ60XX')">📡 IPQ60XX</div>
+    <div class="tab" data-p="IPQ807X" onclick="sP('IPQ807X')">📡 IPQ807X</div>
+    <div class="tab" data-p="IPQ50XX" onclick="sP('IPQ50XX')">📡 IPQ50XX</div>
+  </div>
+  <div id="dg" class="dg"></div>
+  <div class="dm"><span id="dc">0 款设备</span><span class="sn" id="ds"></span></div>
+  <input type="hidden" id="target_platform" value="MEDIATEK">
+</div>
 
-        // ========== 设备数据库 ==========
-        const DEVICES = {
-            MEDIATEK: [
-                {name: '小米 AX3000T', chip: 'MT7981', id: 'xiaomi_ax3000t'},
-                {name: '小米 WR30U', chip: 'MT7981', id: 'xiaomi_wr30u-stock'},
-                {name: '小米 WR30U (uboot)', chip: 'MT7981', id: 'xiaomi_wr30u-ubootmod'},
-                {name: '红米 AX6000', chip: 'MT7986', id: 'redmi_ax6000-stock'},
-                {name: '红米 AX6000 (uboot)', chip: 'MT7986', id: 'redmi_ax6000-ubootmod'},
-                {name: '360 T7', chip: 'MT7981', id: '360_t7'},
-                {name: '京东云 RE-CP-03', chip: 'MT7981', id: 'jdcloud_re-cp-03'},
-                {name: '华硕 TUF-AX4200', chip: 'MT7986', id: 'asus_tuf-ax4200'},
-                {name: '华硕 TUF-AX4200Q', chip: 'MT7986', id: 'asus_tuf-ax4200q'},
-                {name: '华硕 TUF-AX6000', chip: 'MT7986', id: 'asus_tuf-ax6000'},
-                {name: 'H3C NX30 Pro', chip: 'MT7981', id: 'h3c_magic-nx30-pro'},
-                {name: 'CMCC A10', chip: 'MT7981', id: 'cmcc_a10-stock'},
-                {name: 'CMCC A10 (uboot)', chip: 'MT7981', id: 'cmcc_a10-ubootmod'},
-                {name: 'CMCC RAX3000M', chip: 'MT7986', id: 'cmcc_rax3000m'},
-                {name: 'CMCC RAX3000ME', chip: 'MT7986', id: 'cmcc_rax3000me'},
-                {name: 'Nokia EA0326GMP', chip: 'MT7981', id: 'nokia_ea0326gmp'},
-                {name: 'GL.iNet MT3000', chip: 'MT7981', id: 'glinet_gl-mt3000'},
-                {name: 'GL.iNet MT6000', chip: 'MT7986', id: 'glinet_gl-mt6000'},
-                {name: 'GL.iNet X3000', chip: 'MT7981', id: 'glinet_gl-x3000'},
-                {name: 'GL.iNet XE3000', chip: 'MT7981', id: 'glinet_gl-xe3000'},
-                {name: 'TP-Link XDR6088', chip: 'MT7986', id: 'tplink_tl-xdr6088'},
-                {name: 'TP-Link XDR6086', chip: 'MT7986', id: 'tplink_tl-xdr6086'},
-                {name: 'TP-Link XDR4288', chip: 'MT7986', id: 'tplink_tl-xdr4288'},
-                {name: 'TP-Link XTR8488', chip: 'MT7986', id: 'tplink_tl-xtr8488'},
-                {name: 'TP-Link 7DR7230 v1', chip: 'MT7986', id: 'tplink_tl-7dr7230-v1'},
-                {name: 'TP-Link 7DR7230 v2', chip: 'MT7986', id: 'tplink_tl-7dr7230-v2'},
-                {name: 'TP-Link 7DR7250 v1', chip: 'MT7986', id: 'tplink_tl-7dr7250-v1'},
-                {name: '锐捷 X60 Pro', chip: 'MT7986', id: 'ruijie_rg-x60-pro'},
-                {name: 'Netcore N60', chip: 'MT7981', id: 'netcore_n60'},
-                {name: 'Netcore N60 Pro', chip: 'MT7986', id: 'netcore_n60-pro'},
-                {name: 'Cudy TR3000', chip: 'MT7981', id: 'cudy_tr3000-v1'},
-                {name: 'Cudy TR3000 (uboot)', chip: 'MT7981', id: 'cudy_tr3000-v1-ubootmod'},
-                {name: 'Cudy TR3000 256MB', chip: 'MT7981', id: 'cudy_tr3000-256mb-v1'},
-                {name: 'Comfast E393AX', chip: 'MT7986', id: 'comfast_cf-e393ax'},
-                {name: 'Comfast WR632AX', chip: 'MT7981', id: 'comfast_cf-wr632ax'},
-                {name: 'Comfast WR632AX (uboot)', chip: 'MT7981', id: 'comfast_cf-wr632ax-ubootmod'},
-                {name: 'ABT ASR3000', chip: 'MT7981', id: 'abt_asr3000'},
-                {name: 'Cetron CT3003', chip: 'MT7981', id: 'cetron_ct3003'},
-                {name: 'Cetron CT3003 (uboot)', chip: 'MT7981', id: 'cetron_ct3003-ubootmod'},
-                {name: '华飞 FS WH3000-EMMC', chip: 'MT7981', id: 'huasifei_wh3000-emmc'},
-                {name: '华飞 FS WH3000 Pro', chip: 'MT7981', id: 'huasifei_wh3000-pro'},
-                {name: 'Imou HX21', chip: 'MT7981', id: 'imou_hx21'},
-                {name: 'JCG Q30 Pro', chip: 'MT7981', id: 'jcg_q30-pro'},
-                {name: '康佳 KOMI-A31', chip: 'MT7981', id: 'konka_komi-a31'},
-                {name: 'Zyxel EX5700', chip: 'MT7986', id: 'zyxel_ex5700-telenor'},
-            
-            ],
-            ROCKCHIP: [
-                {name: 'NanoPi R2S', chip: 'RK3328', id: 'nanopi_r2s'},
-                {name: 'NanoPi R2C', chip: 'RK3328', id: 'nanopi_r2c'},
-                {name: 'NanoPi R2C Plus', chip: 'RK3328', id: 'nanopi_r2c-plus'},
-                {name: 'NanoPi R3S', chip: 'RK3566', id: 'nanopi_r3s'},
-                {name: 'NanoPi R4S', chip: 'RK3399', id: 'nanopi_r4s'},
-                {name: 'NanoPi R4SE', chip: 'RK3399', id: 'nanopi_r4se'},
-                {name: 'NanoPi R4S 企业版', chip: 'RK3399', id: 'nanopi_r4s-enterprise'},
-                {name: 'NanoPi R5S', chip: 'RK3568', id: 'nanopi_r5s'},
-                {name: 'NanoPi R5C', chip: 'RK3568', id: 'nanopi_r5c'},
-                {name: 'NanoPi R6S', chip: 'RK3588S', id: 'nanopi_r6s'},
-                {name: 'NanoPi R6C', chip: 'RK3588S', id: 'nanopi_r6c'},
-                {name: 'NanoPi R76S', chip: 'RK3588', id: 'nanopi_r76s'},
-                {name: 'NanoPC T4', chip: 'RK3399', id: 'nanopc-t4'},
-                {name: 'NanoPC T6', chip: 'RK3588', id: 'nanopc-t6'},
-                {name: 'OrangePi 5', chip: 'RK3588S', id: 'orangepi_5'},
-                {name: 'OrangePi 5 Plus', chip: 'RK3588', id: 'orangepi_5-plus'},
-                {name: 'OrangePi R1 Plus', chip: 'RK3328', id: 'orangepi_r1-plus'},
-                {name: 'OrangePi R1 Plus LTS', chip: 'RK3328', id: 'orangepi_r1-plus-lts'},
-                {name: 'Fastrhino R66S', chip: 'RK3568', id: 'fastrhino_r66s'},
-                {name: 'Fastrhino R68S', chip: 'RK3568', id: 'fastrhino_r68s'},
-                {name: 'EZPRO MRKAIO M68S', chip: 'RK3568', id: 'ezpro_mrkaio-m68s'},
+<!-- Plugins -->
+<div class="card">
+  <div class="ch"><div class="ch-i v">🧩</div><div class="ch-t">插件选择</div><div class="ch-b" id="tc">已选 0</div></div>
+  <div class="sbar"><input type="text" id="ps" placeholder="搜索插件名称或包名…" oninput="dS()"></div>
+  <div class="ptabs" id="pct">
+    <div class="pt on" data-c="proxy" onclick="sT('proxy')">🔐 科学上网 <span class="nm">10</span></div>
+    <div class="pt" data-c="storage" onclick="sT('storage')">💾 存储 <span class="nm">14</span></div>
+    <div class="pt" data-c="network" onclick="sT('network')">🌐 网络 <span class="nm">34</span></div>
+    <div class="pt" data-c="theme" onclick="sT('theme')">🎨 主题 <span class="nm">8</span></div>
+    <div class="pt" data-c="system" onclick="sT('system')">🔧 系统 <span class="nm">24</span></div>
+  </div>
+  <div class="abar"><button type="button" class="bx" onclick="saC()">全选</button><button type="button" class="bx" onclick="daC()">清空</button><span class="ac" id="cc">已选 0</span></div>
+  <div id="pg" class="pg"></div>
+</div>
 
-            ],
-            X86: [
-                {name: '通用 x86_64', chip: 'X86_64', id: 'x86_generic'},
-            ],
-            IPQ60XX: [
-                {name: '京东云 RE-CS-02', chip: 'IPQ6010', id: 'jdcloud_re-cs-02'},
-                {name: '京东云 RE-CS-07', chip: 'IPQ6010', id: 'jdcloud_re-cs-07'},
-                {name: '京东云 RE-SS-01', chip: 'IPQ6000', id: 'jdcloud_re-ss-01'},
-                {name: '红米 AX5', chip: 'IPQ6000', id: 'redmi_ax5'},
-                {name: '红米 AX5 (京东)', chip: 'IPQ6000', id: 'redmi_ax5-jdcloud'},
-                {name: '小米 AX1800', chip: 'IPQ6010', id: 'xiaomi_ax1800'},
-                {name: '360 V6', chip: 'IPQ6010', id: 'qihoo_360v6'},
-                {name: 'GL.iNet AX1800', chip: 'IPQ6010', id: 'glinet_gl-ax1800'},
-                {name: 'GL.iNet AXT1800', chip: 'IPQ6010', id: 'glinet_gl-axt1800'},
-                {name: 'Linksys MR7350', chip: 'IPQ6010', id: 'linksys_mr7350'},
-                {name: 'Linksys MR7500', chip: 'IPQ6018', id: 'linksys_mr7500'},
-                {name: 'Philips LY1800', chip: 'IPQ6000', id: 'philips_ly1800'},
-                {name: 'Anysafe E1', chip: 'IPQ6000', id: 'anysafe_e1'},
-                {name: 'CMIOT AX18', chip: 'IPQ6010', id: 'cmiot_ax18'},
-                {name: 'Link NN6000 v1', chip: 'IPQ6000', id: 'link_nn6000-v1'},
-                {name: 'Link NN6000 v2', chip: 'IPQ6000', id: 'link_nn6000-v2'},
-                {name: 'SY Y6010', chip: 'IPQ6010', id: 'sy_y6010'},
-                {name: 'ZN M2', chip: 'IPQ6000', id: 'zn_m2'},
-            ],
-            IPQ807X: [
-                {name: '小米 AX3600', chip: 'IPQ8071A', id: 'xiaomi_ax3600'},
-                {name: '小米 AX3600 (原版)', chip: 'IPQ8071A', id: 'xiaomi_ax3600-stock'},
-                {name: '小米 AX9000', chip: 'IPQ8072A', id: 'xiaomi_ax9000'},
-                {name: '小米 AX9000 (原版)', chip: 'IPQ8072A', id: 'xiaomi_ax9000-stock'},
-                {name: '红米 AX6', chip: 'IPQ8071A', id: 'redmi_ax6'},
-                {name: '红米 AX6 (原版)', chip: 'IPQ8071A', id: 'redmi_ax6-stock'},
-                {name: 'Linksys MX4200 v1', chip: 'IPQ8072A', id: 'linksys_mx4200v1'},
-                {name: 'Linksys MX4200 v2', chip: 'IPQ8072A', id: 'linksys_mx4200v2'},
-                {name: 'Linksys MX4300', chip: 'IPQ8072A', id: 'linksys_mx4300'},
-                {name: 'Linksys MX5300', chip: 'IPQ8074A', id: 'linksys_mx5300'},
-                {name: 'Linksys MX8500', chip: 'IPQ8074A', id: 'linksys_mx8500'},
-                {name: 'QNAP 301W', chip: 'IPQ8072A', id: 'qnap_301w'},
-                {name: '阿里云 AP8220', chip: 'IPQ8070A', id: 'aliyun_ap8220'},
-                {name: 'Linksys HOMEWRK', chip: 'IPQ8072A', id: 'linksys_homewrk'},
-            ],
-            IPQ50XX: [
-                {name: '京东云 RE-CS-03', chip: 'IPQ5018', id: 'jdcloud_re-cs-03'},
-            ]
-        };
-        
-        // 设备到平台的映射
-        let selectedDevice = null; // {name, platform, id}
-        let currentPlatform = 'MEDIATEK';
-        
-        // 渲染设备列表
-        function renderDevices(platform) {
-            const grid = document.getElementById('device-grid');
-            grid.innerHTML = '';
-            const devices = DEVICES[platform] || [];
-            
-            devices.forEach(device => {
-                const isSelected = selectedDevice && selectedDevice.id === device.id && selectedDevice.platform === platform;
-                const card = document.createElement('div');
-                card.className = 'device-card' + (isSelected ? ' selected' : '');
-                card.innerHTML = `
-                    <div class="check-circle">${isSelected ? '✓' : ''}</div>
-                    <div class="device-name">${device.name}</div>
-                    <div class="device-chip">${device.chip}</div>
-                    <div class="device-wifi">📡 含 WiFi 驱动</div>
-                `;
-                card.onclick = () => selectDevice(device, platform);
-                grid.appendChild(card);
-            });
-            
-            document.getElementById('device-count').textContent = `共 ${devices.length} 款设备`;
-        }
-        
-        function selectDevice(device, platform) {
-            selectedDevice = {name: device.name, platform: platform, id: device.id};
-            document.getElementById('target_platform').value = platform;
-            renderDevices(platform);
-            updateSummary();
-        }
-        
-        function switchPlatform(platform) {
-            currentPlatform = platform;
-            document.querySelectorAll('.platform-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.platform === platform);
-            });
-            renderDevices(platform);
-        }
-        
-        // ========== 插件数据库 ==========
-        const PLUGINS = {
-            proxy: [
-                {name: 'HomeProxy', pkg: 'luci-app-homeproxy', desc: '高性能代理工具', features: '支持多种协议、高性能转发、规则分流'},
-                {name: 'OpenClash', pkg: 'luci-app-openclash', desc: 'Clash 客户端', features: '规则代理、节点切换、流量统计、订阅管理'},
-                {name: 'PassWall', pkg: 'luci-app-passwall', desc: '综合代理工具', features: '多协议支持、自动切换、负载均衡'},
-                {name: 'PassWall2', pkg: 'luci-app-passwall2', desc: 'PassWall 新版', features: '新版架构、更好性能'},
-                {name: 'SSR-Plus', pkg: 'luci-app-ssr-plus', desc: 'SS/SSR/Vmess 代理', features: 'SS/SSR/Vmess/Trojan、规则分流'},
-                {name: 'Nikki', pkg: 'luci-app-nikki', desc: 'Mihomo 透明代理', features: 'Transparent Proxy、高性能'},
-                {name: 'Xray', pkg: 'luci-app-xray', desc: 'Xray 代理', features: 'VLESS/Vmess/XTLS/Reality'},
-                {name: 'v2rayA', pkg: 'luci-app-v2raya', desc: 'v2rayA 客户端', features: 'Web 管理、多用户'},
-                {name: 'NaiveProxy', pkg: 'naiveproxy', desc: '代理工具', features: '轻量代理、HTTPS 传输'},
-                {name: 'NeKoBox', pkg: 'luci-app-nekobox', desc: 'NekoBox 客户端', features: 'Neko 核心、多协议'},
-            ],
-            storage: [
-                {name: 'DiskMan', pkg: 'luci-app-diskman', desc: '磁盘管理', features: '分区管理、格式化、S.M.A.R.T'},
-                {name: 'Aria2', pkg: 'luci-app-aria2', desc: '下载工具', features: 'HTTP/FTP/BT 下载'},
-                {name: 'Qbittorrent', pkg: 'luci-app-qbittorrent', desc: 'BT 下载', features: 'BT/磁力链、RSS 订阅'},
-                {name: 'Transmission', pkg: 'luci-app-transmission', desc: 'BT 下载', features: '轻量 BT、Web 界面'},
-                {name: 'Samba4', pkg: 'luci-app-samba4', desc: '文件共享', features: 'SMB/CIFS 共享'},
-                {name: 'VSFTPD', pkg: 'luci-app-vsftpd', desc: 'FTP 服务器', features: 'FTP 服务、用户认证'},
-                {name: 'FileBrowser', pkg: 'luci-app-filebrowser', desc: '文件管理', features: 'Web 文件管理'},
-                {name: 'WebDAV', pkg: 'luci-app-webdav', desc: 'WebDAV 服务', features: 'WebDAV 协议'},
-                {name: '阿里云盘 WebDAV', pkg: 'luci-app-aliyundrive-webdav', desc: '阿里云盘', features: '阿里云盘集成'},                {name: 'Rclone', pkg: 'luci-app-rclone', desc: '云盘同步', features: '50+ 云盘、同步备份'},
-                {name: 'MiniDLNA', pkg: 'luci-app-minidlna', desc: 'DLNA 媒体服务', features: '媒体推送'},
-                {name: 'OpenList2', pkg: 'luci-app-openlist2', desc: '文件列表', features: '多存储支持、在线播放'},
-                {name: 'Linkease', pkg: 'luci-app-linkease', desc: '易有云', features: '文件管理、远程访问'},
-                {name: 'KodExplorer', pkg: 'luci-app-kodexplorer', desc: '可道云网盘', features: '在线办公'},
-            ],
-            network: [
-                {name: 'Tailscale', pkg: 'luci-app-tailscale-community', desc: '虚拟组网', features: '异地组网、P2P 直连'},
-                {name: 'ZeroTier', pkg: 'luci-app-zerotier', desc: '内网穿透', features: '虚拟局域网'},
-                {name: 'FRPC', pkg: 'luci-app-frpc', desc: '内网穿透客户端', features: 'FRP 客户端'},
-                {name: 'FRPS', pkg: 'luci-app-frps', desc: 'FRP 服务端', features: 'FRP 服务端'},
-                {name: 'DDNS', pkg: 'luci-app-ddns', desc: '动态 DNS', features: '域名解析'},
-                {name: 'DDNS-GO', pkg: 'luci-app-ddns-go', desc: '动态 DNS', features: '轻量 DDNS'},
-                {name: 'MosDNS', pkg: 'luci-app-mosdns', desc: 'DNS 转发', features: 'DNS 分流、去广告'},
-                {name: 'SmartDNS', pkg: 'luci-app-smartdns', desc: '智能 DNS', features: '多上游 DNS、防污染'},
-                {name: 'Lucky', pkg: 'luci-app-lucky', desc: '多功能工具', features: '端口转发、DDNS'},
-                {name: 'EasyTier', pkg: 'luci-app-easytier', desc: '异地组网', features: '去中心化组网'},
-                {name: 'WireGuard', pkg: 'luci-app-wireguard', desc: 'VPN', features: 'WireGuard 协议'},
-                {name: 'OpenVPN', pkg: 'luci-app-openvpn-server-client', desc: 'OpenVPN', features: '服务端/客户端'},
-                {name: 'MWAN3', pkg: 'luci-app-mwan3', desc: '负载均衡', features: '多 WAN 口'},
-                {name: 'QoS', pkg: 'luci-app-qosmate', desc: '流量控制', features: '带宽管理'},
-                {name: 'SQM', pkg: 'luci-app-sqm-autorate', desc: 'QoS 控制', features: '智能队列管理'},
-                {name: 'Netdata', pkg: 'luci-app-netdata', desc: '性能监测', features: '实时监控'},
-                {name: 'NLBWmon', pkg: 'luci-app-nlbwmon', desc: '流量统计', features: '按 IP 统计'},
-                {name: 'NATMap', pkg: 'luci-app-natmap', desc: '端口映射', features: '自动映射'},
-                {name: 'Socat', pkg: 'luci-app-socat', desc: '端口转发', features: 'TCP/UDP 转发'},
-                {name: 'EqOS', pkg: 'luci-app-eqosplus', desc: 'IP 限速', features: '按 IP 限速'},
-                {name: 'AdGuardHome', pkg: 'luci-app-adguardhome', desc: 'ADG 去广告', features: 'DNS 去广告'},
-                {name: 'AdByBy', pkg: 'luci-app-adbyby-plus', desc: '去广告', features: '规则去广告'},
-                {name: 'DNSFilter', pkg: 'luci-app-my-dnsfilter', desc: 'DNS 去广告', features: 'DNS 过滤'},
-                {name: 'OAF', pkg: 'luci-app-oaf', desc: '应用过滤', features: '应用识别'},
-                {name: 'IPTV Helper', pkg: 'luci-app-iptvhelper', desc: 'IPTV 助手', features: 'IPTV 组播'},
-                {name: 'EasyMesh', pkg: 'luci-app-easymesh', desc: 'Mesh 组网', features: '无缝漫游'},
-                {name: 'TurboACC', pkg: 'luci-app-turboacc', desc: '网络加速', features: '硬件加速'},
-                {name: 'VNT', pkg: 'luci-app-vnt', desc: 'VNT 组网', features: '异地组网'},
-                {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控', features: '实时流量'},
-                {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
-                {name: 'UPnP', pkg: 'luci-app-upnp', desc: 'UPnP 自动端口', features: 'P2P/NAT 穿透'},
-                {name: 'CPUPower', pkg: 'luci-app-cpufreq', desc: 'CPU 调频', features: '频率调节、节能'},
-                {name: 'NetSpeedTest', pkg: 'luci-app-netspeedtest', desc: '网络测速', features: '内网测速'},
-                {name: 'UHTTPd 管理', pkg: 'luci-app-uhttpd', desc: 'Web 服务管理', features: 'HTTP 配置'},
-            ],
-            theme: [
-                {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果'},
-                {name: 'Kucat', pkg: 'luci-theme-kucat', desc: '可爱主题', features: '多彩配色'},
-                {name: 'Aurora', pkg: 'luci-theme-aurora', desc: '极光主题', features: '渐变效果'},
-                {name: 'OpenWrt2020', pkg: 'luci-theme-openwrt-2020', desc: 'OpenWrt2020', features: '经典风格'},
-                {name: 'OpenWrt', pkg: 'luci-theme-openwrt', desc: '经典主题', features: '原始风格'},
-                {name: 'Alpha', pkg: 'luci-theme-alpha', desc: 'Alpha 主题', features: '简洁风格'},
-                {name: 'Design', pkg: 'luci-theme-design', desc: 'Design 主题', features: '现代界面'},
-                {name: 'Material3', pkg: 'luci-theme-material3', desc: 'Material3', features: '动态主题'},
-            ],
-            system: [
-                {name: 'TTYD', pkg: 'luci-app-ttyd', desc: '网页终端', features: 'SSH 访问'},
-                {name: 'Automount', pkg: 'automount', desc: '自动挂载', features: 'USB 热插拔'},
-                {name: 'HD-Idle', pkg: 'luci-app-hd-idle', desc: '硬盘休眠', features: '节能保护'},
-                {name: 'PartExp', pkg: 'luci-app-partexp', desc: '分区扩容', features: '无损扩容'},
-                {name: '访问控制', pkg: 'luci-app-accesscontrol-plus', desc: '访问控制', features: 'MAC 过滤'},
-                {name: '家长控制', pkg: 'luci-app-parentcontrol', desc: '家长控制', features: '网站过滤'},
-                {name: '时间控制', pkg: 'luci-app-nft-timecontrol', desc: '上网时间', features: '定时断网'},
-                {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi', features: '隔离网络'},
-                {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划', features: '定时开关'},
-                {name: '定时重启', pkg: 'luci-app-timedreboot', desc: '定时重启', features: '自动重启'},
-                {name: '自动重启', pkg: 'luci-app-autoreboot', desc: '自动重启', features: '计划重启、温度保护'},
-                {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测', features: '自动恢复'},
-                {name: 'ARP 绑定', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定'},
-                {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务', features: '激活服务'},
-                {name: 'CUPS', pkg: 'luci-app-cupsd', desc: '打印服务', features: '网络打印'},
-                {name: 'SNMPD', pkg: 'luci-app-snmpd', desc: 'SNMP 监控', features: '设备管理'},
-                {name: 'ACME', pkg: 'luci-app-acme', desc: 'HTTPS 证书', features: '自动续签'},
-                {name: 'AirPlay2', pkg: 'luci-app-airplay2', desc: 'AirPlay2', features: '音频流'},
-                {name: '网易云解锁', pkg: 'luci-app-unblockneteasemusic', desc: '解锁网易云', features: '版权解锁'},
-                {name: '微信推送', pkg: 'luci-app-wechatpush', desc: '通知推送', features: '微信/Telegram'},
-                {name: '订阅转换', pkg: 'luci-app-subconverter', desc: '订阅转换', features: '规则生成'},
-                {name: 'Store', pkg: 'luci-app-store', desc: 'iStore', features: '应用商店'},
-                {name: 'iStore', pkg: 'luci-app-istore', desc: '应用商店', features: '插件管理'},
-                {name: 'TaskPlan', pkg: 'luci-app-taskplan', desc: '定时任务', features: '计划执行'},
-            ]
-        };
-        
-        const pluginConflicts = [
-            ['luci-app-openclash', 'luci-app-clash', 'Clash 客户端'],
-            ['luci-app-ssr-plus', 'luci-app-shadowsocks-libev', 'SS 客户端'],
-            ['luci-app-passwall', 'luci-app-passwall2', 'PassWall 版本'],
-            ['luci-app-adguardhome', 'luci-app-adbyby-plus', '去广告插件'],
-            ['luci-app-mosdns', 'luci-app-smartdns', 'DNS 转发器'],
-        ];
-        
-        let currentTab = 'proxy';
-        let selectedPlugins = {};
-        
-        // ========== 初始化 ==========
-        function init() {
-            loadToken();
-            loadConfig();
-            updateBranches();
-            toggleNssSection();
-            renderDevices('MEDIATEK');
-            renderPlugins('proxy');
-            updateTabCounts();
-            startBuildMonitor();
-            updateSummary();
-        }
-        
-        // ========== 配置持久化 ==========
-        function loadConfig() {
-            try {
-                const saved = localStorage.getItem('openwrt-ci-last-config');
-                if (!saved) return;
-                const config = JSON.parse(saved);
-                
-                ['wrt_source', 'wrt_branch', 'firewall_type', 'theme', 'lan_ip',
-                 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode',
-                 'nss_firmware_version'
-                ].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el && config[id] !== undefined) {
-                        if (el.type === 'checkbox') el.checked = config[id];
-                        else el.value = config[id];
-                    }
-                });
-                
-                if (config.selectedPlugins) selectedPlugins = config.selectedPlugins;
-                if (config.selectedDevice) {
-                    selectedDevice = config.selectedDevice;
-                    document.getElementById('target_platform').value = selectedDevice.platform;
-                    switchPlatform(selectedDevice.platform);
-                }
-                
-                renderPlugins(currentTab);
-                updateTabCounts();
-            } catch(e) {}
-        }
-        
-        function saveConfig() {
-            try {
-                const config = {selectedPlugins: {...selectedPlugins}, selectedDevice};
-                ['wrt_source', 'wrt_branch', 'target_platform', 'firewall_type', 'theme',
-                 'lan_ip', 'login_username', 'login_password', 'wifi_ssid', 'wifi_password', 'other_plugins', 'test_mode',
-                 'nss_firmware_version'
-                ].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) config[id] = el.type === 'checkbox' ? el.checked : el.value;
-                });
-                localStorage.setItem('openwrt-ci-last-config', JSON.stringify(config));
-            } catch(e) {}
-        }
-        
-        // ========== Token ==========
-        function loadToken() {
-            const enc = localStorage.getItem('github_token');
-            if (enc) try { document.getElementById('github_token').value = atob(enc); } catch(e) {}
-        }
-        function saveToken(t) { if (t) try { localStorage.setItem('github_token', btoa(t)); } catch(e) {} }
-        document.getElementById('github_token').addEventListener('input', e => saveToken(e.target.value.trim()));
-        
-        // ========== 插件渲染 ==========
-        function renderPlugins(category) {
-            const grid = document.getElementById('plugin-grid');
-            grid.innerHTML = '';
-            const platform = document.getElementById('target_platform').value;
-            
-            PLUGINS[category].forEach(plugin => {
-                const isSelected = selectedPlugins[plugin.pkg];
-                const item = document.createElement('div');
-                item.className = 'plugin-item' + (isSelected ? ' selected' : '');
-                item.dataset.pkg = plugin.pkg;
-                item.innerHTML = `
-                    <div class="plugin-header" onclick="event.stopPropagation(); togglePlugin('${plugin.pkg}', '${plugin.name}')">
-                        <div class="plugin-name">${plugin.name}</div>
-                        <div class="checkmark"></div>
-                    </div>
-                    <div class="plugin-desc">${plugin.desc}</div>
-                    <div class="expand-indicator" onclick="event.stopPropagation(); toggleExpand('${plugin.pkg}')"></div>
-                    <div class="plugin-expand">
-                        <div class="plugin-expand-title">📦 ${plugin.pkg}</div>
-                        <div class="plugin-expand-list"><strong>🔧</strong> ${plugin.features || '无'}</div>
-                    </div>
-                `;
-                item.onclick = e => { if (!e.target.closest('.expand-indicator')) togglePlugin(plugin.pkg, plugin.name); };
-                grid.appendChild(item);
-            });
-            updateCounts();
-        }
-        
-        function toggleExpand(pkg) {
-            const item = document.querySelector(`.plugin-item[data-pkg="${pkg}"]`);
-            if (item) item.classList.toggle('expanded');
-        }
-        
-        function togglePlugin(pkg, name) {
-            if (selectedPlugins[pkg]) {
-                delete selectedPlugins[pkg];
-            } else {
-                const temp = {...selectedPlugins, [pkg]: name};
-                const conflicts = checkConflicts(temp);
-                if (conflicts.length) { alert('⚠️ 插件冲突：\n' + conflicts.join('\n')); return; }
-                selectedPlugins[pkg] = name;
-            }
-            renderPlugins(currentTab);
-            updateSummary();
-        }
-        
-        function checkConflicts(plugins) {
-            const pkgs = Object.keys(plugins);
-            const conflicts = [];
-            pluginConflicts.forEach(([p1, p2, desc]) => {
-                if (pkgs.includes(p1) && pkgs.includes(p2)) conflicts.push(`❌ ${desc}：${p1} 与 ${p2}`);
-            });
-            return conflicts;
-        }
-        
-        function switchTab(cat) {
-            currentTab = cat;
-            document.getElementById('plugin-search').value = '';
-            document.querySelectorAll('.plugin-tab').forEach(t => t.classList.toggle('active', t.dataset.category === cat));
-            renderPlugins(cat);
-        }
-        
-        function selectAllCurrent() {
-            PLUGINS[currentTab].forEach(p => selectedPlugins[p.pkg] = p.name);
-            renderPlugins(currentTab); updateSummary();
-        }
-        function deselectAllCurrent() {
-            PLUGINS[currentTab].forEach(p => delete selectedPlugins[p.pkg]);
-            renderPlugins(currentTab); updateCounts(); updateSummary();
-        }
-        
-        function updateCounts() {
-            const cur = PLUGINS[currentTab].filter(p => selectedPlugins[p.pkg]).length;
-            document.getElementById('category-count').textContent = `已选 ${cur} 个`;
-            document.getElementById('total-count').textContent = `已选 ${Object.keys(selectedPlugins).length} 个`;
-        }
-        function updateTabCounts() {
-            Object.keys(PLUGINS).forEach(cat => {
-                const tab = document.querySelector(`.plugin-tab[data-category="${cat}"]`);
-                if (tab) tab.querySelector('.count').textContent = PLUGINS[cat].length;
-            });
-        }
-        
-        function updateSummary() {
-            const d = selectedDevice;
-            document.getElementById('summary-device').textContent = d ? d.name : '未选择';
-            document.getElementById('summary-platform').textContent = d ? d.platform : '-';
-            document.getElementById('summary-plugins').textContent = `${Object.keys(selectedPlugins).length} 个`;
-            document.getElementById('summary-source').textContent = document.getElementById('wrt_source').value;
-            document.getElementById('summary-theme').textContent = document.getElementById('theme').value;
-            document.getElementById('summary-wifi').textContent = document.getElementById('wifi_ssid').value || 'OpenWrt';
-        }
-        
-        // 搜索
-        let searchTimeout;
-        function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(filterPlugins, 150); }
-        function filterPlugins() {
-            const q = document.getElementById('plugin-search').value.toLowerCase().trim();
-            if (!q) { renderPlugins(currentTab); return; }
-            
-            const results = [];
-            Object.keys(PLUGINS).forEach(cat => PLUGINS[cat].forEach(p => {
-                if (p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.pkg.toLowerCase().includes(q))
-                    results.push({...p, category: cat});
-            }));
-            
-            const grid = document.getElementById('plugin-grid');
-            grid.innerHTML = '';
-            if (!results.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">😕 未找到</div>'; return; }
-            
-            results.forEach(p => {
-                const sel = selectedPlugins[p.pkg];
-                const item = document.createElement('div');
-                item.className = 'plugin-item' + (sel ? ' selected' : '');
-                item.dataset.pkg = p.pkg;
-                item.innerHTML = `
-                    <div class="plugin-header"><div class="plugin-name">${p.name}</div><div class="checkmark"></div></div>
-                    <div class="plugin-desc">${p.desc}</div>
-                `;
-                item.onclick = () => togglePlugin(p.pkg, p.name);
-                grid.appendChild(item);
-            });
-        }
-        
-        ['lan_ip', 'login_username', 'wifi_ssid', 'wifi_password', 'wrt_source', 'theme'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updateSummary);
-            document.getElementById(id).addEventListener('change', updateSummary);
-        });
-        
-        // ========== 编译监控 ==========
-        let buildMonitorInterval, lastBuildId;
-        function startBuildMonitor() {
-            buildMonitorInterval = setInterval(async () => {
-                const token = localStorage.getItem('github_token');
-                try {
-                    const r = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1', {
-                        headers: {'Accept': 'application/vnd.github.v3+json', 'Authorization': token ? `token ${token}` : ''}
-                    });
-                    if (!r.ok) return;
-                    const d = await r.json();
-                    if (d.total_count > 0) showBuildProgress(d.workflow_runs[0]);
-                } catch(e) {}
-            }, 15000);
-        }
-        
-        function showBuildProgress(run) {
-            let el = document.getElementById('build-progress');
-            if (!el) {
-                el = document.createElement('div');
-                el.id = 'build-progress';
-                el.style.cssText = 'position:fixed;bottom:20px;right:20px;background:white;padding:15px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:1000;max-width:300px';
-                document.body.appendChild(el);
-            }
-            if (run.status === 'in_progress') {
-                el.innerHTML = `<strong>🔄 编译中...</strong><div style="margin-top:8px;font-size:12px;color:#666">运行 ${Math.floor((Date.now()-new Date(run.created_at))/60000)} 分钟</div><a href="${run.html_url}" target="_blank" style="color:#667eea;font-size:12px">查看详情 →</a>`;
-            } else if (run.conclusion === 'success') {
-                el.innerHTML = `<strong style="color:#4CAF50">✅ 编译成功！</strong><a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank" style="display:block;margin-top:8px;color:#667eea;font-size:12px">下载固件 →</a>`;
-                setTimeout(() => el.remove(), 10000);
-            } else if (run.conclusion === 'failure') {
-                el.innerHTML = `<strong style="color:#ff6b6b">❌ 编译失败</strong><a href="${run.html_url}" target="_blank" style="display:block;margin-top:8px;color:#667eea;font-size:12px">查看日志 →</a>`;
-                setTimeout(() => el.remove(), 10000);
-            }
-        }
-        
-        // ========== 表单提交 ==========
-        document.getElementById('buildForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const token = document.getElementById('github_token').value.trim();
-            
-            if (!token) { alert('请先配置 GitHub Token！'); return; }
-            if (!selectedDevice) { alert('请先选择目标设备！'); return; }
-            
-            const conflicts = checkConflicts(selectedPlugins);
-            if (conflicts.length) { alert('❌ 插件冲突：\n' + conflicts.join('\n')); return; }
-            
-            saveToken(token);
-            
-            const platform = selectedDevice.platform;
-            const proxyPkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.proxy.find(p => p.pkg === pk)).join(',');
-            const storagePkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.storage.find(p => p.pkg === pk)).join(',');
-            const networkPkgs = Object.keys(selectedPlugins).filter(pk => PLUGINS.network.find(p => p.pkg === pk)).join(',');
-            
-            const isNss = NSS_SOURCES.includes(document.getElementById('wrt_source').value);
-            const nssInfo = isNss ? `\nNSS固件：${document.getElementById('nss_firmware_version').value}` : '';
-            if (!confirm(`确认编译？\n\n设备：${selectedDevice.name}\n平台：${platform}\n主题：${document.getElementById('theme').value}\nWiFi：${document.getElementById('wifi_ssid').value}\n插件：${Object.keys(selectedPlugins).length} 个${nssInfo}`)) return;
-            
-            btn.disabled = true;
-            btn.innerHTML = '⏳ 正在触发编译...';
-            
-            try {
-                const r = await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/dispatches', {
-                    method: 'POST',
-                    headers: {'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        ref: 'main',
-                        inputs: {
-                            WRT_SOURCE: document.getElementById('wrt_source').value,
-                            WRT_BRANCH: document.getElementById('wrt_branch').value,
-                            TARGET_PLATFORM: platform,
-                            TARGET_DEVICE: selectedDevice.id,
-                            FIREWALL_TYPE: document.getElementById('firewall_type').value,
-                            THEME: document.getElementById('theme').value,
-                            NSS_FIRMWARE_VERSION: document.getElementById('nss_firmware_version').value,
-                            PROXY_PLUGIN: proxyPkgs,
-                            STORAGE_PLUGIN: storagePkgs,
-                            NETWORK_TOOL: networkPkgs,
-                            LAN_IP: document.getElementById('lan_ip').value,
-                            LOGIN_USERNAME: document.getElementById('login_username').value,
-                            LOGIN_PASSWORD: document.getElementById('login_password').value,
-                            WIFI_SSID: document.getElementById('wifi_ssid').value,
-                            WIFI_PASSWORD: document.getElementById('wifi_password').value,
-                            OTHER_PLUGIN: document.getElementById('other_plugins').value,
-                            TEST_MODE: document.getElementById('test_mode').checked.toString()
-                        }
-                    })
-                });
-                
-                if (r.status === 401) throw new Error('Token 无效');
-                if (r.status === 403) throw new Error('Token 权限不足');
-                if (!r.ok) throw new Error(`GitHub API: ${r.status}`);
-                
-                btn.innerHTML = '✅ 编译已触发！';
-                saveConfig();
-                window.open('https://github.com/liuziqiang78-liu/OpenWRT-CI/actions', '_blank');
-                setTimeout(() => { btn.disabled = false; btn.innerHTML = '🚀 开始编译'; }, 3000);
-            } catch(err) {
-                btn.disabled = false;
-                btn.innerHTML = '🚀 开始编译';
-                alert('❌ 失败：' + err.message);
-            }
-        });
-        
-        init();
-    </script>
+<!-- Theme -->
+<div class="card">
+  <div class="ch"><div class="ch-i c">🎨</div><div class="ch-t">LuCI 主题</div></div>
+  <div class="f"><select class="sel" id="theme" required>
+    <option value="argon" selected>Argon — 推荐</option><option value="aurora">Aurora</option><option value="kucat">Kucat</option>
+    <option value="alpha">Alpha</option><option value="design">Design</option><option value="material3">Material3</option>
+    <option value="openwrt-2020">OpenWrt2020</option><option value="openwrt">OpenWrt 经典</option><option value="none">源码默认</option>
+  </select></div>
+</div>
+
+<!-- NSS -->
+<div class="card" id="ns" style="display:none">
+  <div class="ch"><div class="ch-i v">⚡</div><div class="ch-t">NSS 硬件加速</div></div>
+  <div class="f"><label class="lb">固件版本 <span class="r">*</span></label>
+    <select class="sel" id="nv"><option value="auto" selected>智能选择</option><option value="11_4">11.4 — WDS/MESH</option><option value="12_2">12.2 — IPQ50XX</option><option value="12_5">12.5 — 最新</option></select>
+    <div class="hint w">⚠️ 11.4 支持 WDS/MESH 但缺新特性；12.5 性能最优但不支持旧 WDS。IPQ50XX 请选 12.2。</div></div>
+</div>
+
+<!-- Router -->
+<div class="card">
+  <div class="ch"><div class="ch-i c">🔧</div><div class="ch-t">路由器配置</div></div>
+  <div class="f"><label class="lb">管理 IP <span class="r">*</span></label><input type="text" class="inp" id="lan_ip" value="192.168.1.1" placeholder="192.168.1.1"></div>
+  <div class="r2">
+    <div class="f"><label class="lb">用户名 <span class="r">*</span></label><input type="text" class="inp" id="login_username" value="root" placeholder="root"></div>
+    <div class="f"><label class="lb">密码</label><input type="password" class="inp" id="login_password" value="" placeholder="留空 = 无密码"></div>
+  </div>
+  <div class="r2">
+    <div class="f"><label class="lb">WiFi 名称 <span class="r">*</span></label><input type="text" class="inp" id="wifi_ssid" value="OpenWrt" placeholder="OpenWrt"></div>
+    <div class="f"><label class="lb">WiFi 密码 <span class="r">*</span></label><input type="password" class="inp" id="wifi_password" value="12345678" placeholder="至少 8 位"></div>
+  </div>
+</div>
+
+<!-- Advanced -->
+<div class="card">
+  <div class="ch"><div class="ch-i v">⚙️</div><div class="ch-t">高级</div></div>
+  <div class="f"><label class="lb">额外插件包名（逗号分隔）</label><input type="text" class="inp" id="other_plugins" placeholder="luci-app-vlmcsd, automount, btop"></div>
+  <div class="f"><label class="cr"><input type="checkbox" id="test_mode"><span class="ct">测试模式</span><span class="ci">仅生成 .config，不编译</span></label></div>
+</div>
+
+<!-- Summary -->
+<div class="card">
+  <div class="ch"><div class="ch-i c">📋</div><div class="ch-t">配置摘要</div></div>
+  <div class="sg">
+    <div class="si"><div class="sl">源码</div><div class="sv" id="ss">—</div></div>
+    <div class="si"><div class="sl">设备</div><div class="sv" id="sd">未选择</div></div>
+    <div class="si"><div class="sl">平台</div><div class="sv" id="sp">—</div></div>
+    <div class="si"><div class="sl">主题</div><div class="sv" id="sth">—</div></div>
+    <div class="si"><div class="sl">插件</div><div class="sv" id="spl">0</div></div>
+    <div class="si"><div class="sl">WiFi</div><div class="sv" id="sw">—</div></div>
+  </div>
+</div>
+
+<button type="submit" class="btn-go" id="sb">⚡ 开始编译</button>
+</form>
+</div>
+
+<script>
+const SB={'VIKINGYFY/immortalwrt':['owrt','main'],'immortalwrt/immortalwrt':['main','openwrt-23.05','openwrt-24.10'],'LiBwrt/openwrt-6.x':['main-nss','25.12-nss'],'qosmio/openwrt-ipq':['main']};
+function uB(){const s=document.getElementById('wrt_source').value,e=document.getElementById('wrt_branch'),b=SB[s]||['main'],p=e.value;e.innerHTML='';b.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;e.appendChild(o)});if(b.includes(p))e.value=p;uS()}
+document.getElementById('wrt_source').addEventListener('change',()=>{uB();tN()});
+const NS=['LiBwrt/openwrt-6.x','qosmio/openwrt-ipq'];
+function tN(){document.getElementById('ns').style.display=NS.includes(document.getElementById('wrt_source').value)?'block':'none'}
+
+const D={MEDIATEK:[{n:'小米 AX3000T',c:'MT7981',i:'xiaomi_ax3000t'},{n:'小米 WR30U',c:'MT7981',i:'xiaomi_wr30u-stock'},{n:'小米 WR30U (uboot)',c:'MT7981',i:'xiaomi_wr30u-ubootmod'},{n:'红米 AX6000',c:'MT7986',i:'redmi_ax6000-stock'},{n:'红米 AX6000 (uboot)',c:'MT7986',i:'redmi_ax6000-ubootmod'},{n:'360 T7',c:'MT7981',i:'360_t7'},{n:'京东云 RE-CP-03',c:'MT7981',i:'jdcloud_re-cp-03'},{n:'华硕 TUF-AX4200',c:'MT7986',i:'asus_tuf-ax4200'},{n:'华硕 TUF-AX4200Q',c:'MT7986',i:'asus_tuf-ax4200q'},{n:'华硕 TUF-AX6000',c:'MT7986',i:'asus_tuf-ax6000'},{n:'H3C NX30 Pro',c:'MT7981',i:'h3c_magic-nx30-pro'},{n:'CMCC A10',c:'MT7981',i:'cmcc_a10-stock'},{n:'CMCC A10 (uboot)',c:'MT7981',i:'cmcc_a10-ubootmod'},{n:'CMCC RAX3000M',c:'MT7986',i:'cmcc_rax3000m'},{n:'CMCC RAX3000ME',c:'MT7986',i:'cmcc_rax3000me'},{n:'Nokia EA0326GMP',c:'MT7981',i:'nokia_ea0326gmp'},{n:'GL.iNet MT3000',c:'MT7981',i:'glinet_gl-mt3000'},{n:'GL.iNet MT6000',c:'MT7986',i:'glinet_gl-mt6000'},{n:'GL.iNet X3000',c:'MT7981',i:'glinet_gl-x3000'},{n:'GL.iNet XE3000',c:'MT7981',i:'glinet_gl-xe3000'},{n:'TP-Link XDR6088',c:'MT7986',i:'tplink_tl-xdr6088'},{n:'TP-Link XDR6086',c:'MT7986',i:'tplink_tl-xdr6086'},{n:'TP-Link XDR4288',c:'MT7986',i:'tplink_tl-xdr4288'},{n:'TP-Link XTR8488',c:'MT7986',i:'tplink_tl-xtr8488'},{n:'TP-Link 7DR7230 v1',c:'MT7986',i:'tplink_tl-7dr7230-v1'},{n:'TP-Link 7DR7230 v2',c:'MT7986',i:'tplink_tl-7dr7230-v2'},{n:'TP-Link 7DR7250 v1',c:'MT7986',i:'tplink_tl-7dr7250-v1'},{n:'锐捷 X60 Pro',c:'MT7986',i:'ruijie_rg-x60-pro'},{n:'Netcore N60',c:'MT7981',i:'netcore_n60'},{n:'Netcore N60 Pro',c:'MT7986',i:'netcore_n60-pro'},{n:'Cudy TR3000',c:'MT7981',i:'cudy_tr3000-v1'},{n:'Cudy TR3000 (uboot)',c:'MT7981',i:'cudy_tr3000-v1-ubootmod'},{n:'Cudy TR3000 256MB',c:'MT7981',i:'cudy_tr3000-256mb-v1'},{n:'Comfast E393AX',c:'MT7986',i:'comfast_cf-e393ax'},{n:'Comfast WR632AX',c:'MT7981',i:'comfast_cf-wr632ax'},{n:'Comfast WR632AX (uboot)',c:'MT7981',i:'comfast_cf-wr632ax-ubootmod'},{n:'ABT ASR3000',c:'MT7981',i:'abt_asr3000'},{n:'Cetron CT3003',c:'MT7981',i:'cetron_ct3003'},{n:'Cetron CT3003 (uboot)',c:'MT7981',i:'cetron_ct3003-ubootmod'},{n:'华飞 WH3000-EMMC',c:'MT7981',i:'huasifei_wh3000-emmc'},{n:'华飞 WH3000 Pro',c:'MT7981',i:'huasifei_wh3000-pro'},{n:'Imou HX21',c:'MT7981',i:'imou_hx21'},{n:'JCG Q30 Pro',c:'MT7981',i:'jcg_q30-pro'},{n:'康佳 KOMI-A31',c:'MT7981',i:'konka_komi-a31'},{n:'Zyxel EX5700',c:'MT7986',i:'zyxel_ex5700-telenor'}],
+ROCKCHIP:[{n:'NanoPi R2S',c:'RK3328',i:'nanopi_r2s'},{n:'NanoPi R2C',c:'RK3328',i:'nanopi_r2c'},{n:'NanoPi R2C Plus',c:'RK3328',i:'nanopi_r2c-plus'},{n:'NanoPi R3S',c:'RK3566',i:'nanopi_r3s'},{n:'NanoPi R4S',c:'RK3399',i:'nanopi_r4s'},{n:'NanoPi R4SE',c:'RK3399',i:'nanopi_r4se'},{n:'NanoPi R4S 企业版',c:'RK3399',i:'nanopi_r4s-enterprise'},{n:'NanoPi R5S',c:'RK3568',i:'nanopi_r5s'},{n:'NanoPi R5C',c:'RK3568',i:'nanopi_r5c'},{n:'NanoPi R6S',c:'RK3588S',i:'nanopi_r6s'},{n:'NanoPi R6C',c:'RK3588S',i:'nanopi_r6c'},{n:'NanoPi R76S',c:'RK3588',i:'nanopi_r76s'},{n:'NanoPC T4',c:'RK3399',i:'nanopc-t4'},{n:'NanoPC T6',c:'RK3588',i:'nanopc-t6'},{n:'OrangePi 5',c:'RK3588S',i:'orangepi_5'},{n:'OrangePi 5 Plus',c:'RK3588',i:'orangepi_5-plus'},{n:'OrangePi R1 Plus',c:'RK3328',i:'orangepi_r1-plus'},{n:'OrangePi R1 Plus LTS',c:'RK3328',i:'orangepi_r1-plus-lts'},{n:'Fastrhino R66S',c:'RK3568',i:'fastrhino_r66s'},{n:'Fastrhino R68S',c:'RK3568',i:'fastrhino_r68s'},{n:'EZPRO MRKAIO M68S',c:'RK3568',i:'ezpro_mrkaio-m68s'}],
+X86:[{n:'通用 x86_64',c:'X86_64',i:'x86_generic'}],
+IPQ60XX:[{n:'京东云 RE-CS-02',c:'IPQ6010',i:'jdcloud_re-cs-02'},{n:'京东云 RE-CS-07',c:'IPQ6010',i:'jdcloud_re-cs-07'},{n:'京东云 RE-SS-01',c:'IPQ6000',i:'jdcloud_re-ss-01'},{n:'红米 AX5',c:'IPQ6000',i:'redmi_ax5'},{n:'红米 AX5 (京东)',c:'IPQ6000',i:'redmi_ax5-jdcloud'},{n:'小米 AX1800',c:'IPQ6010',i:'xiaomi_ax1800'},{n:'360 V6',c:'IPQ6010',i:'qihoo_360v6'},{n:'GL.iNet AX1800',c:'IPQ6010',i:'glinet_gl-ax1800'},{n:'GL.iNet AXT1800',c:'IPQ6010',i:'glinet_gl-axt1800'},{n:'Linksys MR7350',c:'IPQ6010',i:'linksys_mr7350'},{n:'Linksys MR7500',c:'IPQ6018',i:'linksys_mr7500'},{n:'Philips LY1800',c:'IPQ6000',i:'philips_ly1800'},{n:'Anysafe E1',c:'IPQ6000',i:'anysafe_e1'},{n:'CMIOT AX18',c:'IPQ6010',i:'cmiot_ax18'},{n:'Link NN6000 v1',c:'IPQ6000',i:'link_nn6000-v1'},{n:'Link NN6000 v2',c:'IPQ6000',i:'link_nn6000-v2'},{n:'SY Y6010',c:'IPQ6010',i:'sy_y6010'},{n:'ZN M2',c:'IPQ6000',i:'zn_m2'}],
+IPQ807X:[{n:'小米 AX3600',c:'IPQ8071A',i:'xiaomi_ax3600'},{n:'小米 AX3600 (原版)',c:'IPQ8071A',i:'xiaomi_ax3600-stock'},{n:'小米 AX9000',c:'IPQ8072A',i:'xiaomi_ax9000'},{n:'小米 AX9000 (原版)',c:'IPQ8072A',i:'xiaomi_ax9000-stock'},{n:'红米 AX6',c:'IPQ8071A',i:'redmi_ax6'},{n:'红米 AX6 (原版)',c:'IPQ8071A',i:'redmi_ax6-stock'},{n:'Linksys MX4200 v1',c:'IPQ8072A',i:'linksys_mx4200v1'},{n:'Linksys MX4200 v2',c:'IPQ8072A',i:'linksys_mx4200v2'},{n:'Linksys MX4300',c:'IPQ8072A',i:'linksys_mx4300'},{n:'Linksys MX5300',c:'IPQ8074A',i:'linksys_mx5300'},{n:'Linksys MX8500',c:'IPQ8074A',i:'linksys_mx8500'},{n:'QNAP 301W',c:'IPQ8072A',i:'qnap_301w'},{n:'阿里云 AP8220',c:'IPQ8070A',i:'aliyun_ap8220'},{n:'Linksys HOMEWRK',c:'IPQ8072A',i:'linksys_homewrk'}],
+IPQ50XX:[{n:'京东云 RE-CS-03',c:'IPQ5018',i:'jdcloud_re-cs-03'}]};
+
+let selD=null,cP='MEDIATEK';
+function rD(p){const g=document.getElementById('dg');g.innerHTML='';(D[p]||[]).forEach(d=>{const on=selD&&selD.i===d.i&&selD.p===p;const e=document.createElement('div');e.className='dc'+(on?' on':'');e.innerHTML=`<div class="dot">${on?'✓':''}</div><div class="n">${d.n}</div><div class="c">${d.c}</div>`;e.onclick=()=>{selD={n:d.n,p,i:d.i};document.getElementById('target_platform').value=p;rD(p);document.getElementById('ds').textContent='✓ '+d.n;uS()};g.appendChild(e)});document.getElementById('dc').textContent=`${(D[p]||[]).length} 款设备`}
+function sP(p){cP=p;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));rD(p)}
+
+const P={proxy:[{n:'HomeProxy',p:'luci-app-homeproxy',d:'高性能代理',f:'多协议、转发、分流'},{n:'OpenClash',p:'luci-app-openclash',d:'Clash 客户端',f:'规则、节点、订阅'},{n:'PassWall',p:'luci-app-passwall',d:'综合代理',f:'多协议、负载均衡'},{n:'PassWall2',p:'luci-app-passwall2',d:'PassWall 新版',f:'新架构、高性能'},{n:'SSR-Plus',p:'luci-app-ssr-plus',d:'SS/SSR/Vmess',f:'Trojan、规则分流'},{n:'Nikki',p:'luci-app-nikki',d:'Mihomo 代理',f:'Transparent Proxy'},{n:'Xray',p:'luci-app-xray',d:'Xray',f:'VLESS/XTLS/Reality'},{n:'v2rayA',p:'luci-app-v2raya',d:'v2rayA',f:'Web 管理'},{n:'NaiveProxy',p:'naiveproxy',d:'轻量代理',f:'HTTPS 传输'},{n:'NeKoBox',p:'luci-app-nekobox',d:'NekoBox',f:'多协议'}],
+storage:[{n:'DiskMan',p:'luci-app-diskman',d:'磁盘管理',f:'分区、S.M.A.R.T'},{n:'Aria2',p:'luci-app-aria2',d:'下载工具',f:'HTTP/FTP/BT'},{n:'Qbittorrent',p:'luci-app-qbittorrent',d:'BT 下载',f:'磁力链、RSS'},{n:'Transmission',p:'luci-app-transmission',d:'轻量 BT',f:'Web 界面'},{n:'Samba4',p:'luci-app-samba4',d:'文件共享',f:'SMB/CIFS'},{n:'VSFTPD',p:'luci-app-vsftpd',d:'FTP',f:'用户认证'},{n:'FileBrowser',p:'luci-app-filebrowser',d:'文件管理',f:'Web 管理'},{n:'WebDAV',p:'luci-app-webdav',d:'WebDAV',f:'协议服务'},{n:'阿里云盘',p:'luci-app-aliyundrive-webdav',d:'阿里云盘',f:'云盘集成'},{n:'Rclone',p:'luci-app-rclone',d:'云盘同步',f:'50+ 云盘'},{n:'MiniDLNA',p:'luci-app-minidlna',d:'DLNA',f:'媒体推送'},{n:'OpenList2',p:'luci-app-openlist2',d:'文件列表',f:'在线播放'},{n:'Linkease',p:'luci-app-linkease',d:'易有云',f:'远程访问'},{n:'KodExplorer',p:'luci-app-kodexplorer',d:'可道云',f:'在线办公'}],
+network:[{n:'Tailscale',p:'luci-app-tailscale-community',d:'虚拟组网',f:'P2P 直连'},{n:'ZeroTier',p:'luci-app-zerotier',d:'内网穿透',f:'虚拟局域网'},{n:'FRPC',p:'luci-app-frpc',d:'FRP 客户端',f:'内网穿透'},{n:'FRPS',p:'luci-app-frps',d:'FRP 服务端',f:'服务端'},{n:'DDNS',p:'luci-app-ddns',d:'动态 DNS',f:'域名解析'},{n:'DDNS-GO',p:'luci-app-ddns-go',d:'轻量 DDNS',f:'动态 DNS'},{n:'MosDNS',p:'luci-app-mosdns',d:'DNS 转发',f:'分流去广告'},{n:'SmartDNS',p:'luci-app-smartdns',d:'智能 DNS',f:'防污染'},{n:'Lucky',p:'luci-app-lucky',d:'多功能',f:'端口转发 DDNS'},{n:'EasyTier',p:'luci-app-easytier',d:'异地组网',f:'去中心化'},{n:'WireGuard',p:'luci-app-wireguard',d:'VPN',f:'WireGuard'},{n:'OpenVPN',p:'luci-app-openvpn-server-client',d:'OpenVPN',f:'服务端/客户端'},{n:'MWAN3',p:'luci-app-mwan3',d:'负载均衡',f:'多 WAN'},{n:'QoS',p:'luci-app-qosmate',d:'流量控制',f:'带宽管理'},{n:'SQM',p:'luci-app-sqm-autorate',d:'QoS',f:'智能队列'},{n:'Netdata',p:'luci-app-netdata',d:'性能监测',f:'实时监控'},{n:'NLBWmon',p:'luci-app-nlbwmon',d:'流量统计',f:'按 IP'},{n:'NATMap',p:'luci-app-natmap',d:'端口映射',f:'自动映射'},{n:'Socat',p:'luci-app-socat',d:'端口转发',f:'TCP/UDP'},{n:'EqOS',p:'luci-app-eqosplus',d:'IP 限速',f:'按 IP'},{n:'AdGuardHome',p:'luci-app-adguardhome',d:'ADG 去广告',f:'DNS 去广告'},{n:'AdByBy',p:'luci-app-adbyby-plus',d:'去广告',f:'规则'},{n:'DNSFilter',p:'luci-app-my-dnsfilter',d:'DNS 过滤',f:'去广告'},{n:'OAF',p:'luci-app-oaf',d:'应用过滤',f:'识别'},{n:'IPTV',p:'luci-app-iptvhelper',d:'IPTV',f:'组播'},{n:'EasyMesh',p:'luci-app-easymesh',d:'Mesh',f:'无缝漫游'},{n:'TurboACC',p:'luci-app-turboacc',d:'网络加速',f:'硬件加速'},{n:'VNT',p:'luci-app-vnt',d:'VNT 组网',f:'异地组网'},{n:'BandiX',p:'luci-app-bandix',d:'流量监控',f:'实时'},{n:'Docker',p:'luci-app-dockerman',d:'Docker',f:'容器管理'},{n:'UPnP',p:'luci-app-upnp',d:'UPnP',f:'自动端口'},{n:'CPUPower',p:'luci-app-cpufreq',d:'CPU 调频',f:'频率调节'},{n:'测速',p:'luci-app-netspeedtest',d:'网络测速',f:'内网测速'},{n:'UHTTPd',p:'luci-app-uhttpd',d:'Web 管理',f:'HTTP'}],
+theme:[{n:'Argon',p:'luci-theme-argon',d:'流行主题',f:'毛玻璃'},{n:'Kucat',p:'luci-theme-kucat',d:'可爱',f:'多彩'},{n:'Aurora',p:'luci-theme-aurora',d:'极光',f:'渐变'},{n:'OpenWrt2020',p:'luci-theme-openwrt-2020',d:'经典',f:'2020'},{n:'OpenWrt',p:'luci-theme-openwrt',d:'原始',f:'经典'},{n:'Alpha',p:'luci-theme-alpha',d:'Alpha',f:'简洁'},{n:'Design',p:'luci-theme-design',d:'Design',f:'现代'},{n:'Material3',p:'luci-theme-material3',d:'Material3',f:'动态'}],
+system:[{n:'TTYD',p:'luci-app-ttyd',d:'网页终端',f:'SSH'},{n:'Automount',p:'automount',d:'自动挂载',f:'USB 热插拔'},{n:'HD-Idle',p:'luci-app-hd-idle',d:'硬盘休眠',f:'节能'},{n:'PartExp',p:'luci-app-partexp',d:'分区扩容',f:'无损'},{n:'访问控制',p:'luci-app-accesscontrol-plus',d:'访问控制',f:'MAC'},{n:'家长控制',p:'luci-app-parentcontrol',d:'家长控制',f:'网站过滤'},{n:'时间控制',p:'luci-app-nft-timecontrol',d:'上网时间',f:'定时断网'},{n:'Guest WiFi',p:'luci-app-guest-wifi',d:'访客 WiFi',f:'隔离'},{n:'WiFi Schedule',p:'luci-app-wifischedule',d:'WiFi 计划',f:'定时开关'},{n:'定时重启',p:'luci-app-timedreboot',d:'定时重启',f:'自动'},{n:'自动重启',p:'luci-app-autoreboot',d:'自动重启',f:'温度保护'},{n:'Watchcat',p:'luci-app-watchcat',d:'断网检测',f:'自动恢复'},{n:'ARP 绑定',p:'luci-app-arpbind',d:'ARP 绑定',f:'IP-MAC'},{n:'VLMCSD',p:'luci-app-vlmcsd',d:'KMS',f:'激活'},{n:'CUPS',p:'luci-app-cupsd',d:'打印',f:'网络'},{n:'SNMPD',p:'luci-app-snmpd',d:'SNMP',f:'管理'},{n:'ACME',p:'luci-app-acme',d:'HTTPS 证书',f:'自动续签'},{n:'AirPlay2',p:'luci-app-airplay2',d:'AirPlay2',f:'音频'},{n:'网易云',p:'luci-app-unblockneteasemusic',d:'网易云',f:'解锁'},{n:'微信推送',p:'luci-app-wechatpush',d:'通知',f:'微信/TG'},{n:'订阅转换',p:'luci-app-subconverter',d:'订阅转换',f:'规则'},{n:'Store',p:'luci-app-store',d:'iStore',f:'商店'},{n:'iStore',p:'luci-app-istore',d:'商店',f:'插件'},{n:'TaskPlan',p:'luci-app-taskplan',d:'定时任务',f:'计划'}]};
+
+const CF=[['luci-app-openclash','luci-app-clash','Clash'],['luci-app-ssr-plus','luci-app-shadowsocks-libev','SS'],['luci-app-passwall','luci-app-passwall2','PassWall'],['luci-app-adguardhome','luci-app-adbyby-plus','去广告'],['luci-app-mosdns','luci-app-smartdns','DNS']];
+let cT='proxy',sPl={};
+function init(){lT();lC();uB();tN();rD('MEDIATEK');rP('proxy');uTC();sMo();uS()}
+
+function lC(){try{const s=localStorage.getItem('owrt-ci');if(!s)return;const c=JSON.parse(s);['wrt_source','wrt_branch','theme','lan_ip','login_username','login_password','wifi_ssid','wifi_password','other_plugins','test_mode','nv'].forEach(id=>{const e=document.getElementById(id);if(e&&c[id]!==undefined){e.type==='checkbox'?e.checked=c[id]:e.value=c[id]}});if(c.sp)sPl=c.sp;if(c.sd){selD=c.sd;document.getElementById('target_platform').value=selD.p;sP(selD.p);document.getElementById('ds').textContent='✓ '+selD.n}rP(cT);uTC()}catch(e){}}
+function sC(){try{const c={sp:{...sPl},sd:selD};['wrt_source','wrt_branch','target_platform','theme','lan_ip','login_username','login_password','wifi_ssid','wifi_password','other_plugins','test_mode','nv'].forEach(id=>{const e=document.getElementById(id);if(e)c[id]=e.type==='checkbox'?e.checked:e.value});localStorage.setItem('owrt-ci',JSON.stringify(c))}catch(e){}}
+
+function lT(){const e=localStorage.getItem('gh_t');if(e)try{document.getElementById('github_token').value=atob(e)}catch(x){}}
+function sT2(t){if(t)try{localStorage.setItem('gh_t',btoa(t))}catch(x){}}
+document.getElementById('github_token').addEventListener('input',e=>sT2(e.target.value.trim()));
+
+function rP(cat){const g=document.getElementById('pg');g.innerHTML='';P[cat].forEach(p=>{const on=sPl[p.p];const e=document.createElement('div');e.className='pc'+(on?' on':'');e.dataset.k=p.p;e.innerHTML=`<div class="tp"><span class="pn">${p.n}</span><span class="ck">${on?'✓':''}</span></div><div class="pd">${p.d}</div><div class="eb" onclick="event.stopPropagation();this.parentElement.classList.toggle('ex')"></div><div class="det"><strong>📦</strong> ${p.p}<br><strong>🔧</strong> ${p.f}</div>`;e.onclick=v=>{if(!v.target.closest('.eb'))tP(p.p,p.n)};g.appendChild(e)});uC()}
+function tP(k,n){if(sPl[k])delete sPl[k];else{const t={...sPl,[k]:n};const c=[];CF.forEach(([a,b,d])=>{if(t[a]&&t[b])c.push(`❌ ${d}：${a} 与 ${b}`)});if(c.length){alert('⚠️ 插件冲突：\n'+c.join('\n'));return}sPl[k]=n}rP(cT);uS()}
+function sT(c){cT=c;document.getElementById('ps').value='';document.querySelectorAll('.pt').forEach(t=>t.classList.toggle('on',t.dataset.c===c));rP(c)}
+function saC(){P[cT].forEach(p=>sPl[p.p]=p.n);rP(cT);uS()}
+function daC(){P[cT].forEach(p=>delete sPl[p.p]);rP(cT);uC();uS()}
+function uC(){document.getElementById('cc').textContent=`已选 ${P[cT].filter(p=>sPl[p.p]).length}`;document.getElementById('tc').textContent=`已选 ${Object.keys(sPl).length}`}
+function uTC(){Object.keys(P).forEach(c=>{const t=document.querySelector(`.pt[data-c="${c}"]`);if(t)t.querySelector('.nm').textContent=P[c].length})}
+function uS(){const d=selD;document.getElementById('sd').textContent=d?d.n:'未选择';document.getElementById('sp').textContent=d?d.p:'—';document.getElementById('spl').textContent=Object.keys(sPl).length;const sr=document.getElementById('wrt_source').value;document.getElementById('ss').textContent=sr.split('/')[1]||sr;document.getElementById('sth').textContent=document.getElementById('theme').value;document.getElementById('sw').textContent=document.getElementById('wifi_ssid').value||'—'}
+
+let sTO;function dS(){clearTimeout(sTO);sTO=setTimeout(fP,150)}
+function fP(){const q=document.getElementById('ps').value.toLowerCase().trim();if(!q){rP(cT);return}const r=[];Object.keys(P).forEach(c=>P[c].forEach(p=>{if(p.n.toLowerCase().includes(q)||p.p.toLowerCase().includes(q))r.push({...p,c})}));const g=document.getElementById('pg');g.innerHTML='';if(!r.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t3)">无匹配</div>';return}r.forEach(p=>{const on=sPl[p.p];const e=document.createElement('div');e.className='pc'+(on?' on':'');e.innerHTML=`<div class="tp"><span class="pn">${p.n}</span><span class="ck">${on?'✓':''}</span></div><div class="pd">${p.d}</div>`;e.onclick=()=>tP(p.p,p.n);g.appendChild(e)})}
+
+['lan_ip','login_username','wifi_ssid','wifi_password','wrt_source','theme'].forEach(id=>{const e=document.getElementById(id);e.addEventListener('input',uS);e.addEventListener('change',uS)});
+
+function sMo(){setInterval(async()=>{const t=localStorage.getItem('gh_t');try{const r=await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1',{headers:{'Accept':'application/vnd.github.v3+json','Authorization':t?`token ${t}`:''}});if(!r.ok)return;const d=await r.json();if(d.total_count>0)sTo(d.workflow_runs[0])}catch(e){}},15000)}
+function sTo(run){let e=document.getElementById('toast');if(!e){e=document.createElement('div');e.id='toast';e.className='toast';document.body.appendChild(e)}if(run.status==='in_progress'){e.innerHTML=`<div style="font-weight:800;margin-bottom:6px">⚡ 编译中…</div><div style="font-size:.72em;color:var(--t2)">${Math.floor((Date.now()-new Date(run.created_at))/60000)} 分钟</div><a href="${run.html_url}" target="_blank" style="display:block;margin-top:8px">查看详情 →</a>`}else if(run.conclusion==='success'){e.innerHTML=`<div style="font-weight:800;color:var(--grn);margin-bottom:6px">✅ 编译成功</div><a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank">下载固件 →</a>`;setTimeout(()=>e.remove(),10000)}else if(run.conclusion==='failure'){e.innerHTML=`<div style="font-weight:800;color:var(--red);margin-bottom:6px">❌ 编译失败</div><a href="${run.html_url}" target="_blank">查看日志 →</a>`;setTimeout(()=>e.remove(),10000)}}
+
+document.getElementById('buildForm').addEventListener('submit',async function(e){e.preventDefault();const btn=document.getElementById('sb'),token=document.getElementById('github_token').value.trim();if(!token){alert('请先配置 Token');return}if(!selD){alert('请先选择设备');return}const cf=[];CF.forEach(([a,b,d])=>{if(sPl[a]&&sPl[b])cf.push(`❌ ${d}：${a} 与 ${b}`)});if(cf.length){alert('插件冲突：\n'+cf.join('\n'));return}sT2(token);
+const pp=Object.keys(sPl).filter(k=>P.proxy.find(p=>p.p===k)).join(','),sp=Object.keys(sPl).filter(k=>P.storage.find(p=>p.p===k)).join(','),np=Object.keys(sPl).filter(k=>P.network.find(p=>p.p===k)).join(','),isN=NS.includes(document.getElementById('wrt_source').value);
+if(!confirm(`确认编译？\n\n设备：${selD.n}  平台：${selD.p}\n插件：${Object.keys(sPl).length}${isN?'  NSS：'+document.getElementById('nv').value:''}`))return;
+btn.disabled=true;btn.textContent='⏳ 触发中…';try{const r=await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/dispatches',{method:'POST',headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify({ref:'main',inputs:{WRT_SOURCE:document.getElementById('wrt_source').value,WRT_BRANCH:document.getElementById('wrt_branch').value,TARGET_PLATFORM:selD.p,TARGET_DEVICE:selD.i,THEME:document.getElementById('theme').value,NSS_FIRMWARE_VERSION:document.getElementById('nv').value,PROXY_PLUGIN:pp,STORAGE_PLUGIN:sp,NETWORK_TOOL:np,LAN_IP:document.getElementById('lan_ip').value,LOGIN_USERNAME:document.getElementById('login_username').value,LOGIN_PASSWORD:document.getElementById('login_password').value,WIFI_SSID:document.getElementById('wifi_ssid').value,WIFI_PASSWORD:document.getElementById('wifi_password').value,OTHER_PLUGIN:document.getElementById('other_plugins').value,TEST_MODE:document.getElementById('test_mode').checked.toString()}})});if(r.status===401)throw new Error('Token 无效');if(r.status===403)throw new Error('权限不足');if(!r.ok)throw new Error('API: '+r.status);btn.textContent='✅ 已触发';sC();window.open('https://github.com/liuziqiang78-liu/OpenWRT-CI/actions','_blank');setTimeout(()=>{btn.disabled=false;btn.textContent='⚡ 开始编译'},3000)}catch(err){btn.disabled=false;btn.textContent='⚡ 开始编译';alert('失败：'+err.message)}});
+init();
+</script>
 </body>
 </html>

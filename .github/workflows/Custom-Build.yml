@@ -101,15 +101,7 @@ on:
         required: false
         type: string
       
-      # 防火墙选择
-      FIREWALL_TYPE:
-        description: '防火墙类型'
-        required: false
-        type: choice
-        options:
-          - firewall4
-          - iptables
-        default: 'firewall4'
+      # 防火墙类型: 强制使用纯 iptables (硬编码在编译步骤中)
       
       # 路由器配置
       LAN_IP:
@@ -637,7 +629,7 @@ jobs:
           export WRT_IP="${{ inputs.LAN_IP }}"
           export WRT_NAME="${{ inputs.LOGIN_USERNAME }}"
           export WRT_PW="${{ inputs.LOGIN_PASSWORD }}"
-          export WRT_FIREWALL="${{ inputs.FIREWALL_TYPE }}"
+          export WRT_FIREWALL="iptables"
           export NSS_FIRMWARE_VERSION="${{ inputs.NSS_FIRMWARE_VERSION }}"
 
           chmod +x $GITHUB_WORKSPACE/Scripts/sources/apply-settings.sh

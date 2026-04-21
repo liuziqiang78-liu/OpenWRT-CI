@@ -58,25 +58,18 @@ echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
 echo "# CONFIG_PACKAGE_odhcpd-ipv6only is not set" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd=y" >> ./.config
 echo "CONFIG_PACKAGE_uhttpd-ubus=y" >> ./.config
-if [ "$WRT_FIREWALL" = "iptables" ]; then
-    echo "# 用户选择 iptables" >> ./.config
-    echo "# CONFIG_PACKAGE_firewall4 is not set" >> ./.config
-    echo "CONFIG_PACKAGE_firewall=y" >> ./.config
-    echo "CONFIG_PACKAGE_iptables=y" >> ./.config
-else
-    echo "# 用户选择 firewall4 (默认)" >> ./.config
-    echo "CONFIG_PACKAGE_firewall4=y" >> ./.config
-    echo "# 使用 iptables-nft 兼容 firewall4" >> ./.config
-    echo "CONFIG_PACKAGE_iptables-nft=y" >> ./.config
-fi
+echo "# 使用纯 iptables 防火墙" >> ./.config
+echo "# CONFIG_PACKAGE_firewall4 is not set" >> ./.config
+echo "CONFIG_PACKAGE_firewall=y" >> ./.config
+echo "CONFIG_PACKAGE_iptables=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-conntrack-extra=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> ./.config
 
 if [ -n "$WRT_PACKAGE" ] && [[ "$WRT_PACKAGE" == *"luci-app-upnp"* ]]; then
-    echo "CONFIG_PACKAGE_miniupnpd-nftables=y" >> ./.config
-    echo "# CONFIG_PACKAGE_miniupnpd-iptables is not set" >> ./.config
+    echo "CONFIG_PACKAGE_miniupnpd-iptables=y" >> ./.config
+    echo "# CONFIG_PACKAGE_miniupnpd-nftables is not set" >> ./.config
 fi
 
 if [ -n "$WRT_PACKAGE" ]; then
