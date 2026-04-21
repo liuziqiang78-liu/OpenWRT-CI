@@ -52,6 +52,40 @@ else
     echo "⚠️  config_generate 不存在，跳过路由器基础配置"
 fi
 
+# ========== 登录密码配置 ==========
+if [ -n "$WRT_PW" ]; then
+    echo ""
+    echo "🔧 配置登录密码..."
+    
+    # 方法 1: 通过 uci-defaults 脚本在首次启动时设置密码
+    mkdir -p ./files/etc/uci-defaults
+    cat > ./files/etc/uci-defaults/99-set-password << PASSWDEOF
+#!/bin/sh
+# 设置 root 密码 (首次启动时执行)
+passwd root << EOF
+$WRT_PW
+$WRT_PW
+EOF
+PASSWDEOF
+    chmod +x ./files/etc/uci-defaults/99-set-password
+    echo "✅ 登录密码已通过 uci-defaults 脚本设置"
+    
+    # 方法 2: 同时修改 shadow 文件（双保险，部分固件 uci-defaults 可能不生效）
+    SHADOW_FILE="./package/base-files/files/etc/shadow"
+    if [ -f "$SHADOW_FILE" ]; then
+        # 生成密码哈希 (使用 openssl)
+        PW_HASH=$(openssl passwd -6 "$WRT_PW" 2>/dev/null || openssl passwd -1 "$WRT_PW" 2>/dev/null)
+        if [ -n "$PW_HASH" ]; then
+            sed -i "s|^root::|root:${PW_HASH}:|" "$SHADOW_FILE"
+            echo "✅ 登录密码已写入 shadow 文件 (hash)"
+        else
+            echo "⚠️  无法生成密码哈希，仅依赖 uci-defaults 脚本"
+        fi
+    fi
+else
+    echo "ℹ️  未设置登录密码，保持默认 (无密码)"
+fi
+
 # ========== LuCI 基础配置 ==========
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
 echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config

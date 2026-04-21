@@ -1,0 +1,7 @@
+{
+  "id": "nanopc-t4",
+  "name": "friendlyarm_nanopc t4=y",
+  "platform": "ROCKCHIP",
+  "chip": "",
+  "wifi": true
+}

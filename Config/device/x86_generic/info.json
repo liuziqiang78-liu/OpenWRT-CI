@@ -1,0 +1,7 @@
+{
+  "id": "x86_generic",
+  "name": "通用 x86_64",
+  "platform": "X86",
+  "chip": "X86_64",
+  "wifi": false
+}

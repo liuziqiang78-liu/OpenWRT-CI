@@ -1,0 +1,7 @@
+{
+  "id": "philips_ly1800",
+  "name": "philips_ly1800=y",
+  "platform": "IPQ60XX",
+  "chip": "",
+  "wifi": true
+}

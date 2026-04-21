@@ -1,0 +1,7 @@
+{
+  "id": "jdcloud_re-cs-02",
+  "name": "京东云 RE-CS-02",
+  "platform": "IPQ60XX",
+  "chip": "IPQ6010",
+  "wifi": true
+}

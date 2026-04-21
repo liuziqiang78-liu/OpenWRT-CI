@@ -1,0 +1,7 @@
+{
+  "id": "nanopi_r2c",
+  "name": "friendlyarm_nanopi r2c=y",
+  "platform": "ROCKCHIP",
+  "chip": "",
+  "wifi": true
+}

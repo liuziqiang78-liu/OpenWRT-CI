@@ -1,0 +1,7 @@
+{
+  "id": "xiaomi_ax3000t",
+  "name": "小米 AX3000T",
+  "platform": "MEDIATEK",
+  "chip": "MT7981",
+  "wifi": true
+}

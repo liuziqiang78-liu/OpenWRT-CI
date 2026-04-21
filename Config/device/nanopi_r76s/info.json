@@ -1,0 +1,7 @@
+{
+  "id": "nanopi_r76s",
+  "name": "friendlyarm_nanopi r76s=y",
+  "platform": "ROCKCHIP",
+  "chip": "",
+  "wifi": true
+}

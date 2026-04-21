@@ -1,0 +1,7 @@
+{
+  "id": "linksys_mx8500",
+  "name": "linksys_mx8500=y",
+  "platform": "IPQ807X",
+  "chip": "",
+  "wifi": true
+}

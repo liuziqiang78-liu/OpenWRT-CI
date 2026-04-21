@@ -1,0 +1,7 @@
+{
+  "id": "cudy_tr3000-v1-ubootmod",
+  "name": "cudy_tr3000 v1 ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

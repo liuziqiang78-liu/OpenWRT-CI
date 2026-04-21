@@ -1,0 +1,7 @@
+{
+  "id": "cetron_ct3003-ubootmod",
+  "name": "cetron_ct3003 ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

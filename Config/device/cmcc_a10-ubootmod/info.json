@@ -1,0 +1,7 @@
+{
+  "id": "cmcc_a10-ubootmod",
+  "name": "cmcc_a10 ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

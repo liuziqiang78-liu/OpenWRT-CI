@@ -1,0 +1,4 @@
+# X86 通用专属插件
+# x86 软路由通常需要的插件
+CONFIG_PACKAGE_luci-app-dockerman=y
+CONFIG_PACKAGE_luci-app-watchcat=y

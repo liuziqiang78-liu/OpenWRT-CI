@@ -1,0 +1,7 @@
+{
+  "id": "nanopi_r6s",
+  "name": "NanoPi R6S",
+  "platform": "ROCKCHIP",
+  "chip": "RK3588S",
+  "wifi": false
+}

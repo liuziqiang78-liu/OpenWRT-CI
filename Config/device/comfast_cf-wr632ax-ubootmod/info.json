@@ -1,0 +1,7 @@
+{
+  "id": "comfast_cf-wr632ax-ubootmod",
+  "name": "comfast_cf wr632ax ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

@@ -178,9 +178,9 @@
                     <div class="plugin-tabs" id="plugin-tabs">
                         <div class="plugin-tab active" data-category="proxy" onclick="switchTab('proxy')">🔐 科学上网 (<span class="count">10</span>)</div>
                         <div class="plugin-tab" data-category="storage" onclick="switchTab('storage')">💾 存储管理 (<span class="count">14</span>)</div>
-                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">30</span>)</div>
+                        <div class="plugin-tab" data-category="network" onclick="switchTab('network')">🌐 网络工具 (<span class="count">34</span>)</div>
                         <div class="plugin-tab" data-category="theme" onclick="switchTab('theme')">🎨 主题 (<span class="count">8</span>)</div>
-                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">23</span>)</div>
+                        <div class="plugin-tab" data-category="system" onclick="switchTab('system')">🔧 系统工具 (<span class="count">24</span>)</div>
                     </div>
                     <div class="select-all-bar">
                         <button type="button" class="btn-small" onclick="selectAllCurrent()">全选当前分类</button>
@@ -570,6 +570,10 @@
                 {name: 'VNT', pkg: 'luci-app-vnt', desc: 'VNT 组网', features: '异地组网'},
                 {name: 'BandiX', pkg: 'luci-app-bandix', desc: '流量监控', features: '实时流量'},
                 {name: 'Docker', pkg: 'luci-app-dockerman', desc: 'Docker 管理', features: '容器管理'},
+                {name: 'UPnP', pkg: 'luci-app-upnp', desc: 'UPnP 自动端口', features: 'P2P/NAT 穿透'},
+                {name: 'CPUPower', pkg: 'luci-app-cpufreq', desc: 'CPU 调频', features: '频率调节、节能'},
+                {name: 'NetSpeedTest', pkg: 'luci-app-netspeedtest', desc: '网络测速', features: '内网测速'},
+                {name: 'UHTTPd 管理', pkg: 'luci-app-uhttpd', desc: 'Web 服务管理', features: 'HTTP 配置'},
             ],
             theme: [
                 {name: 'Argon', pkg: 'luci-theme-argon', desc: '流行主题', features: '毛玻璃效果'},
@@ -592,6 +596,7 @@
                 {name: 'Guest WiFi', pkg: 'luci-app-guest-wifi', desc: '访客 WiFi', features: '隔离网络'},
                 {name: 'WiFi Schedule', pkg: 'luci-app-wifischedule', desc: 'WiFi 计划', features: '定时开关'},
                 {name: '定时重启', pkg: 'luci-app-timedreboot', desc: '定时重启', features: '自动重启'},
+                {name: '自动重启', pkg: 'luci-app-autoreboot', desc: '自动重启', features: '计划重启、温度保护'},
                 {name: 'Watchcat', pkg: 'luci-app-watchcat', desc: '断网检测', features: '自动恢复'},
                 {name: 'ARP 绑定', pkg: 'luci-app-arpbind', desc: 'ARP 绑定', features: 'IP-MAC 绑定'},
                 {name: 'VLMCSD', pkg: 'luci-app-vlmcsd', desc: 'KMS 服务', features: '激活服务'},

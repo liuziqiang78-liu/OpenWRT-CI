@@ -1,0 +1,7 @@
+{
+  "id": "linksys_mx4200v1",
+  "name": "linksys_mx4200v1=y",
+  "platform": "IPQ807X",
+  "chip": "",
+  "wifi": true
+}

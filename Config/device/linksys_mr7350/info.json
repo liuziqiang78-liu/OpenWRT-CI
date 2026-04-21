@@ -1,0 +1,7 @@
+{
+  "id": "linksys_mr7350",
+  "name": "linksys_mr7350=y",
+  "platform": "IPQ60XX",
+  "chip": "",
+  "wifi": true
+}

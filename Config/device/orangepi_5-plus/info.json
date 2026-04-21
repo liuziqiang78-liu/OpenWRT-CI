@@ -1,0 +1,7 @@
+{
+  "id": "orangepi_5-plus",
+  "name": "xunlong_orangepi 5 plus=y",
+  "platform": "ROCKCHIP",
+  "chip": "",
+  "wifi": true
+}

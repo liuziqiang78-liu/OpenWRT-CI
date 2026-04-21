@@ -1,0 +1,7 @@
+{
+  "id": "zyxel_ex5700-telenor",
+  "name": "zyxel_ex5700 telenor=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

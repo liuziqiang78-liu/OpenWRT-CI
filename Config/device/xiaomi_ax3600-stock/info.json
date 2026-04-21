@@ -1,0 +1,7 @@
+{
+  "id": "xiaomi_ax3600-stock",
+  "name": "xiaomi_ax3600 stock=y",
+  "platform": "IPQ807X",
+  "chip": "",
+  "wifi": true
+}

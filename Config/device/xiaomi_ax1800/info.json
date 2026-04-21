@@ -1,0 +1,7 @@
+{
+  "id": "xiaomi_ax1800",
+  "name": "xiaomi_ax1800=y",
+  "platform": "IPQ60XX",
+  "chip": "",
+  "wifi": true
+}

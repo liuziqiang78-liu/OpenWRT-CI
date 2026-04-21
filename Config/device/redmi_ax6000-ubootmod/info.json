@@ -1,0 +1,7 @@
+{
+  "id": "redmi_ax6000-ubootmod",
+  "name": "xiaomi_redmi router ax6000 ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}

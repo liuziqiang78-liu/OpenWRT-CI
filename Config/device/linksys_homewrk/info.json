@@ -1,0 +1,7 @@
+{
+  "id": "linksys_homewrk",
+  "name": "linksys_homewrk=y",
+  "platform": "IPQ807X",
+  "chip": "",
+  "wifi": true
+}

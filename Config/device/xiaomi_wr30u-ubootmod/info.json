@@ -1,0 +1,7 @@
+{
+  "id": "xiaomi_wr30u-ubootmod",
+  "name": "xiaomi_mi router wr30u ubootmod=y",
+  "platform": "MEDIATEK",
+  "chip": "",
+  "wifi": true
+}
