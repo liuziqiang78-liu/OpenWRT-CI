@@ -40,7 +40,6 @@
     "luci-app-socat": "https://github.com/sbwml/openwrt_pkgs.git",
     "luci-app-transmission": "https://github.com/sbwml/luci.git",
     "luci-app-ttyd": "https://github.com/sbwml/luci.git",
-    "luci-app-upnp": "https://github.com/sbwml/luci.git",
     "luci-app-vlmcsd": "https://github.com/sbwml/openwrt_pkgs.git",
     "luci-app-vsftpd": "https://github.com/sbwml/openwrt_pkgs.git",
     "luci-app-watchcat": "https://github.com/sbwml/luci.git",

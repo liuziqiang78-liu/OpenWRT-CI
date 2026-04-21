@@ -1,9 +1,0 @@
-# 广告过滤模板
-# 专注广告过滤
-
-adblock
-network-extra
-
-# 广告过滤优化
-CONFIG_PACKAGE_luci-app-adblock=y
-CONFIG_PACKAGE_luci-app-oaf=y

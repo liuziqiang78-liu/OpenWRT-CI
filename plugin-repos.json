@@ -86,7 +86,6 @@
   "luci-app-xray": "https://github.com/sbwml/luci-app-xray.git",
   "luci-app-zerotier": "https://github.com/sbwml/openwrt_pkgs.git",
   "naiveproxy": "https://github.com/sbwml/naiveproxy.git",
-  "luci-app-upnp": "https://github.com/sbwml/luci.git",
   "luci-theme-openwrt-2020": "https://github.com/openwrt/luci.git",
   "luci-theme-alpha": "https://github.com/derisamedia/luci-theme-alpha.git",
   "luci-theme-design": "https://github.com/0x676e67/luci-theme-design.git",

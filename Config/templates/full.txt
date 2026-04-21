@@ -1,8 +1,0 @@
-# 完整功能模板
-# 包含所有功能
-
-proxy
-storage
-network-extra
-theme
-adblock

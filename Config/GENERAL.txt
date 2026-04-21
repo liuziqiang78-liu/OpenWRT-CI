@@ -6,6 +6,8 @@
 # ============================================================
 
 # ========== 核心网络 ==========
+# 使用纯 iptables 防火墙，禁止 firewall4 (nftables)
+# CONFIG_PACKAGE_firewall4 is not set
 CONFIG_PACKAGE_firewall=y
 CONFIG_PACKAGE_iptables=y
 CONFIG_PACKAGE_dnsmasq-full=y
@@ -142,6 +144,11 @@ CONFIG_PACKAGE_iptables-mod-filter=y
 CONFIG_PACKAGE_iptables-mod-ipopt=y
 CONFIG_PACKAGE_iptables-mod-nat-extra=y
 
+# ========== UPnP (基础插件，所有固件必备) ==========
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_miniupnpd-iptables=y
+# CONFIG_PACKAGE_miniupnpd-nftables is not set
+
 # ========== 构建参数 ==========
 CONFIG_CCACHE=y
 CONFIG_CCACHE_COMPRESS=y
@@ -184,7 +191,7 @@ CONFIG_PACKAGE_luci-app-wol=n
 # CONFIG_PACKAGE_luci-app-lucky=y
 # CONFIG_PACKAGE_luci-app-dockerman=y
 # CONFIG_PACKAGE_luci-app-oaf=y
-# CONFIG_PACKAGE_luci-app-upnp=y
+# (UPnP 已移至核心包区域，不再可选)
 
 # --- 系统工具 ---
 # CONFIG_PACKAGE_luci-app-ttyd=y

@@ -67,10 +67,10 @@ echo "CONFIG_PACKAGE_iptables-mod-filter=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-ipopt=y" >> ./.config
 echo "CONFIG_PACKAGE_iptables-mod-nat-extra=y" >> ./.config
 
-if [ -n "$WRT_PACKAGE" ] && [[ "$WRT_PACKAGE" == *"luci-app-upnp"* ]]; then
-    echo "CONFIG_PACKAGE_miniupnpd-iptables=y" >> ./.config
-    echo "# CONFIG_PACKAGE_miniupnpd-nftables is not set" >> ./.config
-fi
+# UPnP (基础插件，所有固件强制包含)
+echo "CONFIG_PACKAGE_luci-app-upnp=y" >> ./.config
+echo "CONFIG_PACKAGE_miniupnpd-iptables=y" >> ./.config
+echo "# CONFIG_PACKAGE_miniupnpd-nftables is not set" >> ./.config
 
 if [ -n "$WRT_PACKAGE" ]; then
     echo -e "$WRT_PACKAGE" >> ./.config
