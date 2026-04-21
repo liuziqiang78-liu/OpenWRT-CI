@@ -149,7 +149,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-
 /* ═══════════════════════════════════════════
    Summary
    ═══════════════════════════════════════════ */
-.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
 .si{padding:14px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd)}
 .si .sl{font-size:.6em;color:var(--t3);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .si .sv{font-size:.92em;font-weight:800;margin-top:3px;color:var(--t1)}
@@ -176,7 +176,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-
   .shell{padding:0 12px 60px}.card{padding:20px}
   .hdr-in{height:52px}.hdr-t{font-size:.95em}
   .pg{grid-template-columns:repeat(2,1fr)}.dg{grid-template-columns:repeat(2,1fr)}
-  .r2{grid-template-columns:1fr}.sg{grid-template-columns:1fr 1fr}
+  .r2{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:380px){.pg{grid-template-columns:1fr}.dg{grid-template-columns:1fr}.sg{grid-template-columns:1fr}}
 </style>
@@ -295,12 +295,21 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-
   <div class="ch"><div class="ch-i c">📋</div><div class="ch-t">配置摘要</div></div>
   <div class="sg">
     <div class="si"><div class="sl">源码</div><div class="sv" id="ss">—</div></div>
+    <div class="si"><div class="sl">分支</div><div class="sv" id="ssb">—</div></div>
     <div class="si"><div class="sl">设备</div><div class="sv" id="sd">未选择</div></div>
     <div class="si"><div class="sl">平台</div><div class="sv" id="sp">—</div></div>
     <div class="si"><div class="sl">主题</div><div class="sv" id="sth">—</div></div>
-    <div class="si"><div class="sl">插件</div><div class="sv" id="spl">0</div></div>
+    <div class="si"><div class="sl">防火墙</div><div class="sv" id="sfw">iptables</div></div>
+    <div class="si"><div class="sl">管理 IP</div><div class="sv" id="sip">—</div></div>
     <div class="si"><div class="sl">WiFi</div><div class="sv" id="sw">—</div></div>
+    <div class="si"><div class="sl">WiFi 密码</div><div class="sv" id="swp">—</div></div>
+    <div class="si"><div class="sl">用户名</div><div class="sv" id="su">—</div></div>
+    <div class="si"><div class="sl">密码</div><div class="sv" id="supw">—</div></div>
+    <div class="si"><div class="sl">NSS</div><div class="sv" id="sns">—</div></div>
+    <div class="si"><div class="sl">测试模式</div><div class="sv" id="stm">否</div></div>
+    <div class="si"><div class="sl">额外插件</div><div class="sv" id="sex">—</div></div>
   </div>
+  <div id="sp-list" style="margin-top:14px;font-size:.72em;color:var(--t2);line-height:1.7"></div>
 </div>
 
 <button type="submit" class="btn-go" id="sb">⚡ 开始编译</button>
@@ -349,12 +358,12 @@ function saC(){P[cT].forEach(p=>sPl[p.p]=p.n);rP(cT);uS()}
 function daC(){P[cT].forEach(p=>delete sPl[p.p]);rP(cT);uC();uS()}
 function uC(){document.getElementById('cc').textContent=`已选 ${P[cT].filter(p=>sPl[p.p]).length}`;document.getElementById('tc').textContent=`已选 ${Object.keys(sPl).length}`}
 function uTC(){Object.keys(P).forEach(c=>{const t=document.querySelector(`.pt[data-c="${c}"]`);if(t)t.querySelector('.nm').textContent=P[c].length})}
-function uS(){const d=selD;document.getElementById('sd').textContent=d?d.n:'未选择';document.getElementById('sp').textContent=d?d.p:'—';document.getElementById('spl').textContent=Object.keys(sPl).length;const sr=document.getElementById('wrt_source').value;document.getElementById('ss').textContent=sr.split('/')[1]||sr;document.getElementById('sth').textContent=document.getElementById('theme').value;document.getElementById('sw').textContent=document.getElementById('wifi_ssid').value||'—'}
+function uS(){const d=selD;document.getElementById('sd').textContent=d?d.n:'未选择';document.getElementById('sp').textContent=d?d.p:'—';document.getElementById('spl').textContent=Object.keys(sPl).length;const sr=document.getElementById('wrt_source').value;document.getElementById('ss').textContent=sr.split('/')[1]||sr;document.getElementById('ssb').textContent=document.getElementById('wrt_branch').value||'—';document.getElementById('sth').textContent=document.getElementById('theme').value;document.getElementById('sip').textContent=document.getElementById('lan_ip').value||'—';document.getElementById('sw').textContent=document.getElementById('wifi_ssid').value||'—';document.getElementById('swp').textContent=document.getElementById('wifi_password').value?'••••••••':'无';document.getElementById('su').textContent=document.getElementById('login_username').value||'—';document.getElementById('supw').textContent=document.getElementById('login_password').value?'••••••':'无';const isNS=NS.includes(sr);document.getElementById('sns').textContent=isNS?document.getElementById('nv').value:'不适用';document.getElementById('stm').textContent=document.getElementById('test_mode').checked?'是':'否';const ex=document.getElementById('other_plugins').value.trim();document.getElementById('sex').textContent=ex?ex.split(',').length+' 个':'无';const list=document.getElementById('sp-list');const cats=[['🔐 科学上学',P.proxy],['💾 存储',P.storage],['🌐 网络',P.network],['🎨 主题',P.theme],['🔧 系统',P.system]];let html='';cats.forEach(([label,items])=>{const sel=items.filter(p=>sPl[p.p]);if(sel.length)html+=`<div style="margin-bottom:6px"><strong style="color:var(--t1)">${label}</strong>：${sel.map(p=>p.n).join('、')}</div>`});list.innerHTML=html||'<div style="color:var(--t3)">未选择任何插件</div>'}
 
 let sTO;function dS(){clearTimeout(sTO);sTO=setTimeout(fP,150)}
 function fP(){const q=document.getElementById('ps').value.toLowerCase().trim();if(!q){rP(cT);return}const r=[];Object.keys(P).forEach(c=>P[c].forEach(p=>{if(p.n.toLowerCase().includes(q)||p.p.toLowerCase().includes(q))r.push({...p,c})}));const g=document.getElementById('pg');g.innerHTML='';if(!r.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t3)">无匹配</div>';return}r.forEach(p=>{const on=sPl[p.p];const e=document.createElement('div');e.className='pc'+(on?' on':'');e.innerHTML=`<div class="tp"><span class="pn">${p.n}</span><span class="ck">${on?'✓':''}</span></div><div class="pd">${p.d}</div>`;e.onclick=()=>tP(p.p,p.n);g.appendChild(e)})}
 
-['lan_ip','login_username','wifi_ssid','wifi_password','wrt_source','theme'].forEach(id=>{const e=document.getElementById(id);e.addEventListener('input',uS);e.addEventListener('change',uS)});
+['lan_ip','login_username','login_password','wifi_ssid','wifi_password','wrt_source','wrt_branch','theme','other_plugins','nv'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',uS);e.addEventListener('change',uS)}});document.getElementById('test_mode').addEventListener('change',uS);
 
 function sMo(){setInterval(async()=>{const t=localStorage.getItem('gh_t');try{const r=await fetch('https://api.github.com/repos/liuziqiang78-liu/OpenWRT-CI/actions/workflows/Custom-Build.yml/runs?status=in_progress&per_page=1',{headers:{'Accept':'application/vnd.github.v3+json','Authorization':t?`token ${t}`:''}});if(!r.ok)return;const d=await r.json();if(d.total_count>0)sTo(d.workflow_runs[0])}catch(e){}},15000)}
 function sTo(run){let e=document.getElementById('toast');if(!e){e=document.createElement('div');e.id='toast';e.className='toast';document.body.appendChild(e)}if(run.status==='in_progress'){e.innerHTML=`<div style="font-weight:800;margin-bottom:6px">⚡ 编译中…</div><div style="font-size:.72em;color:var(--t2)">${Math.floor((Date.now()-new Date(run.created_at))/60000)} 分钟</div><a href="${run.html_url}" target="_blank" style="display:block;margin-top:8px">查看详情 →</a>`}else if(run.conclusion==='success'){e.innerHTML=`<div style="font-weight:800;color:var(--grn);margin-bottom:6px">✅ 编译成功</div><a href="https://github.com/liuziqiang78-liu/OpenWRT-CI/releases" target="_blank">下载固件 →</a>`;setTimeout(()=>e.remove(),10000)}else if(run.conclusion==='failure'){e.innerHTML=`<div style="font-weight:800;color:var(--red);margin-bottom:6px">❌ 编译失败</div><a href="${run.html_url}" target="_blank">查看日志 →</a>`;setTimeout(()=>e.remove(),10000)}}
