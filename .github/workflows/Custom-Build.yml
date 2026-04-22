@@ -747,7 +747,7 @@ jobs:
           if [ -n "$HOSTAPD_FOUND" ] && [ -f "$HOSTAPD_FOUND" ]; then
             echo "✅ 找到 hostapd.c: $HOSTAPD_FOUND"
             cp "$HOSTAPD_FOUND" "${HOSTAPD_FOUND}.backup"
-            sed -i 's/\(hapd->iface->conf->he_mu_edca\.he_qos_info &=\s*0xfff0;\)/#ifdef CONFIG_IEEE80211AX\n\1\n#endif/' "$HOSTAPD_FOUND"
+            awk '/hapd->iface->conf->he_mu_edca\.he_qos_info &=/{print "#ifdef CONFIG_IEEE80211AX"; print; print "#endif"; next} 1' "$HOSTAPD_FOUND" > "${HOSTAPD_FOUND}.tmp" && mv "${HOSTAPD_FOUND}.tmp" "$HOSTAPD_FOUND"
             echo "✅ hostapd 修复完成"
           fi
           
