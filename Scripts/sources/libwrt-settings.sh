@@ -92,6 +92,12 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]] || [[ "${WRT_TARGET^^}" == *"IPQ"* 
         echo "✅ QUALCOMMAX nowifi DTS 已配置"
     fi
 
+    # ------ 修复 NSS 与 dnsmasq conntrack 冲突 ------
+    # NSS 修改了 nf_conntrack_ecache 事件回调，dnsmasq-full 的 conntrack 功能会受影响
+    # 导致 DHCPv4 无法正常工作（IPv6 走 odhcpd 不受影响）
+    echo "CONFIG_PACKAGE_dnsmasq_full_conntrack=n" >> .config
+    echo "✅ 高通平台：禁用 dnsmasq conntrack 避免 NSS 冲突"
+
     echo ""
     echo "✅ LiBwrt NSS 配置完成"
 fi

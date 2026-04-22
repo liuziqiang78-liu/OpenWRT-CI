@@ -11,8 +11,6 @@
 CONFIG_PACKAGE_firewall=y
 CONFIG_PACKAGE_iptables=y
 CONFIG_PACKAGE_dnsmasq-full=y
-# 禁用 conntrack，避免与 NSS conntrack 事件回调冲突导致 DHCP 失效
-CONFIG_PACKAGE_dnsmasq_full_conntrack=n
 # 禁用 nftset，当前 iptables 配置下 fw4 表不存在，nftset 无意义
 CONFIG_PACKAGE_dnsmasq_full_nftset=n
 CONFIG_PACKAGE_odhcpd=y

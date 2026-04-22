@@ -97,8 +97,6 @@ fi
 # ========== 核心系统包 ==========
 echo "# 核心系统包" >> ./.config
 echo "CONFIG_PACKAGE_dnsmasq-full=y" >> ./.config
-# 禁用 conntrack，避免与 NSS conntrack 事件回调冲突导致 DHCP 失效
-echo "CONFIG_PACKAGE_dnsmasq_full_conntrack=n" >> ./.config
 # 禁用 nftset，当前 iptables 配置下 fw4 表不存在，nftset 无意义
 echo "CONFIG_PACKAGE_dnsmasq_full_nftset=n" >> ./.config
 echo "CONFIG_PACKAGE_odhcpd=y" >> ./.config
