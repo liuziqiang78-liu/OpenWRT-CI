@@ -1,0 +1,221 @@
+# ──────────────────────────────────────────────
+# OpenWrt 云编译工作流
+# 仓库: liuziqiang78-liu/openwrt-6.x
+# ──────────────────────────────────────────────
+name: 🚀 Build OpenWrt Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '源码分支'
+        required: true
+        default: 'main-nss'
+        type: choice
+        options:
+          - main-nss
+          - kernel-6.6
+      target:
+        description: 'Target 平台'
+        required: true
+        default: 'qualcommax'
+        type: choice
+        options:
+          - qualcommax
+          - ipq40xx
+          - ipq806x
+      subtarget:
+        description: 'Subtarget 子目标 (qualcommax 专用)'
+        required: false
+        default: 'ipq807x'
+        type: choice
+        options:
+          - ipq807x
+          - ipq60xx
+          - ipq50xx
+      profile:
+        description: '设备型号 (留空=全部)'
+        required: false
+        default: ''
+        type: string
+      plugins:
+        description: '额外插件 (空格分隔, 如 luci-app-passwall luci-app-adguardhome)'
+        required: false
+        default: ''
+        type: string
+      feed_packages:
+        description: 'Feed 包开关 (逗号分隔: nss,sqm_nss,routing,telephony,video)'
+        required: false
+        default: 'nss,sqm_nss,routing'
+        type: string
+      wifi_config:
+        description: 'WiFi 配置 (2.4G SSID|密码,5G SSID|密码)'
+        required: false
+        default: ''
+        type: string
+      root_password:
+        description: 'Root 密码 (留空=无密码)'
+        required: false
+        default: ''
+        type: string
+      lan_ip:
+        description: 'LAN IP 地址'
+        required: false
+        default: '192.168.1.1'
+        type: string
+      custom_config:
+        description: '自定义 .config 附加内容 (base64编码)'
+        required: false
+        default: ''
+        type: string
+      enable_ccache:
+        description: '启用 ccache 加速'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      upload_artifacts:
+        description: '上传固件到 Actions'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  REPO_URL: https://github.com/liuziqiang78-liu/openwrt-6.x
+  FEEDS_CONF: feeds.conf.default
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 720
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Clone OpenWrt Source
+        run: |
+          git clone --depth 1 --single-branch -b ${{ inputs.branch }} ${{ env.REPO_URL }} openwrt
+          cd openwrt
+
+      - name: 📥 Update & Install Feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: ⚙️ Generate Config
+        run: |
+          cd openwrt
+
+          # 基础 target 配置
+          if [ "${{ inputs.target }}" = "qualcommax" ]; then
+            echo "CONFIG_TARGET_qualcommax=y" > .config
+            echo "CONFIG_TARGET_qualcommax_${{ inputs.subtarget }}=y" >> .config
+            if [ -n "${{ inputs.profile }}" ]; then
+              echo "CONFIG_TARGET_DEVICE_qualcommax_${{ inputs.subtarget }}_DEVICE_${{ inputs.profile }}=y" >> .config
+            fi
+          else
+            echo "CONFIG_TARGET_${{ inputs.target }}=y" > .config
+            if [ -n "${{ inputs.profile }}" ]; then
+              echo "CONFIG_TARGET_DEVICE_${{ inputs.target }}_DEVICE_${{ inputs.profile }}=y" >> .config
+            fi
+          fi
+
+          # NSS 支持
+          echo "# NSS Support" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-drv=y" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-dp=y" >> .config
+          echo "CONFIG_PACKAGE_kmod-nss-ifb=y" >> .config
+
+          # LuCI 中文
+          echo "# LuCI" >> .config
+          echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
+
+          # 插件
+          if [ -n "${{ inputs.plugins }}" ]; then
+            echo "" >> .config
+            echo "# Custom Plugins" >> .config
+            for pkg in ${{ inputs.plugins }}; do
+              echo "CONFIG_PACKAGE_${pkg}=y" >> .config
+            done
+          fi
+
+          # ccache
+          if [ "${{ inputs.enable_ccache }}" = "true" ]; then
+            echo "CONFIG_CCACHE=y" >> .config
+          fi
+
+          # 自定义配置
+          if [ -n "${{ inputs.custom_config }}" ]; then
+            echo "${{ inputs.custom_config }}" | base64 -d >> .config
+          fi
+
+          # 生成完整配置
+          make defconfig
+
+      - name: 📋 Config Summary
+        run: |
+          cd openwrt
+          echo "### 编译配置" >> $GITHUB_STEP_SUMMARY
+          echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
+          echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
+          echo "| 分支 | \`${{ inputs.branch }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | \`${{ inputs.target }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Subtarget | \`${{ inputs.subtarget }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 设备 | \`${{ inputs.profile:-全部}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 插件数 | \`$(grep '=y' .config | grep 'CONFIG_PACKAGE_' | wc -l)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 内核 | \`$(grep 'Linux.*Kernel' .config 2>/dev/null || echo 'N/A')\` |" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔨 Download Toolchain
+        run: |
+          cd openwrt
+          make download -j$(nproc) V=s 2>&1 | tail -20
+
+      - name: 🔧 Build Toolchain
+        run: |
+          cd openwrt
+          make tools/install -j$(nproc) V=s 2>&1 | tail -10
+          make toolchain/install -j$(nproc) V=s 2>&1 | tail -10
+
+      - name: 🏗️ Build Firmware
+        run: |
+          cd openwrt
+          make -j$(nproc+1) V=s 2>&1 | tee build.log
+
+      - name: 📤 Upload Firmware
+        if: inputs.upload_artifacts == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-${{ inputs.target }}-${{ inputs.subtarget }}-${{ github.run_number }}
+          path: |
+            openwrt/bin/targets/**/*.bin
+            openwrt/bin/targets/**/*.itb
+            openwrt/bin/targets/**/*.img
+            openwrt/bin/targets/**/*.ubi
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: 📊 Build Summary
+        if: always()
+        run: |
+          cd openwrt
+          echo "### 编译结果" >> $GITHUB_STEP_SUMMARY
+          if [ -f build.log ]; then
+            ERRORS=$(grep -c "ERROR" build.log 2>/dev/null || echo 0)
+            WARNINGS=$(grep -c "WARNING" build.log 2>/dev/null || echo 0)
+            echo "| 指标 | 值 |" >> $GITHUB_STEP_SUMMARY
+            echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
+            echo "| 错误数 | ${ERRORS} |" >> $GITHUB_STEP_SUMMARY
+            echo "| 警告数 | ${WARNINGS} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 固件文件" >> $GITHUB_STEP_SUMMARY
+          find bin/targets/ -name "*.bin" -o -name "*.itb" -o -name "*.img" -o -name "*.ubi" 2>/dev/null | head -20 | while read f; do
+            echo "- \`${f}\` ($(du -sh "$f" | cut -f1))" >> $GITHUB_STEP_SUMMARY
+          done

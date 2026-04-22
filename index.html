@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<title>OpenWRT-6.x 云编译平台</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+<style>
+:root{
+  --bg:#0a0e1a;--bg2:#0d1225;
+  --s1:rgba(12,18,36,.7);--s2:rgba(16,24,48,.6);
+  --brd:rgba(90,130,255,.08);--brd-h:rgba(90,130,255,.22);
+  --cyan:#38bdf8;--c-d:rgba(56,189,248,.1);--c-g:rgba(56,189,248,.18);
+  --vio:#a78bfa;--v-d:rgba(167,139,250,.1);
+  --grn:#34d399;--red:#f87171;--amb:#fbbf24;
+  --t1:#e8ecf4;--t2:#8b99b5;--t3:#4a5578;
+  --r:16px;--r2:12px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --sh:0 2px 20px rgba(0,0,0,.35);
+  --sh-g:0 0 30px rgba(56,189,248,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.65;overflow-x:hidden;font-size:14px}
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ambient::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.025) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000,transparent)}
+.ambient::after{content:'';position:absolute;top:-30%;left:-10%;width:55vw;height:55vw;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.06),transparent 65%);filter:blur(80px)}
+.orb{position:absolute;bottom:-25%;right:-8%;width:45vw;height:45vw;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.05),transparent 65%);filter:blur(80px)}
+.shell{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px 80px}
+.hdr{position:sticky;top:0;z-index:100;padding:0 20px;background:rgba(10,14,26,.82);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-bottom:1px solid var(--brd)}
+.hdr-in{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--vio));display:grid;place-items:center;font-size:17px;box-shadow:0 0 24px var(--c-g)}
+.hdr-t{font-size:1.05em;font-weight:800;letter-spacing:-.03em}
+.hdr-s{font-size:.72em;color:var(--t2);margin-top:1px;font-weight:500}
+.pill{padding:3px 12px;border-radius:20px;font-size:.65em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--c-d);color:var(--cyan);border:1px solid rgba(56,189,248,.15)}
+.card{background:var(--s1);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid var(--brd);border-radius:var(--r);padding:28px;margin-bottom:20px;transition:border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.card:hover{border-color:var(--brd-h);box-shadow:var(--sh-g)}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.ch-i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.ch-i.c{background:var(--c-d)}.ch-i.v{background:var(--v-d)}.ch-i.g{background:rgba(52,211,153,.1)}.ch-i.a{background:rgba(251,191,36,.1)}
+.ch-t{font-size:.92em;font-weight:800;letter-spacing:-.01em}
+.ch-b{margin-left:auto;padding:3px 11px;border-radius:20px;font-size:.62em;font-weight:800;letter-spacing:.04em;background:var(--c-d);color:var(--cyan)}
+.ch-line{height:1px;background:linear-gradient(90deg,var(--brd),transparent);margin:0 0 0}
+.f{margin-bottom:16px}.f:last-child{margin-bottom:0}
+.lb{display:block;margin-bottom:7px;font-size:.75em;color:var(--t2);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.lb .req{color:var(--red);margin-left:2px}
+.inp,.sel,textarea{width:100%;padding:11px 15px;background:rgba(6,10,22,.7);border:1px solid var(--brd);border-radius:var(--r2);font-size:14px;color:var(--t1);outline:none;transition:border-color .25s var(--ease),box-shadow .25s var(--ease);font-family:inherit}
+.inp::placeholder{color:var(--t3)}
+.inp:focus,.sel:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--c-d),var(--sh-g)}
+.sel{-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238b99b5' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+textarea{min-height:80px;resize:vertical}
+.hint{margin-top:8px;padding:10px 14px;border-radius:var(--r2);font-size:.72em;line-height:1.55;background:var(--c-d);border:1px solid rgba(56,189,248,.08);color:var(--cyan)}
+.hint.w{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.1);color:var(--amb)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:600px){.r2,.r3{grid-template-columns:1fr}}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 18px;border-radius:22px;font-size:.78em;font-weight:700;background:rgba(12,18,36,.5);border:1px solid transparent;color:var(--t2);cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;flex-shrink:0;user-select:none}
+.tab:hover{color:var(--t1);background:rgba(20,30,55,.6)}
+.tab.on{background:var(--c-d);color:var(--cyan);border-color:rgba(56,189,248,.2);box-shadow:0 0 18px rgba(56,189,248,.08)}
+
+/* Device Grid */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.dc{padding:15px 14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
+.dc:hover{border-color:var(--brd-h);transform:translateY(-1px)}
+.dc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 28px rgba(56,189,248,.1)}
+.dc .n{font-weight:800;font-size:.8em}
+.dc .c{font-size:.68em;color:var(--t2);margin-top:3px}
+.dc.on .c{color:rgba(56,189,248,.6)}
+.dc .dot{position:absolute;top:11px;right:11px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
+.dc.on .dot{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px var(--c-g)}
+
+/* Plugin */
+.ptabs{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:wrap}
+.ptabs::-webkit-scrollbar{display:none}
+.pt{padding:7px 15px;border-radius:20px;font-size:.76em;font-weight:600;background:rgba(12,18,36,.4);border:1px solid transparent;color:var(--t2);cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;flex-shrink:0;user-select:none}
+.pt:hover{color:var(--t1)}.pt.on{background:var(--c-d);color:var(--cyan);border-color:rgba(56,189,248,.18)}
+.pt .nm{display:inline-block;min-width:16px;text-align:center;background:rgba(56,189,248,.1);color:var(--cyan);border-radius:8px;padding:0 5px;font-size:.82em;font-weight:800;margin-left:3px}
+.sbar{position:relative;margin-bottom:14px}
+.sbar input{width:100%;padding:10px 14px 10px 38px;background:rgba(6,10,22,.5);border:1px solid var(--brd);border-radius:22px;font-size:13px;color:var(--t1);outline:none;transition:border-color .25s var(--ease)}
+.sbar input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--c-d)}
+.sbar input::placeholder{color:var(--t3)}
+.sbar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
+.abar{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.bx{padding:5px 13px;font-size:.7em;font-weight:700;border-radius:18px;border:1px solid rgba(56,189,248,.15);background:transparent;color:var(--cyan);cursor:pointer;transition:all .2s var(--ease)}
+.bx:hover{background:var(--c-d)}
+.ac{margin-left:auto;font-size:.7em;color:var(--t3)}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.pc{padding:14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.45);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
+.pc:active{transform:scale(.97)}.pc:hover{border-color:var(--brd-h)}
+.pc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 22px rgba(56,189,248,.08)}
+.pc .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+.pc .pn{font-weight:800;font-size:.8em;word-break:break-all}
+.pc .pd{font-size:.68em;color:var(--t2);line-height:1.45;margin-top:5px}
+.pc.on .pd{color:rgba(232,236,244,.65)}
+.pc .ck{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
+.pc.on .ck{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px var(--c-g)}
+
+/* Toggle */
+.cr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:border-color .25s var(--ease)}
+.cr:hover{border-color:var(--brd-h)}
+.cr input[type=checkbox]{width:18px;height:18px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
+.cr .ct{font-size:.82em;font-weight:700}.cr .ci{font-size:.7em;color:var(--t3);margin-left:auto}
+
+/* Summary */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.si{padding:14px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd)}
+.si .sl{font-size:.6em;color:var(--t3);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.si .sv{font-size:.92em;font-weight:800;margin-top:3px;color:var(--t1)}
+
+/* Submit */
+.btn-go{display:block;width:100%;padding:16px;background:linear-gradient(135deg,var(--cyan),var(--vio));color:var(--bg);border:none;border-radius:var(--r);font-size:.95em;font-weight:900;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .25s var(--ease);position:relative;overflow:hidden;box-shadow:0 4px 30px rgba(56,189,248,.22)}
+.btn-go::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 25%,rgba(255,255,255,.14) 50%,transparent 75%);transform:translateX(-100%);transition:transform .55s var(--ease)}
+.btn-go:hover::before{transform:translateX(100%)}.btn-go:active{transform:scale(.97)}
+.btn-go:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}.btn-go:disabled::before{display:none}
+
+/* Log Panel */
+.log-panel{background:rgba(6,10,22,.85);border:1px solid var(--brd);border-radius:var(--r);padding:20px;margin-top:20px;display:none;max-height:400px;overflow-y:auto;font-family:'JetBrains Mono','Fira Code',monospace;font-size:.78em;line-height:1.6;color:var(--t2)}
+.log-panel.show{display:block}
+.log-panel .log-line{margin-bottom:2px}
+.log-panel .log-ok{color:var(--grn)}.log-panel .log-err{color:var(--red)}.log-panel .log-warn{color:var(--amb)}.log-panel .log-info{color:var(--cyan)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--s2);backdrop-filter:blur(20px);border:1px solid var(--brd-h);border-radius:var(--r);padding:16px 22px;max-width:340px;box-shadow:var(--sh);animation:tin .4s cubic-bezier(.16,1,.3,1);font-size:.82em}
+@keyframes tin{from{opacity:0;transform:translateY(18px) scale(.95)}}
+.toast .tt{font-weight:800;margin-bottom:4px}.toast .tb{font-size:.78em;color:var(--t2)}
+
+/* Spinner */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(56,189,248,.2);border-top-color:var(--cyan);border-radius:50%;animation:rot .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes rot{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="ambient"><div class="orb"></div></div>
+
+<header class="hdr">
+<div class="hdr-in">
+  <div class="hdr-l">
+    <div class="hdr-logo">🔧</div>
+    <div>
+      <div class="hdr-t">OpenWRT-6.x 云编译</div>
+      <div class="hdr-s">LiBwrt / IPQ NSS 全功能固件编译平台</div>
+    </div>
+  </div>
+  <span class="pill">v2.0</span>
+</div>
+</header>
+
+<div class="shell">
+
+<!-- ═══════ 1. GitHub 认证 ═══════ -->
+<div class="card" id="card-auth">
+<div class="ch"><div class="ch-i c">🔑</div><div class="ch-t">GitHub 认证</div><span class="ch-b">必填</span></div>
+<div class="f">
+  <label class="lb">Personal Access Token <span class="req">*</span></label>
+  <input type="password" class="inp" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+  <div class="hint">需要 <code>repo</code> 和 <code>workflow</code> 权限。<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--cyan)">创建 Token →</a></div>
+</div>
+<div class="r2">
+  <div class="f">
+    <label class="lb">仓库 Owner</label>
+    <input type="text" class="inp" id="gh-owner" value="liuziqiang78-liu" placeholder="liuziqiang78-liu">
+  </div>
+  <div class="f">
+    <label class="lb">仓库名</label>
+    <input type="text" class="inp" id="gh-repo" value="openwrt-6.x" placeholder="openwrt-6.x">
+  </div>
+</div>
+</div>
+
+<!-- ═══════ 2. 编译设置 ═══════ -->
+<div class="card" id="card-build">
+<div class="ch"><div class="ch-i v">⚙️</div><div class="ch-t">编译设置</div></div>
+
+<div class="f">
+  <label class="lb">源码分支 <span class="req">*</span></label>
+  <div class="tabs" id="branch-tabs">
+    <div class="tab on" data-val="main-nss">🌿 main-nss (6.12内核)</div>
+    <div class="tab" data-val="kernel-6.6">🌿 kernel-6.6 (6.6内核)</div>
+  </div>
+</div>
+
+<div class="r2">
+  <div class="f">
+    <label class="lb">Target 平台 <span class="req">*</span></label>
+    <select class="sel" id="sel-target">
+      <option value="qualcommax">qualcommax (IPQ807x/60xx/50xx)</option>
+      <option value="ipq40xx">ipq40xx</option>
+      <option value="ipq806x">ipq806x</option>
+    </select>
+  </div>
+  <div class="f">
+    <label class="lb">Subtarget</label>
+    <select class="sel" id="sel-subtarget">
+      <option value="ipq807x">ipq807x</option>
+      <option value="ipq60xx">ipq60xx</option>
+      <option value="ipq50xx">ipq50xx</option>
+    </select>
+  </div>
+</div>
+
+<div class="f">
+  <label class="lb">LAN IP 地址</label>
+  <input type="text" class="inp" id="lan-ip" value="192.168.1.1" placeholder="192.168.1.1">
+</div>
+
+<div class="hint w">⚠️ 选择 qualcommax 平台时才需要选择 Subtarget。ipq40xx / ipq806x 无子目标。</div>
+</div>
+
+<!-- ═══════ 3. 设备型号 ═══════ -->
+<div class="card" id="card-device">
+<div class="ch"><div class="ch-i g">📱</div><div class="ch-t">设备型号</div><span class="ch-b" id="dev-count">0 已选</span></div>
+<div class="tabs" id="target-tabs">
+  <div class="tab on" data-t="qualcommax" data-s="ipq807x">IPQ807x</div>
+  <div class="tab" data-t="qualcommax" data-s="ipq60xx">IPQ60xx</div>
+  <div class="tab" data-t="qualcommax" data-s="ipq50xx">IPQ50xx</div>
+  <div class="tab" data-t="ipq40xx">IPQ40xx</div>
+  <div class="tab" data-t="ipq806x">IPQ806x</div>
+</div>
+<div class="dg" id="device-grid"></div>
+<div style="margin-top:14px">
+  <label class="cr" onclick="toggleAllDevices()">
+    <input type="checkbox" id="dev-all">
+    <span class="ct">全选当前子目标设备</span>
+  </label>
+</div>
+</div>
+
+<!-- ═══════ 4. 插件选择 ═══════ -->
+<div class="card" id="card-plugins">
+<div class="ch"><div class="ch-i a">🧩</div><div class="ch-t">插件选择</div><span class="ch-b" id="plug-count">0 已选</span></div>
+
+<div class="sbar"><input type="text" id="plug-search" placeholder="搜索插件名..."></div>
+<div class="abar">
+  <button class="bx" onclick="plugAll()">全选</button>
+  <button class="bx" onclick="plugNone()">全不选</button>
+  <button class="bx" onclick="plugInvert()">反选</button>
+  <span class="ac" id="plug-total"></span>
+</div>
+
+<div class="ptabs" id="plug-tabs"></div>
+<div class="pg" id="plug-grid"></div>
+</div>
+
+<!-- ═══════ 5. 高级选项 ═══════ -->
+<div class="card" id="card-advanced">
+<div class="ch"><div class="ch-i v">🛠️</div><div class="ch-t">高级选项</div></div>
+<div class="f">
+  <label class="cr">
+    <input type="checkbox" id="opt-ccache" checked>
+    <span class="ct">启用 ccache 编译加速</span>
+    <span class="ci">推荐</span>
+  </label>
+</div>
+<div class="f">
+  <label class="cr">
+    <input type="checkbox" id="opt-upload" checked>
+    <span class="ct">编译完成后上传固件</span>
+    <span class="ci">保留 7 天</span>
+  </label>
+</div>
+<div class="f">
+  <label class="lb">Root 密码 (留空=无密码)</label>
+  <input type="text" class="inp" id="root-pw" placeholder="留空则不设密码">
+</div>
+<div class="f">
+  <label class="lb">WiFi 配置 (格式: SSID|密码|频段)</label>
+  <textarea id="wifi-cfg" placeholder="例:&#10;MyWiFi_2G|password123|2.4g&#10;MyWiFi_5G|password123|5g"></textarea>
+</div>
+<div class="f">
+  <label class="lb">自定义 .config (base64 编码，可选)</label>
+  <textarea id="custom-config" placeholder="粘贴 base64 编码的额外 .config 配置"></textarea>
+</div>
+</div>
+
+<!-- ═══════ 6. 编译概览 ═══════ -->
+<div class="card" id="card-summary">
+<div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
+<div class="sg" id="summary-grid">
+  <div class="si"><div class="sl">分支</div><div class="sv" id="s-branch">main-nss</div></div>
+  <div class="si"><div class="sl">平台</div><div class="sv" id="s-target">qualcommax</div></div>
+  <div class="si"><div class="sl">子目标</div><div class="sv" id="s-subtarget">ipq807x</div></div>
+  <div class="si"><div class="sl">设备</div><div class="sv" id="s-devices">0</div></div>
+  <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
+  <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
+</div>
+<div style="margin-top:8px;font-size:.7em;color:var(--t3)" id="s-plugin-list"></div>
+</div>
+
+<!-- ═══════ 提交 ═══════ -->
+<button class="btn-go" id="btn-build" onclick="startBuild()">🚀 开始编译固件</button>
+
+<!-- ═══════ 日志 ═══════ -->
+<div class="log-panel" id="log-panel"></div>
+
+</div><!-- /shell -->
+
+<script>
+// ═══════════════════════════════════════
+//  设备数据
+// ═══════════════════════════════════════
+const DEVICES = {
+  'qualcommax-ipq807x': [
+    {id:'redmi_ax6',n:'Redmi AX6',c:'IPQ8071A'},
+    {id:'xiaomi_ax3600',n:'Xiaomi AX3600',c:'IPQ8071A'},
+    {id:'xiaomi_ax9000',n:'Xiaomi AX9000',c:'IPQ8074A'},
+    {id:'qnap_301w',n:'Qnap 301W',c:'IPQ8072A'},
+    {id:'zte_mf269',n:'ZTE MF269',c:'IPQ8071A'},
+    {id:'buffelo_wxr-5950ax12',n:'Buffalo WXR-5950AX12',c:'IPQ8074A'},
+    {id:'linksys_mx4200',n:'Linksys MX4200',c:'IPQ8074A'},
+    {id:'linksys_mx4300',n:'Linksys MX4300',c:'IPQ8074A'},
+    {id:'linksys_mx8500',n:'Linksys MX8500',c:'IPQ8074A'},
+    {id:'netgear_wax218',n:'Netgear WAX218',c:'IPQ8074A'},
+    {id:'netgear_rax120',n:'Netgear RAX120v2',c:'IPQ8074A'},
+    {id:'prpl_haze',n:'Prpl Haze',c:'IPQ8072A'},
+    {id:'360_v6',n:'360 V6',c:'IPQ8071A'},
+    {id:'jdcloud_re-cs-02',n:'JDCloud RE-CS-02',c:'IPQ8074A'},
+  ],
+  'qualcommax-ipq60xx': [
+    {id:'redmi_ax5',n:'Redmi AX5',c:'IPQ6018'},
+    {id:'xiaomi_ax1800',n:'Xiaomi AX1800',c:'IPQ6018'},
+    {id:'xiaomi_ax3600-s',n:'Xiaomi AX3600 (slave)',c:'IPQ6018'},
+    {id:'zte_e8820s',n:'ZTE E8820S',c:'IPQ6010'},
+    {id:'zte_e8820v2',n:'ZTE E8820V2',c:'IPQ6005'},
+    {id:'cmcc_rax3000m',n:'CMCC RAX3000M',c:'IPQ6010'},
+    {id:'jdcloud_luban',n:'JDCloud 鲁班',c:'IPQ6018'},
+    {id:'glinet_mt3000',n:'GL.iNet MT3000',c:'IPQ6000'},
+  ],
+  'qualcommax-ipq50xx': [
+    {id:'ipq5018-generic',n:'IPQ5018 Generic',c:'IPQ5018'},
+    {id:'ipq5010-generic',n:'IPQ5010 Generic',c:'IPQ5010'},
+  ],
+  'ipq40xx': [
+    {id:'asus_rt-acrh17',n:'ASUS RT-ACRH17',c:'IPQ4019'},
+    {id:'asus_rt-ac58u',n:'ASUS RT-AC58U',c:'IPQ4018'},
+    {id:'gl-b1300',n:'GL.iNet B1300',c:'IPQ4029'},
+    {id:'netgear_ex6100v2',n:'Netgear EX6100v2',c:'IPQ4018'},
+    {id:'netgear_ex6150v2',n:'Netgear EX6150v2',c:'IPQ4018'},
+    {id:'zyxel_nbg6617',n:'Zyxel NBG6617',c:'IPQ4018'},
+    {id:'linksys_ea6350v3',n:'Linksys EA6350v3',c:'IPQ4018'},
+    {id:'linksys_ea8300',n:'Linksys EA8300',c:'IPQ4019'},
+    {id:'meraki_mr33',n:'Meraki MR33',c:'IPQ4029'},
+    {id:'tplink_eap225-outdoor',n:'TP-Link EAP225-Outdoor v3',c:'IPQ4018'},
+    {id:'8dev_jalapeno',n:'8devices Jalapeno',c:'IPQ4019'},
+    {id:'avm_fritzbox-4040',n:'AVM FritzBox 4040',c:'IPQ4018'},
+    {id:'compex_wpj428',n:'Compex WPJ428',c:'IPQ4019'},
+    {id:'engenius_eap2200',n:'EnGenius EAP2200',c:'IPQ4019'},
+    {id:'glinet_gl-ap1300',n:'GL.iNet GL-AP1300',c:'IPQ4018'},
+    {id:'openmesh_a62',n:'OpenMesh A62',c:'IPQ4019'},
+    {id:'zte_mf287',n:'ZTE MF287',c:'IPQ4018'},
+    {id:'zte_mf287plus',n:'ZTE MF287Plus',c:'IPQ4019'},
+    {id:'zte_mf289f',n:'ZTE MF289F',c:'IPQ4018'},
+    {id:'cmcc_rm2-6',n:'CMCC RM2-6',c:'IPQ4019'},
+  ],
+  'ipq806x': [
+    {id:'netgear_r7800',n:'Netgear R7800',c:'IPQ8065'},
+    {id:'netgear_r7500',n:'Netgear R7500',c:'IPQ8064'},
+    {id:'netgear_r7500v2',n:'Netgear R7500v2',c:'IPQ8064'},
+    {id:'tplink_archer-c2600',n:'TP-Link Archer C2600',c:'IPQ8064'},
+    {id:'tplink_archer-c7800',n:'TP-Link Archer C7800',c:'IPQ8065'},
+    {id:'tplink_ad7200',n:'TP-Link AD7200',c:'IPQ8065'},
+    {id:'linksys_ea8500',n:'Linksys EA8500',c:'IPQ8064'},
+    {id:'nbg6811',n:'Zyxel NBG6811',c:'IPQ8064'},
+    {id:'compex_wpq864',n:'Compex WPQ864',c:'IPQ8064'},
+    {id:'askey_rt4230w-rev6',n:'Askey RT4230W REV6',c:'IPQ8065'},
+    {id:'arris_tr4400-v2',n:'Arris TR4400 v2',c:'IPQ8065'},
+  ],
+};
+
+// ═══════════════════════════════════════
+//  插件数据 (按类别)
+// ═══════════════════════════════════════
+const PLUGIN_CATS = {
+  '代理/VPN': {
+    'luci-app-passwall':'多协议代理 (SS/VMess/Trojan/SSR等)',
+    'luci-app-openclash':'Clash 代理客户端 (支持规则分流)',
+    'luci-app-v2raya':'V2RayA WebUI 代理管理',
+    'luci-app-dae':'eBPF 高性能代理 (新一代)',
+    'luci-app-daed':'dae 的 Web 管理面板',
+    'luci-app-homeproxy':'Sing-box 代理前端',
+    'luci-app-frpc':'FRP 内网穿透客户端',
+    'luci-app-frps':'FRP 内网穿透服务端',
+    'luci-app-xfrpc':'轻量 FRP 客户端',
+    'luci-app-n2n':'P2P VPN 穿透',
+    'luci-app-zerotier':'ZeroTier 虚拟局域网',
+    'luci-app-tailscale-community':'Tailscale VPN 组网',
+    'luci-app-ipsec-vpnd':'IPSec VPN 服务',
+    'luci-app-libreswan':'LibreSwan IPSec',
+    'luci-app-strongswan-swanctl':'StrongSwan IPSec',
+    'luci-app-openvpn-server':'OpenVPN 服务端',
+    'luci-app-ocserv':'OpenConnect VPN',
+    'luci-app-softethervpn':'SoftEther VPN',
+    'luci-app-sshtunnel':'SSH 隧道转发',
+    'luci-app-tor':'Tor 匿名网络',
+    'luci-app-gost':'GOST 多协议代理',
+    'luci-app-nps':'NPS 内网穿透',
+    'luci-app-ngrokc':'Ngrok 内网穿透',
+    'luci-app-rustdesk-server':'RustDesk 远程桌面服务端',
+    'luci-app-softether':'SoftEther VPN Client',
+    'luci-app-microsocks':'MicroSocks SOCKS5 代理',
+    'luci-app-csshnpd':'Cloudflare SSH 隧道',
+  },
+  '广告过滤/安全': {
+    'luci-app-adguardhome':'AdGuard Home 广告拦截',
+    'luci-app-adblock':'DNS 广告拦截',
+    'luci-app-adblock-fast':'快速 DNS 广告拦截',
+    'luci-app-banip':'IP 黑名单封锁',
+    'luci-app-privoxy':'HTTP 代理过滤',
+    'luci-app-tinyproxy':'轻量 HTTP 代理',
+    'luci-app-clamav':'ClamAV 杀毒引擎',
+    'luci-app-fwknopd':'单包授权防火墙',
+    'luci-app-https-dns-proxy':'DNS-over-HTTPS 代理',
+    'luci-app-crowdsec-firewall-bouncer':'CrowdSec 防火墙',
+    'luci-app-appfilter':'应用过滤/上网行为管理',
+    'luci-app-antiblock':'AntiBlock 解锁',
+  },
+  '网络管理': {
+    'luci-app-mwan3':'多 WAN 负载均衡/故障转移',
+    'luci-app-sqm':'SQM 智能队列管理',
+    'luci-app-eqos':'设备限速',
+    'luci-app-qos':'QoS 服务质量',
+    'luci-app-pbr':'策略路由 (按源/目标分流)',
+    'luci-app-nlbwmon':'带宽监控/统计',
+    'luci-app-vnstat2':'网络流量统计',
+    'luci-app-ddns':'动态 DNS',
+    'luci-app-ddns-go':'DDNS-Go 动态域名',
+    'luci-app-upnp':'UPnP 自动端口映射',
+    'luci-app-natmap':'NAT 映射/打洞',
+    'luci-app-keepalived':'Keepalived 高可用',
+    'luci-app-arpbind':'ARP 绑定',
+    'luci-app-syncdial':'多拨/叠加',
+    'luci-app-pppoe-relay':'PPPoE 中继',
+    'luci-app-pppoe-server':'PPPoE 服务端',
+    'luci-app-rp-pppoe-server':'Roaring Penguin PPPoE',
+    'luci-app-watchcat':'网络看门狗/自动重启',
+    'luci-app-usteer':'多 AP 漫游引导',
+    'luci-app-dawn':'DAWN 802.11k/v 漫游',
+    'luci-app-lldpd':'LLDP 链路发现',
+    'luci-app-snmpd':'SNMP 网管协议',
+    'luci-app-eoip':'EoIP 隧道',
+    'luci-app-dcwapd':'双频并发无线桥接',
+    'luci-app-udpxy':'UDP 转 HTTP 代理',
+    'luci-app-igmp-proxy':'IGMP 代理',
+    'luci-app-babeld':'Babel 路由协议',
+    'luci-app-bmx7':'BMX7 网状网络',
+    'luci-app-olsr':'OLSR 网状网络',
+    'luci-app-omcproxy':'MCAST 代理',
+    'luci-app-apinger':'网关 Ping 监控',
+  },
+  '下载/文件': {
+    'luci-app-qbittorrent':'qBittorrent 下载器',
+    'luci-app-aria2':'Aria2 下载器',
+    'luci-app-transmission':'Transmission 下载器',
+    'luci-app-rclone':'Rclone 云存储同步',
+    'luci-app-samba4':'Samba4 文件共享',
+    'luci-app-ksmbd':'KSMBD 轻量文件共享',
+    'luci-app-cifs-mount':'CIFS 远程挂载',
+    'luci-app-nfs':'NFS 网络文件系统',
+    'luci-app-vsftpd':'FTP 服务端',
+    'luci-app-filebrowser':'文件管理器',
+    'luci-app-filebrowser-go':'文件管理器 Go 版',
+    'luci-app-filemanager':'文件管理',
+    'luci-app-usb-printer':'USB 打印服务器',
+    'luci-app-p910nd':'P910ND 打印服务',
+    'luci-app-dufs':'DUFS 文件服务',
+  },
+  '系统工具': {
+    'luci-app-ttyd':'Web 终端',
+    'luci-app-smartdns':'SmartDNS 智能 DNS',
+    'luci-app-cpufreq':'CPU 调频',
+    'luci-app-cpulimit':'CPU 限速',
+    'luci-app-diskman':'磁盘管理',
+    'luci-app-hd-idle':'硬盘休眠',
+    'luci-app-ramfree':'释放内存',
+    'luci-app-irqbalance':'IRQ 负载均衡',
+    'luci-app-statistics':'系统监控 (Collectd)',
+    'luci-app-netdata':'Netdata 实时监控',
+    'luci-app-wol':'Wake-on-LAN 网络唤醒',
+    'luci-app-timewol':'定时唤醒',
+    'luci-app-autoreboot':'定时重启',
+    'luci-app-advanced-reboot':'高级重启',
+    'luci-app-commands':'自定义命令',
+    'luci-app-package-manager':'软件包管理器',
+    'luci-app-attendedsysupgrade':'在线固件升级',
+    'luci-app-uhttpd':'Web 服务器配置',
+    'luci-app-unbound':'Unbound DNS',
+    'luci-app-chrony':'Chrony 时间同步',
+    'luci-app-nextdns':'NextDNS',
+    'luci-app-acme':'SSL 证书自动申请',
+    'luci-app-xinetd':'xinetd 服务管理',
+    'luci-app-ser2net':'串口转网络',
+    'luci-app-email':'邮件通知',
+    'luci-app-wechatpush':'微信推送通知',
+    'luci-app-openwisp':'OpenWISP 网管',
+    'luci-app-oled':'OLED 屏幕显示',
+    'luci-app-k3screenctrl':'K3 屏幕控制',
+  },
+  '多媒体/娱乐': {
+    'luci-app-minidlna':'DLNA 媒体服务器',
+    'luci-app-airplay2':'AirPlay 2 音频推送',
+    'luci-app-spotifyd':'Spotify Connect',
+    'luci-app-msd_lite':'组播转单播 (IPTV)',
+    'luci-app-ustreamer':'USB 摄像头推流',
+    'luci-app-dump1090':'航空 ADS-B 接收',
+    'luci-app-ps3netsrv':'PS3 网络存储',
+    'luci-app-music-remote-center':'音乐远程控制',
+    'luci-app-vlmcsd':'KMS 激活服务',
+    'luci-app-unblockneteasemusic':'解锁网易云灰色歌曲',
+    'luci-app-oscam':'智能卡读卡器',
+    'luci-app-radicale3':'CalDAV/CardDAV 服务器',
+  },
+  'Docker/容器': {
+    'luci-app-docker':'Docker 容器管理',
+    'luci-app-dockerman':'Docker 管理面板',
+    'luci-app-lxc':'LXC 容器管理',
+  },
+  '拨号/校园网': {
+    'luci-app-scutclient':'华工校园网认证',
+    'luci-app-bitsrunlogin-go':'深澜校园网认证',
+    'luci-app-xlnetacc':'迅雷快鸟加速',
+    'luci-app-ua2f':'UA 伪装 (防检测)',
+    'luci-app-sysuh3c':'华三 802.1x 认证',
+    'luci-app-njitclient':'南理工校园网',
+    'luci-app-cd8021x':'802.1x 认证',
+  },
+  'VPN 协议': {
+    'luci-app-openlist':'OpenList 节点管理',
+    'luci-proto-wireguard':'WireGuard 协议',
+    'luci-proto-openvpn':'OpenVPN 协议',
+    'luci-proto-ipip':'IPIP 隧道',
+    'luci-proto-gre':'GRE 隧道',
+    'luci-proto-vxlan':'VXLAN 隧道',
+    'luci-proto-vti':'VTI 隧道',
+    'luci-proto-xfrm':'XFRM 隧道',
+    'luci-proto-ipv6':'IPv6 协议',
+    'luci-proto-3g':'3G/LTE 拨号',
+    'luci-proto-ncm':'NCM 拨号',
+    'luci-proto-qmi':'QMI 拨号',
+    'luci-proto-mbim':'MBIM 拨号',
+    'luci-proto-modemmanager':'ModemManager',
+    'luci-proto-quectel':'移远模组拨号',
+    'luci-proto-ppp':'PPPoE/PPPoA',
+    'luci-proto-openfortivpn':'Fortinet VPN',
+    'luci-proto-openconnect':'OpenConnect',
+    'luci-proto-vpnc':'VPNC (Cisco)',
+    'luci-proto-sstp':'SSTP VPN',
+    'luci-proto-nebula':'Nebula overlay',
+    'luci-proto-yggdrasil':'Yggdrasil 网络',
+    'luci-proto-batman-adv':'B.A.T.M.A.N. 网状',
+    'luci-proto-relay':'中继',
+    'luci-proto-autoip':'AutoIP',
+    'luci-proto-hnet':'HNCP 自动组网',
+    'luci-proto-external':'外部协议',
+    'luci-proto-pppossh':'SSH PPPoE',
+    'luci-proto-minieap':'MinieAP 认证',
+  },
+  '外观/主题': {
+    'luci-theme-argon':'Argon 主题 (推荐)',
+    'luci-theme-bootstrap':'Bootstrap 主题',
+    'luci-theme-material':'Material 主题',
+    'luci-theme-openwrt':'OpenWrt 经典主题',
+    'luci-theme-openwrt-2020':'OpenWrt 2020 主题',
+    'luci-app-argon-config':'Argon 主题配置',
+  },
+  '其他': {
+    'luci-app-wifischedule':'WiFi 定时开关',
+    'luci-app-wifihistory':'WiFi 连接历史',
+    'luci-app-syncthing':'Syncthing 文件同步',
+    'luci-compat':'LuCI 兼容层',
+    'luci-mod-dashboard':'Dashboard 仪表盘',
+    'luci-mod-battstatus':'电池状态显示',
+    'luci-mod-dsl':'DSL 状态',
+    'luci-plugin-2fa':'双因素认证',
+    'luci-app-3cat':'3Cat 工具',
+    'luci-app-3ginfo-lite':'3G/LTE 信息',
+    'luci-app-modemband':'模组频段锁定',
+    'luci-app-sms-tool-js':'短信工具',
+    'luci-app-nut':'UPS 管理',
+    'luci-app-freq':'频段管理',
+    'luci-app-ledtrig-rssi':'LED 信号强度',
+    'luci-app-ledtrig-switch':'LED 交换机',
+    'luci-app-ledtrig-usbport':'LED USB 端口',
+    'luci-app-coovachilli':'CoovaChilli 门户',
+    'luci-app-pagekitec':'PageKite 隧道',
+    'luci-app-lorawan-basicstation':'LoRaWAN',
+  },
+};
+
+// NSS 内核模块 (固定开启)
+const NSS_MODULES = [
+  'kmod-qca-nss-drv','kmod-qca-nss-ecm','kmod-qca-nss-dp',
+  'kmod-nss-ifb','kmod-qca-nss-drv-bridge-mgr','kmod-qca-nss-drv-pppoe',
+  'kmod-qca-nss-drv-vlan-mgr','kmod-qca-nss-drv-gre','kmod-qca-nss-drv-l2tpv2',
+  'kmod-qca-nss-drv-vxlanmgr','kmod-qca-nss-drv-mirror','kmod-qca-nss-drv-tunipip6',
+  'kmod-qca-nss-drv-wifi-meshmgr',
+];
+
+// ═══════════════════════════════════════
+//  状态
+// ═══════════════════════════════════════
+let state = {
+  branch: 'main-nss',
+  target: 'qualcommax',
+  subtarget: 'ipq807x',
+  devices: new Set(),
+  plugins: new Set(),
+};
+
+// ═══════════════════════════════════════
+//  初始化
+// ═══════════════════════════════════════
+function init() {
+  initTabs();
+  initDevices();
+  initPlugins();
+  updateSummary();
+}
+
+// Tab 切换
+function initTabs() {
+  document.querySelectorAll('#branch-tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#branch-tabs .tab').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+      state.branch = t.dataset.val;
+      updateSummary();
+    });
+  });
+
+  document.querySelectorAll('#target-tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#target-tabs .tab').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+      state.target = t.dataset.t;
+      state.subtarget = t.dataset.s || '';
+      document.getElementById('sel-target').value = state.target;
+      if (state.subtarget) document.getElementById('sel-subtarget').value = state.subtarget;
+      state.devices.clear();
+      initDevices();
+      updateSummary();
+    });
+  });
+
+  document.getElementById('sel-target').addEventListener('change', e => {
+    state.target = e.target.value;
+    state.subtarget = state.target === 'qualcommax' ? document.getElementById('sel-subtarget').value : '';
+    // sync target tabs
+    document.querySelectorAll('#target-tabs .tab').forEach(t => {
+      t.classList.toggle('on', t.dataset.t === state.target && (t.dataset.s || '') === state.subtarget);
+    });
+    state.devices.clear();
+    initDevices();
+    updateSummary();
+  });
+
+  document.getElementById('sel-subtarget').addEventListener('change', e => {
+    state.subtarget = e.target.value;
+    document.querySelectorAll('#target-tabs .tab').forEach(t => {
+      t.classList.toggle('on', t.dataset.t === state.target && t.dataset.s === state.subtarget);
+    });
+    state.devices.clear();
+    initDevices();
+    updateSummary();
+  });
+}
+
+// 设备
+function initDevices() {
+  const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
+  const devs = DEVICES[key] || [];
+  const grid = document.getElementById('device-grid');
+  grid.innerHTML = devs.map(d => `
+    <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${d.id}" onclick="toggleDevice(this,'${d.id}')">
+      <div class="n">${d.n}</div>
+      <div class="c">${d.c}</div>
+      <div class="dot">${state.devices.has(d.id)?'✓':''}</div>
+    </div>
+  `).join('');
+  updateDevCount();
+}
+
+function toggleDevice(el, id) {
+  if (state.devices.has(id)) { state.devices.delete(id); el.classList.remove('on'); el.querySelector('.dot').textContent=''; }
+  else { state.devices.add(id); el.classList.add('on'); el.querySelector('.dot').textContent='✓'; }
+  updateDevCount(); updateSummary();
+}
+
+function toggleAllDevices() {
+  const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
+  const devs = DEVICES[key] || [];
+  const cb = document.getElementById('dev-all');
+  if (cb.checked) devs.forEach(d => state.devices.add(d.id));
+  else state.devices.clear();
+  initDevices(); updateSummary();
+}
+
+function updateDevCount() {
+  document.getElementById('dev-count').textContent = state.devices.size + ' 已选';
+}
+
+// 插件
+function initPlugins() {
+  const tabs = document.getElementById('plug-tabs');
+  const cats = Object.keys(PLUGIN_CATS);
+  tabs.innerHTML = cats.map((c,i) => {
+    const n = Object.keys(PLUGIN_CATS[c]).length;
+    return `<div class="pt ${i===0?'on':''}" data-cat="${c}" onclick="switchPlugCat('${c}',this)">${c}<span class="nm">${n}</span></div>`;
+  }).join('');
+  document.getElementById('plug-total').textContent = '共 ' + Object.values(PLUGIN_CATS).reduce((a,c) => a + Object.keys(c).length, 0) + ' 个插件';
+  renderPlugins(cats[0]);
+
+  document.getElementById('plug-search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    if (!q) { const active = document.querySelector('.pt.on'); renderPlugins(active?.dataset.cat || cats[0]); return; }
+    // 搜索所有分类
+    const all = {};
+    for (const [cat, plugs] of Object.entries(PLUGIN_CATS)) {
+      for (const [name, desc] of Object.entries(plugs)) {
+        if (name.includes(q) || desc.toLowerCase().includes(q) || cat.toLowerCase().includes(q)) {
+          all[name] = desc;
+        }
+      }
+    }
+    renderGrid(all);
+  });
+}
+
+function switchPlugCat(cat, el) {
+  document.querySelectorAll('.pt').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('plug-search').value = '';
+  renderPlugins(cat);
+}
+
+function renderPlugins(cat) {
+  renderGrid(PLUGIN_CATS[cat] || {});
+}
+
+function renderGrid(plugs) {
+  const grid = document.getElementById('plug-grid');
+  grid.innerHTML = Object.entries(plugs).map(([name, desc]) => `
+    <div class="pc ${state.plugins.has(name)?'on':''}" onclick="togglePlug(this,'${name}')">
+      <div class="tp">
+        <div class="pn">${name.replace('luci-app-','')}</div>
+        <div class="ck">${state.plugins.has(name)?'✓':''}</div>
+      </div>
+      <div class="pd">${desc}</div>
+    </div>
+  `).join('');
+  updatePlugCount();
+}
+
+function togglePlug(el, name) {
+  if (state.plugins.has(name)) { state.plugins.delete(name); el.classList.remove('on'); el.querySelector('.ck').textContent=''; }
+  else { state.plugins.add(name); el.classList.add('on'); el.querySelector('.ck').textContent='✓'; }
+  updatePlugCount(); updateSummary();
+}
+
+function plugAll() {
+  for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) state.plugins.add(name);
+  refreshGrid(); updatePlugCount(); updateSummary();
+}
+function plugNone() { state.plugins.clear(); refreshGrid(); updatePlugCount(); updateSummary(); }
+function plugInvert() {
+  for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) {
+    if (state.plugins.has(name)) state.plugins.delete(name); else state.plugins.add(name);
+  }
+  refreshGrid(); updatePlugCount(); updateSummary();
+}
+function refreshGrid() {
+  document.querySelectorAll('.pc').forEach(el => {
+    const name = el.getAttribute('onclick').match(/'([^']+)'/)[1];
+    el.classList.toggle('on', state.plugins.has(name));
+    el.querySelector('.ck').textContent = state.plugins.has(name) ? '✓' : '';
+  });
+}
+function updatePlugCount() { document.getElementById('plug-count').textContent = state.plugins.size + ' 已选'; }
+
+// Summary
+function updateSummary() {
+  document.getElementById('s-branch').textContent = state.branch;
+  document.getElementById('s-target').textContent = state.target;
+  document.getElementById('s-subtarget').textContent = state.subtarget || '—';
+  document.getElementById('s-devices').textContent = state.devices.size || '全部';
+  document.getElementById('s-plugins').textContent = state.plugins.size;
+  document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
+  if (state.plugins.size > 0) {
+    const list = [...state.plugins].map(p => p.replace('luci-app-','')).join(', ');
+    document.getElementById('s-plugin-list').textContent = '已选插件: ' + list;
+  } else {
+    document.getElementById('s-plugin-list').textContent = '';
+  }
+}
+
+// ═══════════════════════════════════════
+//  触发编译
+// ═══════════════════════════════════════
+async function startBuild() {
+  const token = document.getElementById('gh-token').value.trim();
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo = document.getElementById('gh-repo').value.trim();
+  const btn = document.getElementById('btn-build');
+  const logPanel = document.getElementById('log-panel');
+
+  if (!token) { toast('错误', '请输入 GitHub Token', true); return; }
+  if (!owner || !repo) { toast('错误', '请填写仓库信息', true); return; }
+
+  // 组装 plugins
+  const plugins = [...state.plugins].join(' ');
+  const customConfig = document.getElementById('custom-config').value.trim();
+  const customB64 = customConfig ? btoa(customConfig) : '';
+
+  // 组装 inputs
+  const inputs = {
+    branch: state.branch,
+    target: state.target,
+    subtarget: state.subtarget,
+    profile: [...state.devices].join(' '),
+    plugins: plugins,
+    feed_packages: 'nss,sqm_nss,routing',
+    wifi_config: document.getElementById('wifi-cfg').value.trim(),
+    root_password: document.getElementById('root-pw').value.trim(),
+    lan_ip: document.getElementById('lan-ip').value.trim(),
+    custom_config: customB64,
+    enable_ccache: document.getElementById('opt-ccache').checked ? 'true' : 'false',
+    upload_artifacts: document.getElementById('opt-upload').checked ? 'true' : 'false',
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>正在触发编译...';
+  logPanel.classList.add('show');
+  logPanel.innerHTML = '';
+
+  log('info', '📡 正在连接 GitHub API...');
+  log('info', `📦 仓库: ${owner}/${repo}`);
+  log('info', `🌿 分支: ${inputs.branch}`);
+  log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
+  log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
+  log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
+
+  try {
+    // 先检查 workflow 文件是否存在
+    log('info', '🔍 检查 workflow 文件...');
+    const checkRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/workflows`,
+      { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+
+    if (!checkRes.ok) {
+      const err = await checkRes.json();
+      throw new Error(err.message || `HTTP ${checkRes.status}`);
+    }
+
+    const workflows = await checkRes.json();
+    const buildWorkflow = workflows.workflows?.find(w =>
+      w.name.includes('Build') || w.path?.includes('build-openwrt')
+    );
+
+    if (!buildWorkflow) {
+      log('warn', '⚠️ 未找到 build-openwrt.yml，尝试直接触发...');
+    } else {
+      log('ok', `✅ 找到工作流: ${buildWorkflow.name}`);
+    }
+
+    // 触发 workflow_dispatch
+    log('info', '🚀 正在触发编译...');
+    const dispatchRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/workflows/build-openwrt.yml/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ref: inputs.branch, inputs }),
+      }
+    );
+
+    if (dispatchRes.status === 204 || dispatchRes.ok) {
+      log('ok', '✅ 编译任务已成功触发!');
+      log('info', `🔗 前往查看: https://github.com/${owner}/${repo}/actions`);
+      toast('成功', '编译任务已触发，正在排队中...');
+    } else {
+      const err = await dispatchRes.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${dispatchRes.status}`);
+    }
+  } catch (e) {
+    log('err', `❌ 错误: ${e.message}`);
+    toast('失败', e.message, true);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🚀 开始编译固件';
+}
+
+function log(type, msg) {
+  const logPanel = document.getElementById('log-panel');
+  const cls = { info: 'log-info', ok: 'log-ok', err: 'log-err', warn: 'log-warn' }[type] || '';
+  logPanel.innerHTML += `<div class="log-line ${cls}">${new Date().toLocaleTimeString()} ${msg}</div>`;
+  logPanel.scrollTop = logPanel.scrollHeight;
+}
+
+function toast(title, body, err) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.borderColor = err ? 'rgba(248,113,113,.3)' : 'rgba(52,211,153,.3)';
+  t.innerHTML = `<div class="tt" style="color:${err?'var(--red)':'var(--grn)'}">${title}</div><div class="tb">${body}</div>`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+// 监听变化更新 summary
+document.addEventListener('change', updateSummary);
+
+// 启动
+init();
+</script>
+</body>
+</html>
