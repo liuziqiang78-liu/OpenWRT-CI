@@ -62,8 +62,18 @@ textarea{min-height:80px;resize:vertical}
 .tab:hover{color:var(--t1);background:rgba(20,30,55,.6)}
 .tab.on{background:var(--c-d);color:var(--cyan);border-color:rgba(56,189,248,.2);box-shadow:0 0 18px rgba(56,189,248,.08)}
 
+/* Platform Tabs */
+.pgroup{padding:7px 14px;border-radius:18px;font-size:.72em;font-weight:700;background:rgba(12,18,36,.4);border:1px solid transparent;color:var(--t2);cursor:pointer;transition:all .25s var(--ease);white-space:nowrap;flex-shrink:0;user-select:none}
+.pgroup:hover{color:var(--t1);background:rgba(20,30,55,.5)}
+.pgroup.on{background:var(--v-d);color:var(--vio);border-color:rgba(167,139,250,.2);box-shadow:0 0 14px rgba(167,139,250,.06)}
+.pgroup .cnt{display:inline-block;min-width:16px;text-align:center;background:rgba(167,139,250,.1);color:var(--vio);border-radius:8px;padding:0 5px;font-size:.82em;font-weight:800;margin-left:3px}
+.pgroup.on .cnt{background:rgba(167,139,250,.2)}
+
 /* Device Grid */
-.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;max-height:500px;overflow-y:auto;padding-right:4px}
+.dg::-webkit-scrollbar{width:5px}
+.dg::-webkit-scrollbar-track{background:transparent}
+.dg::-webkit-scrollbar-thumb{background:rgba(90,130,255,.15);border-radius:4px}
 .dc{padding:15px 14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
 .dc:hover{border-color:var(--brd-h);transform:translateY(-1px)}
 .dc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 28px rgba(56,189,248,.1)}
@@ -210,22 +220,19 @@ textarea{min-height:80px;resize:vertical}
 <div class="hint w">⚠️ 选择 qualcommax 平台时才需要选择 Subtarget。ipq40xx / ipq806x 无子目标。</div>
 </div>
 
-<!-- ═══════ 3. 设备型号 ═══════ -->
+<!-- ═══════ 3. 设备平台 ═══════ -->
 <div class="card" id="card-device">
-<div class="ch"><div class="ch-i g">📱</div><div class="ch-t">设备型号</div><span class="ch-b" id="dev-count">0 已选</span></div>
-<div class="tabs" id="target-tabs">
-  <div class="tab on" data-t="qualcommax" data-s="ipq807x">IPQ807x</div>
-  <div class="tab" data-t="qualcommax" data-s="ipq60xx">IPQ60xx</div>
-  <div class="tab" data-t="qualcommax" data-s="ipq50xx">IPQ50xx</div>
-  <div class="tab" data-t="ipq40xx">IPQ40xx</div>
-  <div class="tab" data-t="ipq806x">IPQ806x</div>
-</div>
+<div class="ch"><div class="ch-i g">📱</div><div class="ch-t">设备平台</div><span class="ch-b" id="dev-count">0 已选</span></div>
+<div class="sbar" style="margin-bottom:14px"><input type="text" id="dev-search" placeholder="搜索设备型号/品牌..." oninput="searchDevices(this.value)"></div>
+<div class="ptabs" id="platform-tabs" style="margin-bottom:10px"></div>
+<div class="tabs" id="target-tabs" style="margin-bottom:14px"></div>
 <div class="dg" id="device-grid"></div>
-<div style="margin-top:14px">
-  <label class="cr" onclick="toggleAllDevices()">
+<div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <label class="cr" onclick="toggleAllDevices()" style="flex:1;min-width:200px">
     <input type="checkbox" id="dev-all">
-    <span class="ct">全选当前子目标设备</span>
+    <span class="ct">全选当前平台设备</span>
   </label>
+  <span style="font-size:.7em;color:var(--t3)" id="dev-total"></span>
 </div>
 </div>
 
@@ -283,7 +290,7 @@ textarea{min-height:80px;resize:vertical}
   <div class="si"><div class="sl">分支</div><div class="sv" id="s-branch">main-nss</div></div>
   <div class="si"><div class="sl">平台</div><div class="sv" id="s-target">qualcommax</div></div>
   <div class="si"><div class="sl">子目标</div><div class="sv" id="s-subtarget">ipq807x</div></div>
-  <div class="si"><div class="sl">设备</div><div class="sv" id="s-devices">0</div></div>
+  <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
   <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
 </div>
@@ -304,69 +311,501 @@ textarea{min-height:80px;resize:vertical}
 // ═══════════════════════════════════════
 const DEVICES = {
   'qualcommax-ipq807x': [
-    {id:'redmi_ax6',n:'Redmi AX6',c:'IPQ8071A'},
-    {id:'xiaomi_ax3600',n:'Xiaomi AX3600',c:'IPQ8071A'},
-    {id:'xiaomi_ax9000',n:'Xiaomi AX9000',c:'IPQ8074A'},
-    {id:'qnap_301w',n:'Qnap 301W',c:'IPQ8072A'},
-    {id:'zte_mf269',n:'ZTE MF269',c:'IPQ8071A'},
-    {id:'buffelo_wxr-5950ax12',n:'Buffalo WXR-5950AX12',c:'IPQ8074A'},
-    {id:'linksys_mx4200',n:'Linksys MX4200',c:'IPQ8074A'},
-    {id:'linksys_mx4300',n:'Linksys MX4300',c:'IPQ8074A'},
-    {id:'linksys_mx8500',n:'Linksys MX8500',c:'IPQ8074A'},
-    {id:'netgear_wax218',n:'Netgear WAX218',c:'IPQ8074A'},
-    {id:'netgear_rax120',n:'Netgear RAX120v2',c:'IPQ8074A'},
-    {id:'prpl_haze',n:'Prpl Haze',c:'IPQ8072A'},
-    {id:'360_v6',n:'360 V6',c:'IPQ8071A'},
-    {id:'jdcloud_re-cs-02',n:'JDCloud RE-CS-02',c:'IPQ8074A'},
+    {id:'aliyun_ap8220',n:'Aliyun AP8220',c:'IPQ8071'},{id:'arcadyan_aw1000',n:'Arcadyan AW1000',c:'IPQ8072'},
+    {id:'asus_rt-ax89x',n:'ASUS RT-AX89X',c:'IPQ8074'},{id:'buffalo_wxr-5950ax12',n:'Buffalo WXR-5950AX12',c:'IPQ8074'},
+    {id:'cmcc_rm2-6',n:'CMCC RM2-6',c:'IPQ8070'},{id:'compex_wpq873',n:'Compex WPQ873',c:'IPQ8072'},
+    {id:'dynalink_dl-wrx36',n:'Dynalink DL-WRX36',c:'IPQ8072'},{id:'edgecore_eap102',n:'Edgecore EAP102',c:'IPQ8071'},
+    {id:'edimax_cax1800',n:'Edimax CAX1800',c:'IPQ8070'},{id:'inseego_fg2000',n:'Inseego FG2000',c:'IPQ8072'},
+    {id:'linksys_homewrk',n:'Linksys HomeWRK',c:'IPQ8174'},{id:'linksys_mx4200v1',n:'Linksys MX4200 v1',c:'IPQ8174'},
+    {id:'linksys_mx4200v2',n:'Linksys MX4200 v2',c:'IPQ8174'},{id:'linksys_mx4300',n:'Linksys MX4300',c:'IPQ8174'},
+    {id:'linksys_mx5300',n:'Linksys MX5300',c:'IPQ8072'},{id:'linksys_mx8500',n:'Linksys MX8500',c:'IPQ8072'},
+    {id:'netgear_rax120v2',n:'Netgear RAX120v2',c:'IPQ8074'},{id:'netgear_rbr750',n:'Netgear RBR750',c:'IPQ8074'},
+    {id:'netgear_rbs750',n:'Netgear RBS750',c:'IPQ8074'},{id:'netgear_sxr80',n:'Netgear SXR80',c:'IPQ8074'},
+    {id:'netgear_sxs80',n:'Netgear SXS80',c:'IPQ8074'},{id:'netgear_wax218',n:'Netgear WAX218',c:'IPQ8072'},
+    {id:'netgear_wax620',n:'Netgear WAX620',c:'IPQ8072'},{id:'netgear_wax630',n:'Netgear WAX630',c:'IPQ8074'},
+    {id:'prpl_haze',n:'Prpl Haze',c:'IPQ8072'},{id:'qnap_301w',n:'QNAP 301W',c:'IPQ8072'},
+    {id:'redmi_ax6',n:'Redmi AX6',c:'IPQ8071'},{id:'spectrum_sax1v1k',n:'Spectrum SAX1V1K',c:'IPQ8072'},
+    {id:'tcl_linkhub-hh500v',n:'TCL LINKHUB HH500V',c:'IPQ8072'},{id:'tplink_deco-x80-5g',n:'TP-Link Deco X80-5G',c:'IPQ8074'},
+    {id:'tplink_eap620hd-v1',n:'TP-Link EAP620 HD v1',c:'IPQ8072'},{id:'tplink_eap660hd-v1',n:'TP-Link EAP660 HD v1',c:'IPQ8072'},
+    {id:'verizon_cr1000a',n:'Verizon CR1000A',c:'IPQ8072'},{id:'xiaomi_ax3600',n:'Xiaomi AX3600',c:'IPQ8071'},
+    {id:'xiaomi_ax9000',n:'Xiaomi AX9000',c:'IPQ8072'},{id:'yuncore_ax880',n:'Yuncore AX880',c:'IPQ8072'},
+    {id:'zbtlink_zbt-z800ax',n:'Zbtlink ZBT-Z800AX',c:'IPQ8072'},{id:'zte_mf269',n:'ZTE MF269',c:'IPQ8071'},
+    {id:'zyxel_nbg7815',n:'Zyxel NBG7815',c:'IPQ8074'},{id:'zyxel_nwa110ax',n:'Zyxel NWA110AX',c:'IPQ8070'},
+    {id:'zyxel_nwa210ax',n:'Zyxel NWA210AX',c:'IPQ8071'},
   ],
   'qualcommax-ipq60xx': [
-    {id:'redmi_ax5',n:'Redmi AX5',c:'IPQ6018'},
-    {id:'xiaomi_ax1800',n:'Xiaomi AX1800',c:'IPQ6018'},
-    {id:'xiaomi_ax3600-s',n:'Xiaomi AX3600 (slave)',c:'IPQ6018'},
-    {id:'zte_e8820s',n:'ZTE E8820S',c:'IPQ6010'},
-    {id:'zte_e8820v2',n:'ZTE E8820V2',c:'IPQ6005'},
-    {id:'cmcc_rax3000m',n:'CMCC RAX3000M',c:'IPQ6010'},
-    {id:'jdcloud_luban',n:'JDCloud 鲁班',c:'IPQ6018'},
-    {id:'glinet_mt3000',n:'GL.iNet MT3000',c:'IPQ6000'},
+    {id:'8devices_mango-dvk',n:'8devices Mango-DVK',c:'IPQ6010'},{id:'alfa-network_ap120c-ax',n:'ALFA Network AP120C-AX',c:'IPQ6000'},
+    {id:'anysafe_e1',n:'AnySafe E1',c:'IPQ6010'},{id:'cambiumnetworks_xe3-4',n:'Cambium Networks XE3-4',c:'IPQ6010'},
+    {id:'cmiot_ax18',n:'CMIOT AX18',c:'IPQ6000'},{id:'glinet_gl-ax1800',n:'GL.iNet GL-AX1800',c:'IPQ6000'},
+    {id:'glinet_gl-axt1800',n:'GL.iNet GL-AXT1800',c:'IPQ6000'},{id:'jdcloud_re-cs-02',n:'JDCloud RE-CS-02',c:'IPQ6010'},
+    {id:'jdcloud_re-cs-07',n:'JDCloud RE-CS-07',c:'IPQ6010'},{id:'jdcloud_re-ss-01',n:'JDCloud RE-SS-01',c:'IPQ6000'},
+    {id:'kt_ar06-012h',n:'KT AR06-012H',c:'IPQ6000'},{id:'lg_gapd-7500',n:'LG GAPD-7500',c:'IPQ6000'},
+    {id:'link_nn6000-v1',n:'Link NN6000 v1',c:'IPQ6000'},{id:'link_nn6000-v2',n:'Link NN6000 v2',c:'IPQ6000'},
+    {id:'linksys_mr7350',n:'Linksys MR7350',c:'IPQ6000'},{id:'linksys_mr7500',n:'Linksys MR7500',c:'IPQ6018'},
+    {id:'netgear_rbr350',n:'Netgear RBR350',c:'IPQ6018'},{id:'netgear_rbs350',n:'Netgear RBS350',c:'IPQ6018'},
+    {id:'netgear_wax214',n:'Netgear WAX214',c:'IPQ6010'},{id:'netgear_wax610',n:'Netgear WAX610',c:'IPQ6010'},
+    {id:'netgear_wax610y',n:'Netgear WAX610Y',c:'IPQ6010'},{id:'qihoo_360v6',n:'Qihoo 360V6',c:'IPQ6000'},
+    {id:'redmi_ax5',n:'Redmi AX5',c:'IPQ6000'},{id:'redmi_ax5-jdcloud',n:'Redmi AX5 JDCloud',c:'IPQ6000'},
+    {id:'tplink_eap610-outdoor',n:'TP-Link EAP610-Outdoor',c:'IPQ6018'},{id:'tplink_eap620-hd-v3',n:'TP-Link EAP620 HD v3',c:'IPQ6018'},
+    {id:'tplink_eap623-outdoor-hd-v1',n:'TP-Link EAP623-Outdoor HD v1',c:'IPQ6018'},{id:'tplink_eap625-outdoor-hd-v1',n:'TP-Link EAP625-Outdoor HD v1',c:'IPQ6018'},
+    {id:'xiaomi_ax1800',n:'Xiaomi AX1800',c:'IPQ6000'},{id:'yuncore_fap650',n:'Yuncore FAP650',c:'IPQ6018'},
+    {id:'zn_m2',n:'ZN M2',c:'IPQ6000'},
   ],
   'qualcommax-ipq50xx': [
-    {id:'ipq5018-generic',n:'IPQ5018 Generic',c:'IPQ5018'},
-    {id:'ipq5010-generic',n:'IPQ5010 Generic',c:'IPQ5010'},
+    {id:'cmcc_mr3000d-ci',n:'CMCC MR3000D-CI',c:'IPQ5018'},{id:'cmcc_pz-l8',n:'CMCC PZ-L8',c:'IPQ5018'},
+    {id:'elecom_wrc-x3000gs2',n:'ELECOM WRC-X3000GS2',c:'IPQ5018'},{id:'glinet_gl-b3000',n:'GL.iNet GL-B3000',c:'IPQ5018'},
+    {id:'iodata_wn-dax3000gr',n:'I-O DATA WN-DAX3000GR',c:'IPQ5018'},{id:'linksys_mr5500',n:'Linksys MR5500',c:'IPQ5018'},
+    {id:'linksys_mx2000',n:'Linksys MX2000',c:'IPQ5018'},{id:'linksys_mx5500',n:'Linksys MX5500',c:'IPQ5018'},
+    {id:'linksys_mx6200',n:'Linksys MX6200',c:'IPQ5018'},{id:'linksys_spnmx56',n:'Linksys SPNMX56',c:'IPQ5018'},
+    {id:'xiaomi_ax6000',n:'Xiaomi AX6000',c:'IPQ5018'},{id:'yuncore_ax830',n:'Yuncore AX830',c:'IPQ5018'},
+    {id:'yuncore_ax850',n:'Yuncore AX850',c:'IPQ5018'},{id:'zyxel_scr50axe',n:'Zyxel SCR50AXE',c:'IPQ5018'},
   ],
   'ipq40xx': [
-    {id:'asus_rt-acrh17',n:'ASUS RT-ACRH17',c:'IPQ4019'},
-    {id:'asus_rt-ac58u',n:'ASUS RT-AC58U',c:'IPQ4018'},
-    {id:'gl-b1300',n:'GL.iNet B1300',c:'IPQ4029'},
-    {id:'netgear_ex6100v2',n:'Netgear EX6100v2',c:'IPQ4018'},
-    {id:'netgear_ex6150v2',n:'Netgear EX6150v2',c:'IPQ4018'},
+    {id:'8dev_habanero-dvk',n:'8devices Habanero DVK',c:'IPQ4018'},{id:'8dev_jalapeno',n:'8devices Jalapeno',c:'IPQ4019'},
+    {id:'alfa-network_ap120c-ac',n:'ALFA Network AP120C-AC',c:'IPQ4018'},{id:'aruba_ap-303',n:'Aruba AP-303',c:'IPQ4019'},
+    {id:'aruba_ap-303h',n:'Aruba AP-303H',c:'IPQ4019'},{id:'aruba_ap-365',n:'Aruba AP-365',c:'IPQ4019'},
+    {id:'asus_map-ac1300',n:'ASUS Lyra Mini MAP-AC1300',c:'IPQ4019'},{id:'asus_map-ac2200',n:'ASUS Lyra MAP-AC2200',c:'IPQ4019'},
+    {id:'asus_rt-ac42u',n:'ASUS RT-AC42U',c:'IPQ4019'},{id:'asus_rt-ac58u',n:'ASUS RT-AC58U',c:'IPQ4018'},
+    {id:'avm_fritzbox-4040',n:'AVM FRITZ!Box 4040',c:'IPQ4018'},{id:'avm_fritzbox-7530',n:'AVM FRITZ!Box 7530',c:'IPQ4019'},
+    {id:'avm_fritzrepeater-1200',n:'AVM FRITZ!Repeater 1200',c:'IPQ4019'},{id:'avm_fritzrepeater-3000',n:'AVM FRITZ!Repeater 3000',c:'IPQ4019'},
+    {id:'buffalo_wtr-m2133hp',n:'Buffalo WTR-M2133HP',c:'IPQ4019'},{id:'cellc_rtl30vw',n:'Cell C RTL30VW',c:'IPQ4018'},
+    {id:'cilab_meshpoint-one',n:'Crisis Innovation Lab MeshPoint.One',c:'IPQ4019'},{id:'compex_wpj428',n:'Compex WPJ428',c:'IPQ4019'},
+    {id:'devolo_magic-2-wifi-next',n:'devolo Magic 2 WiFi next',c:'IPQ4019'},{id:'dlink_dap-2610',n:'D-Link DAP-2610',c:'IPQ4018'},
+    {id:'edgecore_ecw5211',n:'Edgecore ECW5211',c:'IPQ4019'},{id:'engenius_eap1300',n:'EnGenius EAP1300',c:'IPQ4018'},
+    {id:'extreme-networks_ws-ap3915i',n:'Extreme Networks WS-AP3915i',c:'IPQ4019'},{id:'extreme-networks_ws-ap391x',n:'Extreme Networks WS-AP391x',c:'IPQ4019'},
+    {id:'ezviz_cs-w3-wd1200g-eup',n:'EZVIZ CS-W3-WD1200G',c:'IPQ4018'},{id:'glinet_gl-a1300',n:'GL.iNet GL-A1300',c:'IPQ4018'},
+    {id:'glinet_gl-ap1300',n:'GL.iNet GL-AP1300',c:'IPQ4018'},{id:'glinet_gl-b1300',n:'GL.iNet GL-B1300',c:'IPQ4019'},
+    {id:'glinet_gl-b2200',n:'GL.iNet GL-B2200',c:'IPQ4019'},{id:'glinet_gl-s1300',n:'GL.iNet GL-S1300',c:'IPQ4019'},
+    {id:'huawei_ap4050dn',n:'Huawei AP4050DN',c:'IPQ4019'},{id:'linksys_ea6350v3',n:'Linksys EA6350 v3',c:'IPQ4018'},
+    {id:'linksys_ea8300',n:'Linksys EA8300',c:'IPQ4019'},{id:'linksys_mr6350',n:'Linksys MR6350',c:'IPQ4018'},
+    {id:'linksys_mr8300',n:'Linksys MR8300',c:'IPQ4019'},{id:'linksys_whw01',n:'Linksys WHW01',c:'IPQ4019'},
+    {id:'linksys_whw03',n:'Linksys WHW03',c:'IPQ4019'},{id:'linksys_whw03v2',n:'Linksys WHW03 v2',c:'IPQ4019'},
+    {id:'luma_wrtq-329acn',n:'Luma WRTQ-329ACN',c:'IPQ4019'},{id:'meraki_mr20',n:'Cisco Meraki MR20',c:'IPQ4019'},
+    {id:'meraki_mr30h',n:'Cisco Meraki MR30H',c:'IPQ4019'},{id:'meraki_mr33',n:'Cisco Meraki MR33',c:'IPQ4029'},
+    {id:'meraki_mr70',n:'Cisco Meraki MR70',c:'IPQ4019'},{id:'meraki_mr74',n:'Cisco Meraki MR74',c:'IPQ4019'},
+    {id:'meraki_z3',n:'Cisco Meraki Z3',c:'IPQ4019'},{id:'meraki_gx20',n:'Cisco Meraki GX20',c:'IPQ4019'},
+    {id:'mobipromo_cm520-79f',n:'MobiPromo CM520-79F',c:'IPQ4019'},{id:'netgear_ex6100v2',n:'Netgear EX6100 v2',c:'IPQ4018'},
+    {id:'netgear_ex6150v2',n:'Netgear EX6150 v2',c:'IPQ4018'},{id:'netgear_lbr20',n:'Netgear LBR20',c:'IPQ4019'},
+    {id:'netgear_rbr20',n:'Netgear RBR20',c:'IPQ4019'},{id:'netgear_rbs20',n:'Netgear RBS20',c:'IPQ4019'},
+    {id:'netgear_rbr40',n:'Netgear RBR40',c:'IPQ4019'},{id:'netgear_rbs40',n:'Netgear RBS40',c:'IPQ4019'},
+    {id:'netgear_rbr50',n:'Netgear RBR50',c:'IPQ4019'},{id:'netgear_rbs50',n:'Netgear RBS50',c:'IPQ4019'},
+    {id:'netgear_srr60',n:'Netgear SRR60',c:'IPQ4019'},{id:'netgear_srs60',n:'Netgear SRS60',c:'IPQ4019'},
+    {id:'netgear_wac510',n:'Netgear WAC510',c:'IPQ4019'},{id:'openmesh_a42',n:'OpenMesh A42',c:'IPQ4018'},
+    {id:'openmesh_a62',n:'OpenMesh A62',c:'IPQ4019'},{id:'p2w_r619ac-64m',n:'P&W R619AC (64M)',c:'IPQ4019'},
+    {id:'p2w_r619ac-128m',n:'P&W R619AC (128M)',c:'IPQ4019'},{id:'pakedge_wr-1',n:'Pakedge WR-1',c:'IPQ4018'},
+    {id:'plasmacloud_pa1200',n:'Plasma Cloud PA1200',c:'IPQ4018'},{id:'plasmacloud_pa2200',n:'Plasma Cloud PA2200',c:'IPQ4019'},
+    {id:'qxwlan_e2600ac-c1',n:'Qxwlan E2600AC C1',c:'IPQ4019'},{id:'qxwlan_e2600ac-c2',n:'Qxwlan E2600AC C2',c:'IPQ4019'},
+    {id:'skspruce_wia3300-20',n:'SKSpruce WIA3300-20',c:'IPQ4019'},{id:'sony_ncp-hg100-cellular',n:'Sony NCP-HG100/Cellular',c:'IPQ4019'},
+    {id:'teltonika_rutx50',n:'Teltonika RUTX50',c:'IPQ4019'},{id:'wallys_dr40x9',n:'Wallys DR40X9',c:'IPQ4019'},
+    {id:'yyets_le1',n:'YYeTs LE1',c:'IPQ4019'},{id:'zte_mf18a',n:'ZTE MF18A',c:'IPQ4019'},
+    {id:'zte_mf282plus',n:'ZTE MF282Plus',c:'IPQ4019'},{id:'zte_mf286d',n:'ZTE MF286D',c:'IPQ4019'},
+    {id:'zte_mf287',n:'ZTE MF287',c:'IPQ4018'},{id:'zte_mf287plus',n:'ZTE MF287Plus',c:'IPQ4019'},
+    {id:'zte_mf287pro',n:'ZTE MF287Pro',c:'IPQ4019'},{id:'zte_mf289f',n:'ZTE MF289F',c:'IPQ4018'},
     {id:'zyxel_nbg6617',n:'Zyxel NBG6617',c:'IPQ4018'},
-    {id:'linksys_ea6350v3',n:'Linksys EA6350v3',c:'IPQ4018'},
-    {id:'linksys_ea8300',n:'Linksys EA8300',c:'IPQ4019'},
-    {id:'meraki_mr33',n:'Meraki MR33',c:'IPQ4029'},
-    {id:'tplink_eap225-outdoor',n:'TP-Link EAP225-Outdoor v3',c:'IPQ4018'},
-    {id:'8dev_jalapeno',n:'8devices Jalapeno',c:'IPQ4019'},
-    {id:'avm_fritzbox-4040',n:'AVM FritzBox 4040',c:'IPQ4018'},
-    {id:'compex_wpj428',n:'Compex WPJ428',c:'IPQ4019'},
-    {id:'engenius_eap2200',n:'EnGenius EAP2200',c:'IPQ4019'},
-    {id:'glinet_gl-ap1300',n:'GL.iNet GL-AP1300',c:'IPQ4018'},
-    {id:'openmesh_a62',n:'OpenMesh A62',c:'IPQ4019'},
-    {id:'zte_mf287',n:'ZTE MF287',c:'IPQ4018'},
-    {id:'zte_mf287plus',n:'ZTE MF287Plus',c:'IPQ4019'},
-    {id:'zte_mf289f',n:'ZTE MF289F',c:'IPQ4018'},
-    {id:'cmcc_rm2-6',n:'CMCC RM2-6',c:'IPQ4019'},
   ],
   'ipq806x': [
-    {id:'netgear_r7800',n:'Netgear R7800',c:'IPQ8065'},
-    {id:'netgear_r7500',n:'Netgear R7500',c:'IPQ8064'},
-    {id:'netgear_r7500v2',n:'Netgear R7500v2',c:'IPQ8064'},
-    {id:'tplink_archer-c2600',n:'TP-Link Archer C2600',c:'IPQ8064'},
-    {id:'tplink_archer-c7800',n:'TP-Link Archer C7800',c:'IPQ8065'},
-    {id:'tplink_ad7200',n:'TP-Link AD7200',c:'IPQ8065'},
-    {id:'linksys_ea8500',n:'Linksys EA8500',c:'IPQ8064'},
-    {id:'nbg6811',n:'Zyxel NBG6811',c:'IPQ8064'},
-    {id:'compex_wpq864',n:'Compex WPQ864',c:'IPQ8064'},
-    {id:'askey_rt4230w-rev6',n:'Askey RT4230W REV6',c:'IPQ8065'},
-    {id:'arris_tr4400-v2',n:'Arris TR4400 v2',c:'IPQ8065'},
+    {id:'arris_tr4400-v2',n:'Arris TR4400 v2',c:'IPQ8065'},{id:'askey_rt4230w-rev6',n:'Askey RT4230W REV6',c:'IPQ8065'},
+    {id:'asrock_g10',n:'ASRock G10',c:'IPQ8064'},{id:'buffalo_wxr-2533dhp',n:'Buffalo WXR-2533DHP',c:'IPQ8064'},
+    {id:'compex_wpq864',n:'Compex WPQ864',c:'IPQ8064'},{id:'edgecore_ecw5410',n:'Edgecore ECW5410',c:'IPQ8064'},
+    {id:'extreme_ap3935',n:'Extreme Networks AP3935',c:'IPQ8064'},{id:'fortinet_fap-421e',n:'Fortinet FAP-421E',c:'IPQ8064'},
+    {id:'ignitenet_ss-w2-ac2600',n:'IgniteNet SunSpot AC Wave2',c:'IPQ8064'},{id:'linksys_e8350-v1',n:'Linksys E8350 v1',c:'IPQ8064'},
+    {id:'linksys_ea7500-v1',n:'Linksys EA7500 v1',c:'IPQ8064'},{id:'linksys_ea8500',n:'Linksys EA8500',c:'IPQ8064'},
+    {id:'meraki_mr42',n:'Cisco Meraki MR42',c:'IPQ8064'},{id:'meraki_mr52',n:'Cisco Meraki MR52',c:'IPQ8064'},
+    {id:'nec_wg2600hp',n:'NEC Aterm WG2600HP',c:'IPQ8064'},{id:'nec_wg2600hp3',n:'NEC Aterm WG2600HP3',c:'IPQ8064'},
+    {id:'netgear_d7800',n:'Netgear Nighthawk X4 D7800',c:'IPQ8064'},{id:'netgear_r7500',n:'Netgear Nighthawk X4 R7500',c:'IPQ8064'},
+    {id:'netgear_r7500v2',n:'Netgear Nighthawk X4 R7500 v2',c:'IPQ8064'},{id:'netgear_r7800',n:'Netgear Nighthawk X4S R7800',c:'IPQ8065'},
+    {id:'netgear_xr450',n:'Netgear Nighthawk XR450',c:'IPQ8065'},{id:'netgear_xr500',n:'Netgear Nighthawk XR500',c:'IPQ8065'},
+    {id:'nokia_ac400i',n:'Nokia AC400i',c:'IPQ8064'},{id:'qcom_ipq8064-ap148',n:'Qualcomm AP148',c:'IPQ8064'},
+    {id:'qcom_ipq8064-ap161',n:'Qualcomm AP161',c:'IPQ8064'},{id:'qcom_ipq8064-db149',n:'Qualcomm DB149',c:'IPQ8064'},
+    {id:'ruijie_rg-mtfi-m520',n:'Ruijie RG-MTFi-M520',c:'IPQ8064'},{id:'tplink_ad7200',n:'TP-Link AD7200',c:'IPQ8065'},
+    {id:'tplink_c2600',n:'TP-Link Archer C2600',c:'IPQ8064'},{id:'tplink_vr2600v',n:'TP-Link Archer VR2600v',c:'IPQ8064'},
+    {id:'ubnt_unifi-ac-hd',n:'Ubiquiti UniFi AC HD',c:'IPQ8064'},{id:'xiaomi_mi-router-hd',n:'Xiaomi Mi Router HD',c:'IPQ8064'},
+    {id:'zyxel_nbg6817',n:'Zyxel NBG6817',c:'IPQ8064'},
+  ],
+  'qualcommbe-ipq95xx': [
+    {id:'8devices_kiwi-dvk',n:'8devices Kiwi-DVK',c:'IPQ95xx'}, {id:'qcom_rdp433',n:'Qualcomm Technologies, Inc. RDP433',c:'IPQ95xx'},
+  ],
+  'mediatek-filogic': [
+    {id:'abt_asr3000',n:'ABT ASR3000',c:'Filogic'}, {id:'acelink_ew-7886cax',n:'Acelink EW-7886CAX',c:'Filogic'}, {id:'acer_predator-w6',n:'Acer Predator Connect W6',c:'Filogic'}, {id:'acer_predator-w6d',n:'Acer Predator Connect W6d',c:'Filogic'},
+    {id:'acer_predator-w6x-stock',n:'Acer Predator Connect W6x (Stock Layout)',c:'Filogic'}, {id:'acer_predator-w6x-ubootmod',n:'Acer Predator Connect W6x (OpenWrt U-Boot Layout)',c:'Filogic'}, {id:'acer_vero-w6m',n:'Acer Connect Vero W6m',c:'Filogic'}, {id:'asiarf_ap7986-003',n:'AsiaRF AP7986 003',c:'Filogic'},
+    {id:'smartrg_sdg-8612',n:'smartrg_sdg-8612',c:'Filogic'}, {id:'smartrg_sdg-8614',n:'smartrg_sdg-8614',c:'Filogic'}, {id:'smartrg_sdg-8622',n:'smartrg_sdg-8622',c:'Filogic'}, {id:'smartrg_sdg-8632',n:'smartrg_sdg-8632',c:'Filogic'},
+    {id:'smartrg_sdg-8733',n:'smartrg_sdg-8733',c:'Filogic'}, {id:'smartrg_sdg-8733a',n:'smartrg_sdg-8733a',c:'Filogic'}, {id:'smartrg_sdg-8734',n:'smartrg_sdg-8734',c:'Filogic'}, {id:'airpi_ap3000m',n:'Airpi AP3000M',c:'Filogic'},
+    {id:'arcadyan_mozart',n:'Arcadyan Mozart',c:'Filogic'}, {id:'asus_rt-ax52',n:'ASUS RT-AX52',c:'Filogic'}, {id:'asus_rt-ax57m',n:'ASUS RT-AX57M',c:'Filogic'}, {id:'asus_rt-ax59u',n:'ASUS RT-AX59U',c:'Filogic'},
+    {id:'asus_tuf-ax4200',n:'ASUS TUF-AX4200',c:'Filogic'}, {id:'asus_tuf-ax4200q',n:'ASUS TUF-AX4200Q',c:'Filogic'}, {id:'asus_tuf-ax6000',n:'ASUS TUF-AX6000',c:'Filogic'}, {id:'asus_zenwifi-bt8',n:'ASUS ZenWiFi BT8',c:'Filogic'},
+    {id:'asus_zenwifi-bt8-ubootmod',n:'ASUS ZenWiFi BT8',c:'Filogic'}, {id:'bananapi_bpi-r3',n:'Bananapi BPi-R3',c:'Filogic'}, {id:'bananapi_bpi-r3-mini',n:'Bananapi BPi-R3 Mini',c:'Filogic'}, {id:'bananapi_bpi-r4',n:'bananapi_bpi-r4',c:'Filogic'},
+    {id:'bananapi_bpi-r4-poe',n:'bananapi_bpi-r4-poe',c:'Filogic'}, {id:'bananapi_bpi-r4-lite',n:'Bananapi BPi-R4 Lite',c:'Filogic'}, {id:'bazis_ax3000wm',n:'Bazis AX3000WM',c:'Filogic'}, {id:'buffalo_wsr-3000ax4p',n:'BUFFALO WSR-3000AX4P',c:'Filogic'},
+    {id:'buffalo_wsr-6000ax8',n:'Buffalo WSR-6000AX8',c:'Filogic'}, {id:'cetron_ct3003',n:'Cetron CT3003',c:'Filogic'}, {id:'cetron_ct3003-ubootmod',n:'Cetron CT3003',c:'Filogic'}, {id:'cmcc_a10-stock',n:'CMCC A10',c:'Filogic'},
+    {id:'cmcc_a10-ubootmod',n:'CMCC A10',c:'Filogic'}, {id:'cmcc_rax3000m',n:'CMCC RAX3000M',c:'Filogic'}, {id:'cmcc_rax3000me',n:'CMCC RAX3000Me',c:'Filogic'}, {id:'comfast_cf-e393ax',n:'COMFAST CF-E393AX',c:'Filogic'},
+    {id:'comfast_cf-wr632ax',n:'comfast_cf-wr632ax',c:'Filogic'}, {id:'comfast_cf-wr632ax-ubootmod',n:'comfast_cf-wr632ax-ubootmod',c:'Filogic'}, {id:'confiabits_mt7981',n:'Confiabits MT7981',c:'Filogic'}, {id:'creatlentem_clt-r30b1-112m',n:'creatlentem_clt-r30b1-112m',c:'Filogic'},
+    {id:'creatlentem_clt-r30b1',n:'creatlentem_clt-r30b1',c:'Filogic'}, {id:'cudy_ap3000outdoor-v1',n:'Cudy AP3000 Outdoor',c:'Filogic'}, {id:'cudy_ap3000wall-v1',n:'Cudy AP3000 Wall',c:'Filogic'}, {id:'cudy_ap3000-v1',n:'Cudy AP3000',c:'Filogic'},
+    {id:'cudy_m3000-v1',n:'Cudy M3000',c:'Filogic'}, {id:'cudy_m3000-v2-yt8821',n:'Cudy M3000',c:'Filogic'}, {id:'cudy_re3000-v1',n:'Cudy RE3000',c:'Filogic'}, {id:'cudy_tr3000-256mb-v1',n:'Cudy TR3000',c:'Filogic'},
+    {id:'cudy_tr3000-v1',n:'Cudy TR3000',c:'Filogic'}, {id:'cudy_tr3000-v1-ubootmod',n:'Cudy TR3000',c:'Filogic'}, {id:'cudy_wr3000-v1',n:'Cudy WR3000',c:'Filogic'}, {id:'cudy_wr3000e-v1',n:'Cudy WR3000E',c:'Filogic'},
+    {id:'cudy_wr3000e-v1-ubootmod',n:'Cudy WR3000E',c:'Filogic'}, {id:'cudy_wr3000s-v1',n:'Cudy WR3000S',c:'Filogic'}, {id:'cudy_wr3000s-v1-ubootmod',n:'Cudy WR3000S',c:'Filogic'}, {id:'cudy_wr3000h-v1',n:'Cudy WR3000H',c:'Filogic'},
+    {id:'cudy_wr3000h-v1-ubootmod',n:'Cudy WR3000H',c:'Filogic'}, {id:'cudy_wr3000p-v1',n:'Cudy WR3000P',c:'Filogic'}, {id:'cudy_wr3000p-v1-ubootmod',n:'Cudy WR3000P',c:'Filogic'}, {id:'cudy_wbr3000uax-v1',n:'Cudy WBR3000UAX',c:'Filogic'},
+    {id:'cudy_wbr3000uax-v1-ubootmod',n:'Cudy WBR3000UAX',c:'Filogic'}, {id:'dlink_aquila-pro-ai-e30-a1',n:'D-Link AQUILA PRO AI E30',c:'Filogic'}, {id:'dlink_aquila-pro-ai-m30-a1',n:'D-Link AQUILA PRO AI M30',c:'Filogic'}, {id:'dlink_aquila-pro-ai-m60-a1',n:'D-Link AQUILA PRO AI M60',c:'Filogic'},
+    {id:'edgecore_eap111',n:'Edgecore EAP111',c:'Filogic'}, {id:'elecom_wrc-x3000gs3',n:'ELECOM WRC-X3000GS3',c:'Filogic'}, {id:'gatonetworks_gdsp',n:'GatoNetworks gdsp',c:'Filogic'}, {id:'glinet_gl-mt2500',n:'GL.iNet GL-MT2500',c:'Filogic'},
+    {id:'glinet_gl-mt2500-airoha',n:'GL.iNet GL-MT2500',c:'Filogic'}, {id:'glinet_gl-mt3000',n:'GL.iNet GL-MT3000',c:'Filogic'}, {id:'glinet_gl-mt3600be',n:'GL.iNet GL-MT3600BE',c:'Filogic'}, {id:'glinet_gl-mt6000',n:'GL.iNet GL-MT6000',c:'Filogic'},
+    {id:'glinet_gl-x3000',n:'glinet_gl-x3000',c:'Filogic'}, {id:'glinet_gl-xe3000',n:'glinet_gl-xe3000',c:'Filogic'}, {id:'h3c_magic-nx30-pro',n:'H3C Magic NX30 Pro',c:'Filogic'}, {id:'huasifei_wh3000-emmc',n:'Huasifei WH3000 eMMC',c:'Filogic'},
+    {id:'huasifei_wh3000-pro-emmc',n:'Huasifei WH3000 Pro',c:'Filogic'}, {id:'huasifei_wh3000-pro-nand',n:'Huasifei WH3000 Pro',c:'Filogic'}, {id:'imou_hx21',n:'Imou HX21',c:'Filogic'}, {id:'iptime_ax3000q',n:'ipTIME AX3000Q',c:'Filogic'},
+    {id:'iptime_ax3000se',n:'ipTIME AX3000SE',c:'Filogic'}, {id:'iptime_ax3000sm',n:'ipTIME AX3000SM',c:'Filogic'}, {id:'iptime_ax3000m',n:'ipTIME AX3000M',c:'Filogic'}, {id:'iptime_ax7800m-6e',n:'ipTIME AX7800M-6E',c:'Filogic'},
+    {id:'jcg_q30-pro',n:'JCG Q30 PRO',c:'Filogic'}, {id:'jdcloud_re-cp-03',n:'JDCloud RE-CP-03',c:'Filogic'}, {id:'kebidumei_ax3000-u22',n:'Kebidumei AX3000-U22',c:'Filogic'}, {id:'keenetic_kap-630',n:'Keenetic KAP-630',c:'Filogic'},
+    {id:'keenetic_kn-1812',n:'Keenetic KN-1812',c:'Filogic'}, {id:'keenetic_kn-3711',n:'Keenetic KN-3711',c:'Filogic'}, {id:'keenetic_kn-3811',n:'Keenetic KN-3811',c:'Filogic'}, {id:'keenetic_kn-3911',n:'Keenetic KN-3911',c:'Filogic'},
+    {id:'konka_komi-a31',n:'Konka KOMI A31',c:'Filogic'}, {id:'livinet_zr-3020',n:'Livinet ZR-3020',c:'Filogic'}, {id:'livinet_zr-3020-ubootmod',n:'Livinet ZR-3020',c:'Filogic'}, {id:'mediatek_mt7981-rfb',n:'MediaTek MT7981 rfb',c:'Filogic'},
+    {id:'mediatek_mt7986a-rfb-nand',n:'MediaTek MT7986 rfba AP (NAND)',c:'Filogic'}, {id:'mediatek_mt7986b-rfb',n:'MediaTek MTK7986 rfbb AP',c:'Filogic'}, {id:'mediatek_mt7987a-rfb',n:'MediaTek MT7987A rfb',c:'Filogic'}, {id:'mediatek_mt7988a-rfb',n:'MediaTek MT7988A rfb',c:'Filogic'},
+    {id:'mercusys_mr80x-v3',n:'MERCUSYS MR80X',c:'Filogic'}, {id:'mercusys_mr85x',n:'MERCUSYS MR85X',c:'Filogic'}, {id:'mercusys_mr90x-v1',n:'MERCUSYS MR90X v1',c:'Filogic'}, {id:'mercusys_mr90x-v1-ubi',n:'MERCUSYS MR90X v1 (UBI)',c:'Filogic'},
+    {id:'netcore_n60',n:'Netcore N60',c:'Filogic'}, {id:'netcore_n60-pro',n:'Netcore N60 Pro',c:'Filogic'}, {id:'netcraze_nap-630',n:'Netcraze NAP-630',c:'Filogic'}, {id:'netcraze_nc-1812',n:'Netcraze NC-1812',c:'Filogic'},
+    {id:'netgear_eax17',n:'NETGEAR EAX17',c:'Filogic'}, {id:'netgear_wax220',n:'NETGEAR WAX220',c:'Filogic'}, {id:'netis_nx30v2',n:'Netis NX30V2',c:'Filogic'}, {id:'netis_nx31',n:'netis NX31',c:'Filogic'},
+    {id:'netis_nx32u',n:'netis NX32U',c:'Filogic'}, {id:'nokia_ea0326gmp',n:'Nokia EA0326GMP',c:'Filogic'}, {id:'nradio_c8-668gl',n:'NRadio C8-668GL',c:'Filogic'}, {id:'openembed_som7981',n:'OpenEmbed SOM7981',c:'Filogic'},
+    {id:'openfi_6c',n:'OpenFi 6C',c:'Filogic'}, {id:'openwrt_one',n:'OpenWrt One',c:'Filogic'}, {id:'qihoo_360t7',n:'Qihoo 360T7',c:'Filogic'}, {id:'routerich_ax3000',n:'Routerich AX3000',c:'Filogic'},
+    {id:'routerich_ax3000-ubootmod',n:'Routerich AX3000 (OpenWrt U-Boot layout)',c:'Filogic'}, {id:'routerich_ax3000-v1',n:'Routerich AX3000',c:'Filogic'}, {id:'routerich_be7200',n:'Routerich BE7200',c:'Filogic'}, {id:'ruijie_rg-x60',n:'Ruijie RG-X60',c:'Filogic'},
+    {id:'ruijie_rg-x60-pro',n:'Ruijie RG-X60 Pro',c:'Filogic'}, {id:'snr_snr-cpe-ax2',n:'SNR SNR-CPE-AX2',c:'Filogic'}, {id:'teltonika_rutc50',n:'Teltonika RUTC50',c:'Filogic'}, {id:'tenbay_wr3000k',n:'Tenbay WR3000K',c:'Filogic'},
+    {id:'tenda_be12-pro',n:'Tenda BE12 Pro',c:'Filogic'}, {id:'totolink_x6000r',n:'TOTOLINK X6000R',c:'Filogic'}, {id:'tplink_archer-ax80-v1',n:'TP-Link Archer AX80',c:'Filogic'}, {id:'tplink_archer-ax80-v1-eu',n:'TP-Link Archer AX80',c:'Filogic'},
+    {id:'tplink_fr365-v1',n:'TP-Link FR365',c:'Filogic'}, {id:'tplink_be450',n:'TP-Link BE450',c:'Filogic'}, {id:'tplink_eap683-lr',n:'TP-Link EAP683-LR',c:'Filogic'}, {id:'tplink_re6000xd',n:'TP-Link RE6000XD',c:'Filogic'},
+    {id:'tplink_tl-7dr7230-v1',n:'tplink_tl-7dr7230-v1',c:'Filogic'}, {id:'tplink_tl-7dr7230-v2',n:'tplink_tl-7dr7230-v2',c:'Filogic'}, {id:'tplink_tl-7dr7250-v1',n:'tplink_tl-7dr7250-v1',c:'Filogic'}, {id:'tplink_tl-xdr4288',n:'tplink_tl-xdr4288',c:'Filogic'},
+    {id:'tplink_tl-xdr6086',n:'tplink_tl-xdr6086',c:'Filogic'}, {id:'tplink_tl-xdr6088',n:'tplink_tl-xdr6088',c:'Filogic'}, {id:'tplink_tl-xtr8488',n:'tplink_tl-xtr8488',c:'Filogic'}, {id:'ubnt_unifi-6-plus',n:'Ubiquiti UniFi U6+',c:'Filogic'},
+    {id:'unielec_u7981-01-emmc',n:'unielec_u7981-01-emmc',c:'Filogic'}, {id:'unielec_u7981-01-nand',n:'unielec_u7981-01-nand',c:'Filogic'}, {id:'wavlink_wl-wn536ax6-a',n:'WAVLINK WL-WN536AX6',c:'Filogic'}, {id:'wavlink_wl-wn551x3',n:'WAVLINK WL-WN551X3',c:'Filogic'},
+    {id:'wavlink_wl-wn586x3',n:'WAVLINK WL-WN586X3',c:'Filogic'}, {id:'wavlink_wl-wn586x3b',n:'WAVLINK WL-WN586X3B',c:'Filogic'}, {id:'wavlink_wl-wn573hx3',n:'WAVLINK WL-WN573HX3',c:'Filogic'}, {id:'widelantech_wap430x',n:'Widelantech WAP430X',c:'Filogic'},
+    {id:'xiaomi_mi-router-ax3000t',n:'Xiaomi Mi Router AX3000T',c:'Filogic'}, {id:'xiaomi_mi-router-ax3000t-ubootmod',n:'Xiaomi Mi Router AX3000T',c:'Filogic'}, {id:'xiaomi_mi-router-wr30u-stock',n:'Xiaomi Mi Router WR30U',c:'Filogic'}, {id:'xiaomi_mi-router-wr30u-ubootmod',n:'Xiaomi Mi Router WR30U',c:'Filogic'},
+    {id:'xiaomi_redmi-router-ax6000-stock',n:'Xiaomi Redmi Router AX6000',c:'Filogic'}, {id:'xiaomi_redmi-router-ax6000-ubootmod',n:'Xiaomi Redmi Router AX6000',c:'Filogic'}, {id:'yuncore_ax835',n:'YunCore AX835',c:'Filogic'}, {id:'zbtlink_zbt-z8102ax',n:'Zbtlink ZBT-Z8102AX',c:'Filogic'},
+    {id:'zbtlink_zbt-z8102ax-v2',n:'Zbtlink ZBT-Z8102AX-V2',c:'Filogic'}, {id:'zbtlink_zbt-z8103ax',n:'Zbtlink ZBT-Z8103AX',c:'Filogic'}, {id:'zbtlink_zbt-z8103ax-c',n:'Zbtlink ZBT-Z8103AX-C',c:'Filogic'}, {id:'zbtlink_zbt-z8106ax-t',n:'Zbtlink ZBT-Z8106AX-T',c:'Filogic'},
+    {id:'zyxel_ex5601-t0-stock',n:'Zyxel EX5601-T0',c:'Filogic'}, {id:'zyxel_ex5601-t0-ubootmod',n:'Zyxel EX5601-T0',c:'Filogic'}, {id:'zyxel_ex5700-telenor',n:'Zyxel EX5700 (Telenor)',c:'Filogic'}, {id:'zyxel_nwa50ax-pro',n:'Zyxel NWA50AX Pro',c:'Filogic'},
+    {id:'zyxel_wx5600-t0-ubootmod',n:'Zyxel WX5600-T0',c:'Filogic'},
+  ],
+  'mediatek-mt7622': [
+    {id:'asiarf_ap7622-wh1',n:'AsiaRF AP7622-WH1',c:'MT7622'}, {id:'smartrg_sdg-841-t6',n:'Adtran SDG-841-t6',c:'MT7622'}, {id:'bananapi_bpi-r64',n:'Bananapi BPi-R64',c:'MT7622'}, {id:'buffalo_wsr-2533dhp2',n:'buffalo_wsr-2533dhp2',c:'MT7622'},
+    {id:'buffalo_wsr-3200ax4s',n:'buffalo_wsr-3200ax4s',c:'MT7622'}, {id:'dlink_eagle-pro-ai-m32-a1',n:'dlink_eagle-pro-ai-m32-a1',c:'MT7622'}, {id:'dlink_eagle-pro-ai-r32-a1',n:'dlink_eagle-pro-ai-r32-a1',c:'MT7622'}, {id:'elecom_wrc-2533gent',n:'Elecom WRC-2533GENT',c:'MT7622'},
+    {id:'elecom_wrc-g01',n:'elecom_wrc-g01',c:'MT7622'}, {id:'elecom_wrc-x3200gst3',n:'elecom_wrc-x3200gst3',c:'MT7622'}, {id:'linksys_e8450',n:'Linksys E8450',c:'MT7622'}, {id:'linksys_e8450-ubi',n:'Linksys E8450',c:'MT7622'},
+    {id:'mediatek_mt7622-rfb1',n:'MediaTek MTK7622 rfb1 AP',c:'MT7622'}, {id:'mediatek_mt7622-rfb1-ubi',n:'MediaTek MTK7622 rfb1 AP (UBI)',c:'MT7622'}, {id:'netgear_wax206',n:'NETGEAR WAX206',c:'MT7622'}, {id:'ruijie_rg-ew3200gx-pro',n:'Ruijie RG-EW3200GX PRO',c:'MT7622'},
+    {id:'reyee_ax3200-e5',n:'reyee AX3200 E5',c:'MT7622'}, {id:'totolink_a8000ru',n:'TOTOLINK A8000RU',c:'MT7622'}, {id:'tplink_tl-xdr3230-v1',n:'tplink_tl-xdr3230-v1',c:'MT7622'}, {id:'tplink_tl-xdr3250-v1',n:'tplink_tl-xdr3250-v1',c:'MT7622'},
+    {id:'ubnt_unifi-6-lr-v1',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'}, {id:'ubnt_unifi-6-lr-v1-ubootmod',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'}, {id:'ubnt_unifi-6-lr-v2',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'}, {id:'ubnt_unifi-6-lr-v2-ubootmod',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'},
+    {id:'ubnt_unifi-6-lr-v3',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'}, {id:'ubnt_unifi-6-lr-v3-ubootmod',n:'Ubiquiti UniFi U6 Long-Range',c:'MT7622'}, {id:'xiaomi_redmi-router-ax6s',n:'Xiaomi Redmi Router AX6S',c:'MT7622'},
+  ],
+  'mediatek-mt7623': [
+    {id:'bananapi_bpi-r2',n:'Bananapi BPi-R2',c:'MT7623'}, {id:'unielec_u7623-02',n:'UniElec U7623-02',c:'MT7623'}, {id:'unielec_u7623-02-emmc-512m-legacy',n:'UniElec U7623-02',c:'MT7623'},
+  ],
+  'mediatek-mt7629': [
+    {id:'mediatek_mt7629-rfb',n:'MediaTek MT7629 rfb AP',c:'MT7629'}, {id:'iptime_a6004mx',n:'ipTIME A6004MX',c:'MT7629'}, {id:'linksys_ea7500-v3',n:'Linksys EA7500',c:'MT7629'}, {id:'netgear_ex6250-v2',n:'NETGEAR EX6250',c:'MT7629'},
+    {id:'tplink_eap225-v5',n:'TP-Link EAP225',c:'MT7629'},
+  ],
+  'ath79-generic': [
+    {id:'8dev_carambola2',n:'8devices Carambola2',c:'MIPS'}, {id:'8dev_carambola3',n:'8devices Carambola3',c:'MIPS'}, {id:'8dev_lima',n:'8devices Lima',c:'MIPS'}, {id:'adtran_bsap1800-v2',n:'adtran_bsap1800-v2',c:'MIPS'},
+    {id:'adtran_bsap1840',n:'adtran_bsap1840',c:'MIPS'}, {id:'alcatel_hh40v',n:'Alcatel HH40V',c:'MIPS'}, {id:'airtight_c-75',n:'AirTight Networks C-75',c:'MIPS'}, {id:'alfa-network_ap121f',n:'ALFA Network AP121F',c:'MIPS'},
+    {id:'alfa-network_ap121fe',n:'ALFA Network AP121FE',c:'MIPS'}, {id:'alfa-network_n2q',n:'ALFA Network N2Q',c:'MIPS'}, {id:'alfa-network_n5q',n:'ALFA Network N5Q',c:'MIPS'}, {id:'alfa-network_pi-wifi4',n:'ALFA Network Pi-WiFi4',c:'MIPS'},
+    {id:'alfa-network_r36a',n:'ALFA Network R36A',c:'MIPS'}, {id:'alfa-network_tube-2hq',n:'ALFA Network Tube-2HQ',c:'MIPS'}, {id:'alfa-network_wifi-camppro-nano-duo',n:'ALFA Network WiFi CampPro Nano Duo',c:'MIPS'}, {id:'allnet_all-wap02860ac',n:'ALLNET ALL-WAP02860AC',c:'MIPS'},
+    {id:'araknis_an-300-ap-i-n',n:'Araknis AN-300-AP-I-N',c:'MIPS'}, {id:'araknis_an-500-ap-i-ac',n:'Araknis AN-500-AP-I-AC',c:'MIPS'}, {id:'araknis_an-700-ap-i-ac',n:'Araknis AN-700-AP-I-AC',c:'MIPS'}, {id:'arduino_yun',n:'Arduino Yun',c:'MIPS'},
+    {id:'aruba_ap-105',n:'Aruba AP-105',c:'MIPS'}, {id:'aruba_ap-115',n:'Aruba AP-115',c:'MIPS'}, {id:'aruba_ap-175',n:'Aruba AP-175',c:'MIPS'}, {id:'asus_pl-ac56',n:'ASUS PL-AC56',c:'MIPS'},
+    {id:'asus_rp-ac51',n:'ASUS RP-AC51',c:'MIPS'}, {id:'asus_rp-ac66',n:'ASUS RP-AC66',c:'MIPS'}, {id:'asus_rt-ac59u',n:'asus_rt-ac59u',c:'MIPS'}, {id:'asus_rt-ac59u-v2',n:'asus_rt-ac59u-v2',c:'MIPS'},
+    {id:'asus_zenwifi-cd6n',n:'asus_zenwifi-cd6n',c:'MIPS'}, {id:'asus_zenwifi-cd6r',n:'asus_zenwifi-cd6r',c:'MIPS'}, {id:'atheros_db120',n:'Atheros DB120',c:'MIPS'}, {id:'avm_fritz1750e',n:'avm_fritz1750e',c:'MIPS'},
+    {id:'avm_fritz300e',n:'avm_fritz300e',c:'MIPS'}, {id:'avm_fritz4020',n:'avm_fritz4020',c:'MIPS'}, {id:'avm_fritz450e',n:'avm_fritz450e',c:'MIPS'}, {id:'avm_fritzdvbc',n:'avm_fritzdvbc',c:'MIPS'},
+    {id:'belkin_f9j1108-v2',n:'belkin_f9j1108-v2',c:'MIPS'}, {id:'belkin_f9k1115-v2',n:'belkin_f9k1115-v2',c:'MIPS'}, {id:'buffalo_bhr-4grv',n:'buffalo_bhr-4grv',c:'MIPS'}, {id:'buffalo_bhr-4grv2',n:'Buffalo BHR-4GRV2',c:'MIPS'},
+    {id:'buffalo_wzr-600dhp',n:'buffalo_wzr-600dhp',c:'MIPS'}, {id:'buffalo_wzr-hp-ag300h',n:'buffalo_wzr-hp-ag300h',c:'MIPS'}, {id:'buffalo_wzr-hp-g300nh-rb',n:'buffalo_wzr-hp-g300nh-rb',c:'MIPS'}, {id:'buffalo_wzr-hp-g300nh-s',n:'buffalo_wzr-hp-g300nh-s',c:'MIPS'},
+    {id:'buffalo_wzr-hp-g302h-a1a0',n:'buffalo_wzr-hp-g302h-a1a0',c:'MIPS'}, {id:'buffalo_wzr-hp-g450h',n:'buffalo_wzr-hp-g450h',c:'MIPS'}, {id:'buffalo_wzr-450hp2',n:'buffalo_wzr-450hp2',c:'MIPS'}, {id:'comfast_cf-e110n-v2',n:'COMFAST CF-E110N',c:'MIPS'},
+    {id:'comfast_cf-e120a-v3',n:'COMFAST CF-E120A',c:'MIPS'}, {id:'comfast_cf-e130n-v2',n:'COMFAST CF-E130N',c:'MIPS'}, {id:'comfast_cf-e313ac',n:'COMFAST CF-E313AC',c:'MIPS'}, {id:'comfast_cf-e314n-v2',n:'COMFAST CF-E314N',c:'MIPS'},
+    {id:'comfast_cf-e355ac-v2',n:'COMFAST CF-E355AC',c:'MIPS'}, {id:'comfast_cf-e375ac',n:'COMFAST CF-E375AC',c:'MIPS'}, {id:'comfast_cf-e380ac-v2',n:'COMFAST CF-E380AC',c:'MIPS'}, {id:'comfast_cf-e5',n:'COMFAST CF-E5/E7',c:'MIPS'},
+    {id:'comfast_cf-e560ac',n:'COMFAST CF-E560AC',c:'MIPS'}, {id:'comfast_cf-ew71-v2',n:'COMFAST CF-EW71',c:'MIPS'}, {id:'comfast_cf-ew72',n:'COMFAST CF-EW72',c:'MIPS'}, {id:'comfast_cf-wr650ac-v1',n:'COMFAST CF-WR650AC',c:'MIPS'},
+    {id:'comfast_cf-wr650ac-v2',n:'COMFAST CF-WR650AC',c:'MIPS'}, {id:'comfast_cf-wr752ac-v1',n:'COMFAST CF-WR752AC',c:'MIPS'}, {id:'compex_wpj344-16m',n:'Compex WPJ344',c:'MIPS'}, {id:'compex_wpj531-16m',n:'Compex WPJ531',c:'MIPS'},
+    {id:'compex_wpj558-16m',n:'Compex WPJ558',c:'MIPS'}, {id:'compex_wpj563',n:'Compex WPJ563',c:'MIPS'}, {id:'dell_apl26-0ae',n:'dell_apl26-0ae',c:'MIPS'}, {id:'dell_apl27-0b1',n:'dell_apl27-0b1',c:'MIPS'},
+    {id:'devolo_dlan-pro-1200plus-ac',n:'devolo dLAN pro 1200+ WiFi ac',c:'MIPS'}, {id:'devolo_dvl1200e',n:'devolo_dvl1200e',c:'MIPS'}, {id:'devolo_dvl1200i',n:'devolo_dvl1200i',c:'MIPS'}, {id:'devolo_dvl1750c',n:'devolo_dvl1750c',c:'MIPS'},
+    {id:'devolo_dvl1750e',n:'devolo_dvl1750e',c:'MIPS'}, {id:'devolo_dvl1750i',n:'devolo_dvl1750i',c:'MIPS'}, {id:'devolo_dvl1750x',n:'devolo WiFi pro 1750x',c:'MIPS'}, {id:'devolo_magic-2-wifi',n:'devolo Magic 2 WiFi',c:'MIPS'},
+    {id:'dlink_covr-c1200-a1',n:'dlink_covr-c1200-a1',c:'MIPS'}, {id:'dlink_covr-p2500-a1',n:'dlink_covr-p2500-a1',c:'MIPS'}, {id:'dlink_dap-1330-a1',n:'dlink_dap-1330-a1',c:'MIPS'}, {id:'dlink_dap-1365-a1',n:'dlink_dap-1365-a1',c:'MIPS'},
+    {id:'dlink_dap-2230-a1',n:'D-Link DAP-2230',c:'MIPS'}, {id:'dlink_dap-2660-a1',n:'D-Link DAP-2660',c:'MIPS'}, {id:'dlink_dap-2680-a1',n:'D-Link DAP-2680',c:'MIPS'}, {id:'dlink_dap-2695-a1',n:'D-Link DAP-2695',c:'MIPS'},
+    {id:'dlink_dap-3320-a1',n:'D-Link DAP-3320',c:'MIPS'}, {id:'dlink_dap-3662-a1',n:'D-Link DAP-3662',c:'MIPS'}, {id:'dlink_dch-g020-a1',n:'D-Link DCH-G020',c:'MIPS'}, {id:'dlink_dir-505',n:'D-Link DIR-505',c:'MIPS'},
+    {id:'dlink_dir-629-a1',n:'D-Link DIR-629',c:'MIPS'}, {id:'dlink_dir-825-b1',n:'D-Link DIR-825',c:'MIPS'}, {id:'dlink_dir-825-c1',n:'D-Link DIR-825',c:'MIPS'}, {id:'dlink_dir-835-a1',n:'D-Link DIR-835',c:'MIPS'},
+    {id:'dlink_dir-842-c1',n:'dlink_dir-842-c1',c:'MIPS'}, {id:'dlink_dir-842-c2',n:'dlink_dir-842-c2',c:'MIPS'}, {id:'dlink_dir-842-c3',n:'dlink_dir-842-c3',c:'MIPS'}, {id:'elecom_wab-i1750-ps',n:'elecom_wab-i1750-ps',c:'MIPS'},
+    {id:'elecom_wab-s1167-ps',n:'elecom_wab-s1167-ps',c:'MIPS'}, {id:'elecom_wab-s600-ps',n:'elecom_wab-s600-ps',c:'MIPS'}, {id:'elecom_wrc-1750ghbk2-i',n:'ELECOM WRC-1750GHBK2-I/C',c:'MIPS'}, {id:'elecom_wrc-300ghbk2-i',n:'ELECOM WRC-300GHBK2-I',c:'MIPS'},
+    {id:'embeddedwireless_balin',n:'Embedded Wireless Balin',c:'MIPS'}, {id:'embeddedwireless_dorin',n:'Embedded Wireless Dorin',c:'MIPS'}, {id:'engenius_eap1200h',n:'EnGenius EAP1200H',c:'MIPS'}, {id:'engenius_eap1750h',n:'EnGenius EAP1750H',c:'MIPS'},
+    {id:'engenius_eap300-v2',n:'EnGenius EAP300',c:'MIPS'}, {id:'engenius_eap600',n:'EnGenius EAP600',c:'MIPS'}, {id:'engenius_ecb1200',n:'EnGenius ECB1200',c:'MIPS'}, {id:'engenius_ecb1750',n:'EnGenius ECB1750',c:'MIPS'},
+    {id:'engenius_ecb600',n:'EnGenius ECB600',c:'MIPS'}, {id:'engenius_ens202ext-v1',n:'EnGenius ENS202EXT',c:'MIPS'}, {id:'engenius_enstationac-v1',n:'EnGenius EnStationAC',c:'MIPS'}, {id:'engenius_epg5000',n:'EnGenius EPG5000',c:'MIPS'},
+    {id:'engenius_esr1200',n:'EnGenius ESR1200',c:'MIPS'}, {id:'engenius_esr1750',n:'EnGenius ESR1750',c:'MIPS'}, {id:'engenius_esr900',n:'EnGenius ESR900',c:'MIPS'}, {id:'engenius_ews511ap',n:'EnGenius EWS511AP',c:'MIPS'},
+    {id:'engenius_ews660ap',n:'engenius_ews660ap',c:'MIPS'}, {id:'engenius_ens1750',n:'engenius_ens1750',c:'MIPS'}, {id:'enterasys_ws-ap3705i',n:'Enterasys WS-AP3705i',c:'MIPS'}, {id:'etactica_eg200',n:'eTactica EG200',c:'MIPS'},
+    {id:'extreme-networks_ws-ap3805i',n:'Extreme Networks WS-AP3805i',c:'MIPS'}, {id:'fortinet_fap-220-b',n:'fortinet_fap-220-b',c:'MIPS'}, {id:'fortinet_fap-221-b',n:'fortinet_fap-221-b',c:'MIPS'}, {id:'fortinet_fap-221-c',n:'Fortinet FAP-221-C',c:'MIPS'},
+    {id:'glinet_6408',n:'GL.iNet 6408',c:'MIPS'}, {id:'glinet_6416',n:'GL.iNet 6416',c:'MIPS'}, {id:'glinet_gl-ar150',n:'GL.iNet GL-AR150',c:'MIPS'}, {id:'glinet_gl-ar300m-lite',n:'glinet_gl-ar300m-lite',c:'MIPS'},
+    {id:'glinet_gl-ar300m16',n:'glinet_gl-ar300m16',c:'MIPS'}, {id:'glinet_gl-ar750',n:'GL.iNet GL-AR750',c:'MIPS'}, {id:'glinet_gl-mifi',n:'GL.iNET GL-MiFi',c:'MIPS'}, {id:'glinet_gl-usb150',n:'GL.iNET GL-USB150',c:'MIPS'},
+    {id:'glinet_gl-x300b',n:'GL.iNet GL-X300B',c:'MIPS'}, {id:'glinet_gl-x750',n:'GL.iNet GL-X750',c:'MIPS'}, {id:'hak5_lan-turtle',n:'Hak5 LAN Turtle',c:'MIPS'}, {id:'hak5_packet-squirrel',n:'Hak5 Packet Squirrel',c:'MIPS'},
+    {id:'hak5_wifi-pineapple-nano',n:'Hak5 WiFi Pineapple NANO',c:'MIPS'}, {id:'hiwifi_hc6361',n:'HiWiFi HC6361',c:'MIPS'}, {id:'huawei_ap5030dn',n:'Huawei AP5030DN',c:'MIPS'}, {id:'huawei_ap6010dn',n:'Huawei AP6010DN',c:'MIPS'},
+    {id:'iodata_etg3-r',n:'I-O DATA ETG3-R',c:'MIPS'}, {id:'iodata_wn-ac1167dgr',n:'I-O DATA WN-AC1167DGR',c:'MIPS'}, {id:'iodata_wn-ac1600dgr',n:'I-O DATA WN-AC1600DGR',c:'MIPS'}, {id:'iodata_wn-ac1600dgr2',n:'I-O DATA WN-AC1600DGR2/DGR3',c:'MIPS'},
+    {id:'iodata_wn-ag300dgr',n:'I-O DATA WN-AG300DGR',c:'MIPS'}, {id:'jjplus_ja76pf2',n:'jjPlus JA76PF2',c:'MIPS'}, {id:'jjplus_jwap230',n:'jjPlus JWAP230',c:'MIPS'}, {id:'joyit_jt-or750i',n:'Joy-IT JT-OR750i',c:'MIPS'},
+    {id:'kuwfi_c910',n:'KuWFi C910',c:'MIPS'}, {id:'kuwfi_n650',n:'KuWFi N650',c:'MIPS'}, {id:'letv_lba-047-ch',n:'Letv LBA-047-CH',c:'MIPS'}, {id:'librerouter_librerouter-v1',n:'Librerouter LibreRouter',c:'MIPS'},
+    {id:'longdata_aps256',n:'LONGDATA APS256',c:'MIPS'}, {id:'meraki_mr12',n:'Meraki MR12',c:'MIPS'}, {id:'meraki_mr16',n:'Meraki MR16',c:'MIPS'}, {id:'mercury_mw4530r-v1',n:'Mercury MW4530R',c:'MIPS'},
+    {id:'moxa_awk-1137c',n:'MOXA AWK-1137C',c:'MIPS'}, {id:'nec_wf1200cr',n:'nec_wf1200cr',c:'MIPS'}, {id:'nec_wg1200cr',n:'nec_wg1200cr',c:'MIPS'}, {id:'nec_wg1400hp',n:'nec_wg1400hp',c:'MIPS'},
+    {id:'nec_wg1800hp',n:'nec_wg1800hp',c:'MIPS'}, {id:'nec_wg1800hp2',n:'nec_wg1800hp2',c:'MIPS'}, {id:'nec_wg2200hp',n:'nec_wg2200hp',c:'MIPS'}, {id:'nec_wg800hp',n:'NEC Aterm WG800HP',c:'MIPS'},
+    {id:'netgear_ex7300',n:'NETGEAR EX7300',c:'MIPS'}, {id:'netgear_ex7300-v2',n:'NETGEAR EX7300',c:'MIPS'}, {id:'netgear_wndap360',n:'netgear_wndap360',c:'MIPS'}, {id:'netgear_wndr3700',n:'netgear_wndr3700',c:'MIPS'},
+    {id:'netgear_wndr3700-v2',n:'netgear_wndr3700-v2',c:'MIPS'}, {id:'netgear_wndr3800',n:'netgear_wndr3800',c:'MIPS'}, {id:'netgear_wndr3800ch',n:'netgear_wndr3800ch',c:'MIPS'}, {id:'netgear_wndrmac-v1',n:'netgear_wndrmac-v1',c:'MIPS'},
+    {id:'netgear_wndrmac-v2',n:'netgear_wndrmac-v2',c:'MIPS'}, {id:'netgear_wnr2200-8m',n:'netgear_wnr2200-8m',c:'MIPS'}, {id:'netgear_wnr2200-16m',n:'netgear_wnr2200-16m',c:'MIPS'}, {id:'ocedo_koala',n:'Ocedo Koala',c:'MIPS'},
+    {id:'ocedo_raccoon',n:'Ocedo Raccoon',c:'MIPS'}, {id:'ocedo_ursus',n:'Ocedo Ursus',c:'MIPS'}, {id:'onion_omega',n:'Onion Omega',c:'MIPS'}, {id:'openmesh_a40',n:'openmesh_a40',c:'MIPS'},
+    {id:'openmesh_a60',n:'openmesh_a60',c:'MIPS'}, {id:'openmesh_mr600-v1',n:'openmesh_mr600-v1',c:'MIPS'}, {id:'openmesh_mr600-v2',n:'openmesh_mr600-v2',c:'MIPS'}, {id:'openmesh_mr900-v1',n:'openmesh_mr900-v1',c:'MIPS'},
+    {id:'openmesh_mr900-v2',n:'openmesh_mr900-v2',c:'MIPS'}, {id:'openmesh_mr1750-v1',n:'openmesh_mr1750-v1',c:'MIPS'}, {id:'openmesh_mr1750-v2',n:'openmesh_mr1750-v2',c:'MIPS'}, {id:'openmesh_om2p-v1',n:'openmesh_om2p-v1',c:'MIPS'},
+    {id:'openmesh_om2p-v2',n:'openmesh_om2p-v2',c:'MIPS'}, {id:'openmesh_om2p-v4',n:'openmesh_om2p-v4',c:'MIPS'}, {id:'openmesh_om2p-hs-v1',n:'openmesh_om2p-hs-v1',c:'MIPS'}, {id:'openmesh_om2p-hs-v2',n:'openmesh_om2p-hs-v2',c:'MIPS'},
+    {id:'openmesh_om2p-hs-v3',n:'openmesh_om2p-hs-v3',c:'MIPS'}, {id:'openmesh_om2p-hs-v4',n:'openmesh_om2p-hs-v4',c:'MIPS'}, {id:'openmesh_om2p-lc',n:'openmesh_om2p-lc',c:'MIPS'}, {id:'openmesh_om5p',n:'openmesh_om5p',c:'MIPS'},
+    {id:'openmesh_om5p-ac-v1',n:'openmesh_om5p-ac-v1',c:'MIPS'}, {id:'openmesh_om5p-ac-v2',n:'openmesh_om5p-ac-v2',c:'MIPS'}, {id:'openmesh_om5p-an',n:'openmesh_om5p-an',c:'MIPS'}, {id:'pcs_cap324',n:'PowerCloud Systems CAP324',c:'MIPS'},
+    {id:'pcs_cr3000',n:'PowerCloud Systems CR3000',c:'MIPS'}, {id:'pcs_cr5000',n:'PowerCloud Systems CR5000',c:'MIPS'}, {id:'phicomm_k2t',n:'Phicomm K2T',c:'MIPS'}, {id:'pisen_ts-d084',n:'PISEN TS-D084',c:'MIPS'},
+    {id:'pisen_wmb001n',n:'PISEN WMB001N',c:'MIPS'}, {id:'pisen_wmm003n',n:'PISEN Cloud Easy Power (WMM003N)',c:'MIPS'}, {id:'plasmacloud_pa300',n:'plasmacloud_pa300',c:'MIPS'}, {id:'plasmacloud_pa300e',n:'plasmacloud_pa300e',c:'MIPS'},
+    {id:'qca_ap143-8m',n:'qca_ap143-8m',c:'MIPS'}, {id:'qca_ap143-16m',n:'qca_ap143-16m',c:'MIPS'}, {id:'qihoo_c301',n:'Qihoo C301',c:'MIPS'}, {id:'qxwlan_e1700ac-v2-16m',n:'qxwlan_e1700ac-v2-16m',c:'MIPS'},
+    {id:'qxwlan_e1700ac-v2-8m',n:'qxwlan_e1700ac-v2-8m',c:'MIPS'}, {id:'qxwlan_e558-v2-16m',n:'qxwlan_e558-v2-16m',c:'MIPS'}, {id:'qxwlan_e558-v2-8m',n:'qxwlan_e558-v2-8m',c:'MIPS'}, {id:'qxwlan_e600g-v2-16m',n:'qxwlan_e600g-v2-16m',c:'MIPS'},
+    {id:'qxwlan_e600g-v2-8m',n:'qxwlan_e600g-v2-8m',c:'MIPS'}, {id:'qxwlan_e600gac-v2-16m',n:'qxwlan_e600gac-v2-16m',c:'MIPS'}, {id:'qxwlan_e600gac-v2-8m',n:'qxwlan_e600gac-v2-8m',c:'MIPS'}, {id:'qxwlan_e750a-v4-16m',n:'qxwlan_e750a-v4-16m',c:'MIPS'},
+    {id:'qxwlan_e750a-v4-8m',n:'qxwlan_e750a-v4-8m',c:'MIPS'}, {id:'qxwlan_e750g-v8-16m',n:'qxwlan_e750g-v8-16m',c:'MIPS'}, {id:'qxwlan_e750g-v8-8m',n:'qxwlan_e750g-v8-8m',c:'MIPS'}, {id:'rosinson_wr818',n:'Rosinson WR818',c:'MIPS'},
+    {id:'ruckus_zf7025',n:'ruckus_zf7025',c:'MIPS'}, {id:'ruckus_zf7341',n:'ruckus_zf7341',c:'MIPS'}, {id:'ruckus_zf7351',n:'ruckus_zf7351',c:'MIPS'}, {id:'ruckus_zf7363',n:'ruckus_zf7363',c:'MIPS'},
+    {id:'ruckus_zf7321',n:'ruckus_zf7321',c:'MIPS'}, {id:'ruckus_zf7372',n:'ruckus_zf7372',c:'MIPS'}, {id:'ruckus_r500',n:'ruckus_r500',c:'MIPS'}, {id:'samsung_wam250',n:'Samsung WAM250',c:'MIPS'},
+    {id:'siemens_ws-ap3610',n:'Siemens WS-AP3610',c:'MIPS'}, {id:'sitecom_wlr-7100',n:'Sitecom WLR-7100',c:'MIPS'}, {id:'sitecom_wlr-8100',n:'Sitecom WLR-8100',c:'MIPS'}, {id:'sophos_ap15',n:'Sophos AP15',c:'MIPS'},
+    {id:'sophos_ap15c',n:'Sophos AP15C',c:'MIPS'}, {id:'sophos_ap55',n:'Sophos AP55',c:'MIPS'}, {id:'sophos_ap55c',n:'Sophos AP55C',c:'MIPS'}, {id:'sophos_ap100',n:'Sophos AP100',c:'MIPS'},
+    {id:'sophos_ap100c',n:'Sophos AP100C',c:'MIPS'}, {id:'telco_t1',n:'Telco T1',c:'MIPS'}, {id:'teltonika_rut230-v1',n:'Teltonika RUT230',c:'MIPS'}, {id:'teltonika_rut300',n:'Teltonika RUT300',c:'MIPS'},
+    {id:'teltonika_rut955',n:'Teltonika RUT955',c:'MIPS'}, {id:'teltonika_rut955-h7v3c0',n:'teltonika_rut955-h7v3c0',c:'MIPS'}, {id:'trendnet_tew-673gru',n:'Trendnet TEW-673GRU',c:'MIPS'}, {id:'trendnet_tew-823dru',n:'Trendnet TEW-823DRU',c:'MIPS'},
+    {id:'wallys_dr531',n:'Wallys DR531',c:'MIPS'}, {id:'watchguard_ap100',n:'WatchGuard AP100',c:'MIPS'}, {id:'watchguard_ap200',n:'WatchGuard AP200',c:'MIPS'}, {id:'watchguard_ap300',n:'WatchGuard AP300',c:'MIPS'},
+    {id:'wd_mynet-n600',n:'Western Digital My Net N600',c:'MIPS'}, {id:'wd_mynet-n750',n:'Western Digital My Net N750',c:'MIPS'}, {id:'wd_mynet-wifi-rangeextender',n:'Western Digital My Net Wi-Fi Range Extender',c:'MIPS'}, {id:'winchannel_wb2000',n:'Winchannel WB2000',c:'MIPS'},
+    {id:'xiaomi_aiot-ac2350',n:'Xiaomi AIoT AC2350',c:'MIPS'}, {id:'xiaomi_mi-router-4q',n:'Xiaomi Mi Router 4Q',c:'MIPS'}, {id:'yuncore_a770',n:'YunCore A770',c:'MIPS'}, {id:'yuncore_a782',n:'YunCore A782',c:'MIPS'},
+    {id:'yuncore_a930',n:'YunCore A930',c:'MIPS'}, {id:'yuncore_xd3200',n:'YunCore XD3200',c:'MIPS'}, {id:'yuncore_cpe830',n:'YunCore CPE830(D)',c:'MIPS'}, {id:'yuncore_xd4200',n:'YunCore XD4200',c:'MIPS'},
+    {id:'ziking_cpe46b',n:'ZiKing CPE46B',c:'MIPS'}, {id:'zbtlink_zbt-wd323',n:'ZBT WD323',c:'MIPS'}, {id:'zte_e8820',n:'ZTE E8820',c:'MIPS'}, {id:'zyxel_nwa1100-nh',n:'zyxel_nwa1100-nh',c:'MIPS'},
+    {id:'zyxel_nwa1121-ni',n:'zyxel_nwa1121-ni',c:'MIPS'}, {id:'zyxel_nwa1123-ac',n:'zyxel_nwa1123-ac',c:'MIPS'}, {id:'zyxel_nwa1123-ni',n:'zyxel_nwa1123-ni',c:'MIPS'}, {id:'zyxel_nbg6616',n:'Zyxel NBG6616',c:'MIPS'},
+  ],
+  'ath79-tiny': [
+    {id:'buffalo_whr-g301n',n:'buffalo_whr-g301n',c:'MIPS'}, {id:'dlink_dap-1720-a1',n:'D-Link DAP-1720',c:'MIPS'}, {id:'dlink_dir-615-e4',n:'D-Link DIR-615',c:'MIPS'}, {id:'dlink_dir-859-a1',n:'dlink_dir-859-a1',c:'MIPS'},
+    {id:'dlink_dir-859-a3',n:'dlink_dir-859-a3',c:'MIPS'}, {id:'dlink_dir-869-a1',n:'D-Link DIR-869',c:'MIPS'}, {id:'engenius_eap350-v1',n:'EnGenius EAP350',c:'MIPS'}, {id:'engenius_ecb350-v1',n:'EnGenius ECB350',c:'MIPS'},
+    {id:'engenius_enh202-v1',n:'EnGenius ENH202',c:'MIPS'}, {id:'nec_wf1200hp',n:'nec_wf1200hp',c:'MIPS'}, {id:'nec_wf1200hp2',n:'nec_wf1200hp2',c:'MIPS'}, {id:'nec_wg600hp',n:'nec_wg600hp',c:'MIPS'},
+    {id:'nec_wr8750n',n:'nec_wr8750n',c:'MIPS'}, {id:'nec_wr9500n',n:'nec_wr9500n',c:'MIPS'}, {id:'pqi_air-pen',n:'PQI Air-Pen',c:'MIPS'},
+  ],
+  'ath79-nand': [
+    {id:'8dev_rambutan',n:'8devices Rambutan',c:'MIPS'}, {id:'aerohive_hiveap-121',n:'Aerohive HiveAP 121',c:'MIPS'}, {id:'domywifi_dw33d',n:'DomyWifi DW33D',c:'MIPS'}, {id:'dongwon_dw02-412h-64m',n:'dongwon_dw02-412h-64m',c:'MIPS'},
+    {id:'dongwon_dw02-412h-128m',n:'dongwon_dw02-412h-128m',c:'MIPS'}, {id:'glinet_gl-ar300m-nand',n:'glinet_gl-ar300m-nand',c:'MIPS'}, {id:'glinet_gl-ar300m-nor',n:'glinet_gl-ar300m-nor',c:'MIPS'}, {id:'glinet_gl-ar750s-nor-nand',n:'glinet_gl-ar750s-nor-nand',c:'MIPS'},
+    {id:'glinet_gl-ar750s-nor',n:'glinet_gl-ar750s-nor',c:'MIPS'}, {id:'glinet_gl-e750',n:'GL.iNet GL-E750',c:'MIPS'}, {id:'glinet_gl-s200-nor',n:'glinet_gl-s200-nor',c:'MIPS'}, {id:'glinet_gl-s200-nor-nand',n:'glinet_gl-s200-nor-nand',c:'MIPS'},
+    {id:'glinet_gl-xe300',n:'GL.iNet GL-XE300',c:'MIPS'}, {id:'glinet_gl-x1200-nor-nand',n:'glinet_gl-x1200-nor-nand',c:'MIPS'}, {id:'glinet_gl-x1200-nor',n:'glinet_gl-x1200-nor',c:'MIPS'}, {id:'linksys_ea4500-v3',n:'Linksys EA4500',c:'MIPS'},
+    {id:'meraki_mr18',n:'Meraki MR18',c:'MIPS'}, {id:'netgear_pgzng1',n:'NETGEAR PGZNG1',c:'MIPS'}, {id:'netgear_r6100',n:'netgear_r6100',c:'MIPS'}, {id:'netgear_wndr3700-v4',n:'netgear_wndr3700-v4',c:'MIPS'},
+    {id:'netgear_wndr4300',n:'netgear_wndr4300',c:'MIPS'}, {id:'netgear_wndr4300sw',n:'netgear_wndr4300sw',c:'MIPS'}, {id:'netgear_wndr4300tn',n:'netgear_wndr4300tn',c:'MIPS'}, {id:'netgear_wndr4300-v2',n:'netgear_wndr4300-v2',c:'MIPS'},
+    {id:'netgear_wndr4500-v3',n:'netgear_wndr4500-v3',c:'MIPS'}, {id:'zte_mf281',n:'zte_mf281',c:'MIPS'}, {id:'zte_mf282',n:'zte_mf282',c:'MIPS'}, {id:'zte_mf286',n:'zte_mf286',c:'MIPS'},
+    {id:'zte_mf286a',n:'zte_mf286a',c:'MIPS'}, {id:'zte_mf286c',n:'zte_mf286c',c:'MIPS'}, {id:'zte_mf286r',n:'zte_mf286r',c:'MIPS'}, {id:'zyxel_nbg6716',n:'Zyxel NBG6716',c:'MIPS'},
+    {id:'zyxel_emg2926_q10a',n:'zyxel_emg2926_q10a',c:'MIPS'},
+  ],
+  'ath79-mikrotik': [
+    {id:'mikrotik_routerboard-2011uias-2hnd',n:'mikrotik_routerboard-2011uias-2hnd',c:'MIPS'}, {id:'mikrotik_routerboard-493g',n:'mikrotik_routerboard-493g',c:'MIPS'}, {id:'mikrotik_routerboard-750-r2',n:'mikrotik_routerboard-750-r2',c:'MIPS'}, {id:'mikrotik_routerboard-911-lite',n:'mikrotik_routerboard-911-lite',c:'MIPS'},
+    {id:'mikrotik_routerboard-911g-xhpnd',n:'mikrotik_routerboard-911g-xhpnd',c:'MIPS'}, {id:'mikrotik_routerboard-912uag-2hpnd',n:'mikrotik_routerboard-912uag-2hpnd',c:'MIPS'}, {id:'mikrotik_routerboard-911g-5hpacd',n:'mikrotik_routerboard-911g-5hpacd',c:'MIPS'}, {id:'mikrotik_routerboard-921gs-5hpacd-15s',n:'mikrotik_routerboard-921gs-5hpacd-15s',c:'MIPS'},
+    {id:'mikrotik_routerboard-922uags-5hpacd',n:'mikrotik_routerboard-922uags-5hpacd',c:'MIPS'}, {id:'mikrotik_routerboard-951g-2hnd',n:'mikrotik_routerboard-951g-2hnd',c:'MIPS'}, {id:'mikrotik_routerboard-951ui-2hnd',n:'mikrotik_routerboard-951ui-2hnd',c:'MIPS'}, {id:'mikrotik_routerboard-951ui-2nd',n:'mikrotik_routerboard-951ui-2nd',c:'MIPS'},
+    {id:'mikrotik_routerboard-952ui-5ac2nd',n:'mikrotik_routerboard-952ui-5ac2nd',c:'MIPS'}, {id:'mikrotik_routerboard-962uigs-5hact2hnt',n:'mikrotik_routerboard-962uigs-5hact2hnt',c:'MIPS'}, {id:'mikrotik_routerboard-lhg-2nd',n:'mikrotik_routerboard-lhg-2nd',c:'MIPS'}, {id:'mikrotik_routerboard-lhg-5nd',n:'mikrotik_routerboard-lhg-5nd',c:'MIPS'},
+    {id:'mikrotik_routerboard-map-2nd',n:'mikrotik_routerboard-map-2nd',c:'MIPS'}, {id:'mikrotik_routerboard-mapl-2nd',n:'mikrotik_routerboard-mapl-2nd',c:'MIPS'}, {id:'mikrotik_routerboard-sxt-5nd-r2',n:'mikrotik_routerboard-sxt-5nd-r2',c:'MIPS'}, {id:'mikrotik_routerboard-wap-g-5hact2hnd',n:'mikrotik_routerboard-wap-g-5hact2hnd',c:'MIPS'},
+    {id:'mikrotik_routerboard-wapr-2nd',n:'mikrotik_routerboard-wapr-2nd',c:'MIPS'}, {id:'mikrotik_routerboard-wap-2nd',n:'mikrotik_routerboard-wap-2nd',c:'MIPS'},
+  ],
+  'ramips-mt7621': [
+    {id:'adslr_g7',n:'ADSLR G7',c:'MT7621'}, {id:'afoundry_ew1200',n:'AFOUNDRY EW1200',c:'MT7621'}, {id:'alfa-network_ax1800rm',n:'ALFA Network AX1800RM',c:'MT7621'}, {id:'alfa-network_quad-e4g',n:'ALFA Network Quad-E4G',c:'MT7621'},
+    {id:'ampedwireless_ally-r1900k',n:'ampedwireless_ally-r1900k',c:'MT7621'}, {id:'ampedwireless_ally-00x19k',n:'ampedwireless_ally-00x19k',c:'MT7621'}, {id:'arcadyan_we410443',n:'Arcadyan WE410443',c:'MT7621'}, {id:'arcadyan_we420223-99',n:'Arcadyan WE420223-99',c:'MT7621'},
+    {id:'asiarf_ap7621-001',n:'AsiaRF AP7621-001',c:'MT7621'}, {id:'asiarf_ap7621-004-v3',n:'AsiaRF AP7621-004',c:'MT7621'}, {id:'asiarf_ap7621-nv1',n:'AsiaRF AP7621-NV1',c:'MT7621'}, {id:'asus_rp-ac56',n:'ASUS RP-AC56',c:'MT7621'},
+    {id:'asus_rp-ac87',n:'ASUS RP-AC87',c:'MT7621'}, {id:'asus_rt-ac57u-v1',n:'ASUS RT-AC57U',c:'MT7621'}, {id:'asus_rt-ac65p',n:'ASUS RT-AC65P',c:'MT7621'}, {id:'asus_rt-ac85p',n:'ASUS RT-AC85P',c:'MT7621'},
+    {id:'asus_rt-n56u-b1',n:'ASUS RT-N56U',c:'MT7621'}, {id:'asus_rt-ax53u',n:'ASUS RT-AX53U',c:'MT7621'}, {id:'asus_rt-ax54',n:'ASUS RT-AX54',c:'MT7621'}, {id:'asus_4g-ax56',n:'ASUS 4G-AX56',c:'MT7621'},
+    {id:'beeline_smartbox-flash',n:'Beeline SmartBox Flash',c:'MT7621'}, {id:'beeline_smartbox-giga',n:'Beeline SmartBox GIGA',c:'MT7621'}, {id:'beeline_smartbox-pro',n:'Beeline SmartBox PRO',c:'MT7621'}, {id:'beeline_smartbox-turbo',n:'Beeline SmartBox TURBO',c:'MT7621'},
+    {id:'beeline_smartbox-turbo-plus',n:'Beeline SmartBox TURBO+',c:'MT7621'}, {id:'belkin_rt1800',n:'Belkin RT1800',c:'MT7621'}, {id:'buffalo_wsr-1166dhp',n:'Buffalo WSR-1166DHP',c:'MT7621'}, {id:'buffalo_wsr-2533dhpl',n:'Buffalo WSR-2533DHPL',c:'MT7621'},
+    {id:'buffalo_wsr-2533dhpl2',n:'buffalo_wsr-2533dhpl2',c:'MT7621'}, {id:'buffalo_wsr-2533dhpls',n:'buffalo_wsr-2533dhpls',c:'MT7621'}, {id:'buffalo_wsr-600dhp',n:'Buffalo WSR-600DHP',c:'MT7621'}, {id:'bolt_arion',n:'BOLT Arion',c:'MT7621'},
+    {id:'c-life_xg1',n:'C-Life XG1',c:'MT7621'}, {id:'comfast_cf-e390ax',n:'COMFAST CF-E390AX',c:'MT7621'}, {id:'comfast_cf-ew72-v2',n:'COMFAST CF-EW72 V2',c:'MT7621'}, {id:'confiabits_mt7621-v1',n:'Confiabits MT7621',c:'MT7621'},
+    {id:'cudy_ap1300-outdoor-v1',n:'Cudy AP1300 Outdoor',c:'MT7621'}, {id:'cudy_c200p',n:'Cudy C200P',c:'MT7621'}, {id:'cudy_m1300-v2',n:'Cudy M1300',c:'MT7621'}, {id:'cudy_m1800',n:'Cudy M1800',c:'MT7621'},
+    {id:'cudy_r700',n:'Cudy R700',c:'MT7621'}, {id:'cudy_wr1300-v1',n:'Cudy WR1300',c:'MT7621'}, {id:'cudy_wr1300-v2',n:'Cudy WR1300',c:'MT7621'}, {id:'cudy_wr1300-v3',n:'Cudy WR1300',c:'MT7621'},
+    {id:'cudy_wr2100',n:'Cudy WR2100',c:'MT7621'}, {id:'cudy_x6-v1',n:'Cudy X6',c:'MT7621'}, {id:'cudy_x6-v2',n:'Cudy X6',c:'MT7621'}, {id:'dlink_covr-x1860-a1',n:'D-Link COVR-X1860',c:'MT7621'},
+    {id:'dlink_dap-1620-b1',n:'dlink_dap-1620-b1',c:'MT7621'}, {id:'dlink_dap-x1860-a1',n:'D-Link DAP-X1860',c:'MT7621'}, {id:'dlink_dir-1360-a1',n:'D-Link DIR-1360',c:'MT7621'}, {id:'dlink_dir-1935-a1',n:'dlink_dir-1935-a1',c:'MT7621'},
+    {id:'dlink_dir-1960-a1',n:'dlink_dir-1960-a1',c:'MT7621'}, {id:'dlink_dir-2055-a1',n:'dlink_dir-2055-a1',c:'MT7621'}, {id:'dlink_dir-2150-a1',n:'dlink_dir-2150-a1',c:'MT7621'}, {id:'dlink_dir-2150-r1',n:'D-Link DIR-2150',c:'MT7621'},
+    {id:'dlink_dir-2640-a1',n:'dlink_dir-2640-a1',c:'MT7621'}, {id:'dlink_dir-2660-a1',n:'dlink_dir-2660-a1',c:'MT7621'}, {id:'dlink_dir-3040-a1',n:'dlink_dir-3040-a1',c:'MT7621'}, {id:'dlink_dir-3060-a1',n:'dlink_dir-3060-a1',c:'MT7621'},
+    {id:'dlink_dir-853-a1',n:'dlink_dir-853-a1',c:'MT7621'}, {id:'dlink_dir-853-a3',n:'dlink_dir-853-a3',c:'MT7621'}, {id:'dlink_dir-853-r1',n:'dlink_dir-853-r1',c:'MT7621'}, {id:'dlink_dir-860l-b1',n:'D-Link DIR-860L',c:'MT7621'},
+    {id:'dlink_dir-867-a1',n:'dlink_dir-867-a1',c:'MT7621'}, {id:'dlink_dir-878-a1',n:'dlink_dir-878-a1',c:'MT7621'}, {id:'dlink_dir-878-r1',n:'dlink_dir-878-r1',c:'MT7621'}, {id:'dlink_dir-882-a1',n:'dlink_dir-882-a1',c:'MT7621'},
+    {id:'dlink_dir-882-r1',n:'dlink_dir-882-r1',c:'MT7621'}, {id:'dlink_dir-x1860-b1',n:'D-Link DIR-X1860',c:'MT7621'}, {id:'dlink_dra-1360-a1',n:'dlink_dra-1360-a1',c:'MT7621'}, {id:'dual-q_h721',n:'Dual-Q H721',c:'MT7621'},
+    {id:'d-team_newifi-d2',n:'D-Team Newifi D2',c:'MT7621'}, {id:'d-team_pbr-m1',n:'PandoraBox PBR-M1',c:'MT7621'}, {id:'dna_valokuitu-plus-ex400',n:'DNA Valokuitu Plus EX400',c:'MT7621'}, {id:'edimax_ra21s',n:'Edimax RA21S',c:'MT7621'},
+    {id:'edimax_re23s',n:'Edimax RE23S',c:'MT7621'}, {id:'edimax_rg21s',n:'Edimax Gemini AC2600 RG21S',c:'MT7621'}, {id:'edup_ep-rt2960s',n:'EDUP EP-RT2960S',c:'MT7621'}, {id:'edup_ep-rt2983',n:'EDUP EP-RT2983',c:'MT7621'},
+    {id:'elecom_wmc-m1267gst2',n:'elecom_wmc-m1267gst2',c:'MT7621'}, {id:'elecom_wmc-s1267gs2',n:'elecom_wmc-s1267gs2',c:'MT7621'}, {id:'elecom_wmc-x1800gst',n:'ELECOM WMC-X1800GST',c:'MT7621'}, {id:'elecom_wrc-1167ghbk2-s',n:'ELECOM WRC-1167GHBK2-S',c:'MT7621'},
+    {id:'elecom_wrc-1167gs2-b',n:'elecom_wrc-1167gs2-b',c:'MT7621'}, {id:'elecom_wrc-1167gst2',n:'elecom_wrc-1167gst2',c:'MT7621'}, {id:'elecom_wrc-1750gs',n:'elecom_wrc-1750gs',c:'MT7621'}, {id:'elecom_wrc-1750gst2',n:'elecom_wrc-1750gst2',c:'MT7621'},
+    {id:'elecom_wrc-1750gsv',n:'elecom_wrc-1750gsv',c:'MT7621'}, {id:'elecom_wrc-1900gst',n:'elecom_wrc-1900gst',c:'MT7621'}, {id:'elecom_wrc-2533ghbk2-t',n:'ELECOM WRC-2533GHBK2-T',c:'MT7621'}, {id:'elecom_wrc-2533ghbk-i',n:'ELECOM WRC-2533GHBK-I',c:'MT7621'},
+    {id:'elecom_wrc-2533gs2',n:'elecom_wrc-2533gs2',c:'MT7621'}, {id:'elecom_wrc-2533gst',n:'elecom_wrc-2533gst',c:'MT7621'}, {id:'elecom_wrc-2533gst2',n:'elecom_wrc-2533gst2',c:'MT7621'}, {id:'elecom_wrc-x1800gs',n:'ELECOM WRC-X1800GS',c:'MT7621'},
+    {id:'elecom_wsc-x1800gs',n:'ELECOM WSC-X1800GS',c:'MT7621'}, {id:'etisalat_s3',n:'Etisalat S3',c:'MT7621'}, {id:'firefly_firewrt',n:'Firefly FireWRT',c:'MT7621'}, {id:'gehua_ghl-r-001',n:'GeHua GHL-R-001',c:'MT7621'},
+    {id:'gemtek_wvrtm-127acn',n:'gemtek_wvrtm-127acn',c:'MT7621'}, {id:'gemtek_wvrtm-130acn',n:'gemtek_wvrtm-130acn',c:'MT7621'}, {id:'genexis_pulse-ex400',n:'Genexis Pulse EX400',c:'MT7621'}, {id:'glinet_gl-mt1300',n:'GL.iNet GL-MT1300',c:'MT7621'},
+    {id:'gnubee_gb-pc1',n:'GnuBee GB-PC1',c:'MT7621'}, {id:'gnubee_gb-pc2',n:'GnuBee GB-PC2',c:'MT7621'}, {id:'hanyang_hyc-g920',n:'Hanyang CJ-Hello HYC-G920',c:'MT7621'}, {id:'h3c_tx1800-plus',n:'h3c_tx1800-plus',c:'MT7621'},
+    {id:'h3c_tx1801-plus',n:'h3c_tx1801-plus',c:'MT7621'}, {id:'h3c_tx1806',n:'h3c_tx1806',c:'MT7621'}, {id:'haier_har-20s2u1',n:'Haier HAR-20S2U1',c:'MT7621'}, {id:'hilink_hlk-7621a-evb',n:'HiLink HLK-7621A evaluation board',c:'MT7621'},
+    {id:'hiwifi_hc5962',n:'HiWiFi HC5962',c:'MT7621'}, {id:'humax_e10',n:'HUMAX E10',c:'MT7621'}, {id:'huasifei_ws1208v2',n:'Huasifei WS1208V2',c:'MT7621'}, {id:'iodata_wn-ax1167gr',n:'I-O DATA WN-AX1167GR',c:'MT7621'},
+    {id:'iodata_wn-ax1167gr2',n:'iodata_wn-ax1167gr2',c:'MT7621'}, {id:'iodata_wn-ax2033gr',n:'iodata_wn-ax2033gr',c:'MT7621'}, {id:'iodata_wn-ax2033gr2',n:'iodata_wn-ax2033gr2',c:'MT7621'}, {id:'iodata_wn-deax1800gr',n:'I-O DATA WN-DEAX1800GR',c:'MT7621'},
+    {id:'iodata_wn-dx1167r',n:'iodata_wn-dx1167r',c:'MT7621'}, {id:'iodata_wn-dx1200gr',n:'iodata_wn-dx1200gr',c:'MT7621'}, {id:'iodata_wn-dx2033gr',n:'iodata_wn-dx2033gr',c:'MT7621'}, {id:'iodata_wn-gx300gr',n:'I-O DATA WN-GX300GR',c:'MT7621'},
+    {id:'iodata_wnpr2600g',n:'I-O DATA WNPR2600G',c:'MT7621'}, {id:'iptime_a3002mesh',n:'ipTIME A3002MESH',c:'MT7621'}, {id:'iptime_a3004ns-dual',n:'ipTIME A3004NS-dual',c:'MT7621'}, {id:'iptime_a3004t',n:'ipTIME A3004T',c:'MT7621'},
+    {id:'iptime_a6004ns-m',n:'ipTIME A6004NS-M',c:'MT7621'}, {id:'iptime_a6ns-m',n:'ipTIME A6ns-M',c:'MT7621'}, {id:'iptime_a8004t',n:'ipTIME A8004T',c:'MT7621'}, {id:'iptime_ax2002m',n:'ipTIME AX2002MESH',c:'MT7621'},
+    {id:'iptime_ax2004m',n:'ipTIME AX2004M',c:'MT7621'}, {id:'iptime_t5004',n:'ipTIME T5004',c:'MT7621'}, {id:'jcg_jhr-ac876m',n:'JCG JHR-AC876M',c:'MT7621'}, {id:'jcg_q20',n:'JCG Q20',c:'MT7621'},
+    {id:'jcg_y2',n:'JCG Y2',c:'MT7621'}, {id:'jdcloud_re-cp-02',n:'JDCloud RE-CP-02',c:'MT7621'}, {id:'jdcloud_re-sp-01b',n:'JDCloud RE-SP-01B',c:'MT7621'}, {id:'keenetic_kn-1910',n:'Keenetic KN-1910',c:'MT7621'},
+    {id:'keenetic_kn-3010',n:'Keenetic KN-3010',c:'MT7621'}, {id:'keenetic_kn-3510',n:'Keenetic KN-3510',c:'MT7621'}, {id:'lenovo_newifi-d1',n:'Lenovo Newifi D1',c:'MT7621'}, {id:'linksys_e5600',n:'Linksys E5600',c:'MT7621'},
+    {id:'linksys_e7350',n:'Linksys E7350',c:'MT7621'}, {id:'linksys_ea6350-v4',n:'linksys_ea6350-v4',c:'MT7621'}, {id:'linksys_ea7300-v1',n:'linksys_ea7300-v1',c:'MT7621'}, {id:'linksys_ea7300-v2',n:'linksys_ea7300-v2',c:'MT7621'},
+    {id:'linksys_ea7500-v2',n:'linksys_ea7500-v2',c:'MT7621'}, {id:'linksys_ea8100-v1',n:'linksys_ea8100-v1',c:'MT7621'}, {id:'linksys_ea8100-v2',n:'linksys_ea8100-v2',c:'MT7621'}, {id:'linksys_re6500',n:'Linksys RE6500',c:'MT7621'},
+    {id:'linksys_re7000',n:'Linksys RE7000',c:'MT7621'}, {id:'maginon_mc-1200ac',n:'Maginon MC-1200AC',c:'MT7621'}, {id:'mediatek_ap-mt7621a-v60',n:'Mediatek AP-MT7621A-V60 EVB',c:'MT7621'}, {id:'mediatek_mt7621-eval-board',n:'MediaTek MT7621 EVB',c:'MT7621'},
+    {id:'meig_slt866',n:'MeiG SLT866',c:'MT7621'}, {id:'mercusys_mr70x-v1',n:'MERCUSYS MR70X',c:'MT7621'}, {id:'mikrotik_ltap-2hnd',n:'mikrotik_ltap-2hnd',c:'MT7621'}, {id:'mikrotik_routerboard-750gr3',n:'mikrotik_routerboard-750gr3',c:'MT7621'},
+    {id:'mikrotik_routerboard-760igs',n:'mikrotik_routerboard-760igs',c:'MT7621'}, {id:'mikrotik_routerboard-m11g',n:'mikrotik_routerboard-m11g',c:'MT7621'}, {id:'mikrotik_routerboard-m33g',n:'mikrotik_routerboard-m33g',c:'MT7621'}, {id:'mofinetwork_mofi5500-5gxelte',n:'MoFi Network MOFI5500-5GXeLTE',c:'MT7621'},
+    {id:'mqmaker_witi',n:'MQmaker WiTi',c:'MT7621'}, {id:'mtc_wr1201',n:'MTC Wireless Router WR1201',c:'MT7621'}, {id:'mts_wg430223',n:'MTS WG430223',c:'MT7621'}, {id:'netgear_eax12',n:'NETGEAR EAX12',c:'MT7621'},
+    {id:'netgear_ex6150',n:'NETGEAR EX6150',c:'MT7621'}, {id:'netgear_r6220',n:'netgear_r6220',c:'MT7621'}, {id:'netgear_r6260',n:'netgear_r6260',c:'MT7621'}, {id:'netgear_r6350',n:'netgear_r6350',c:'MT7621'},
+    {id:'netgear_r6700-v2',n:'netgear_r6700-v2',c:'MT7621'}, {id:'netgear_r6800',n:'netgear_r6800',c:'MT7621'}, {id:'netgear_r6850',n:'netgear_r6850',c:'MT7621'}, {id:'netgear_r6900-v2',n:'netgear_r6900-v2',c:'MT7621'},
+    {id:'netgear_r7200',n:'netgear_r7200',c:'MT7621'}, {id:'netgear_r7450',n:'netgear_r7450',c:'MT7621'}, {id:'netgear_wac104',n:'netgear_wac104',c:'MT7621'}, {id:'netgear_wac124',n:'netgear_wac124',c:'MT7621'},
+    {id:'netgear_wax202',n:'NETGEAR WAX202',c:'MT7621'}, {id:'netgear_wax214v2',n:'NETGEAR WAX214v2',c:'MT7621'}, {id:'netgear_wndr3700-v5',n:'netgear_wndr3700-v5',c:'MT7621'}, {id:'netis_n6',n:'netis N6',c:'MT7621'},
+    {id:'netis_wf2881',n:'NETIS WF2881',c:'MT7621'}, {id:'openfi_5pro',n:'OpenFi 5Pro',c:'MT7621'}, {id:'oraybox_x3a',n:'OrayBox X3A',c:'MT7621'}, {id:'phicomm_k2p',n:'Phicomm K2P',c:'MT7621'},
+    {id:'planex_vr500',n:'Planex VR500',c:'MT7621'}, {id:'plasmacloud_pax1800-lite',n:'Plasma Cloud PAX1800-Lite',c:'MT7621'}, {id:'raisecom_msg1500-x-00',n:'RAISECOM MSG1500',c:'MT7621'}, {id:'renkforce_ws-wn530hp3-a',n:'Renkforce WS-WN530HP3-A',c:'MT7621'},
+    {id:'rostelecom_rt-fe-1a',n:'Rostelecom RT-FE-1A',c:'MT7621'}, {id:'rostelecom_rt-sf-1',n:'Rostelecom RT-SF-1',c:'MT7621'}, {id:'ruijie_rg-ew1200g-pro-v1.1',n:'Ruijie RG-EW1200G PRO',c:'MT7621'}, {id:'samknows_whitebox-v8',n:'SamKnows Whitebox 8',c:'MT7621'},
+    {id:'sercomm_na502',n:'SERCOMM NA502',c:'MT7621'}, {id:'sercomm_na502s',n:'SERCOMM NA502S',c:'MT7621'}, {id:'sim_simax1800t',n:'SIM SIMAX1800T',c:'MT7621'}, {id:'sim_simax1800u',n:'SIM SIMAX1800U',c:'MT7621'},
+    {id:'snr_snr-cpe-me1',n:'SNR SNR-CPE-ME1',c:'MT7621'}, {id:'snr_snr-cpe-me2-lite',n:'SNR SNR-CPE-ME2-Lite',c:'MT7621'}, {id:'snr_snr-cpe-me2-sfp',n:'SNR SNR-CPE-ME2-SFP',c:'MT7621'}, {id:'storylink_sap-g3200u3',n:'STORYLiNK SAP-G3200U3',c:'MT7621'},
+    {id:'telco-electronics_x1',n:'Telco Electronics X1',c:'MT7621'}, {id:'tenbay_t-mb5eu-v01',n:'Tenbay T-MB5EU-V01',c:'MT7621'}, {id:'thunder_timecloud',n:'Thunder Timecloud',c:'MT7621'}, {id:'totolink_a7000r',n:'TOTOLINK A7000R',c:'MT7621'},
+    {id:'totolink_x5000r',n:'TOTOLINK X5000R',c:'MT7621'}, {id:'tozed_zlt-s12-pro',n:'TOZED ZLT S12 PRO',c:'MT7621'}, {id:'tplink_archer-ax21-v4',n:'tplink_archer-ax21-v4',c:'MT7621'}, {id:'tplink_archer-ax23-v1',n:'tplink_archer-ax23-v1',c:'MT7621'},
+    {id:'tplink_archer-a6-v3',n:'tplink_archer-a6-v3',c:'MT7621'}, {id:'tplink_archer-c6-v3',n:'tplink_archer-c6-v3',c:'MT7621'}, {id:'tplink_archer-c6u-v1',n:'tplink_archer-c6u-v1',c:'MT7621'}, {id:'tplink_deco-m4r-v4',n:'tplink_deco-m4r-v4',c:'MT7621'},
+    {id:'tplink_eap235-wall-v1',n:'tplink_eap235-wall-v1',c:'MT7621'}, {id:'tplink_eap613-v1',n:'tplink_eap613-v1',c:'MT7621'}, {id:'tplink_eap615-wall-v1',n:'tplink_eap615-wall-v1',c:'MT7621'}, {id:'tplink_ec330-g5u-v1',n:'TP-Link EC330-G5u',c:'MT7621'},
+    {id:'tplink_er605-v2',n:'TP-Link ER605',c:'MT7621'}, {id:'tplink_ex220-v1',n:'TP-Link EX220',c:'MT7621'}, {id:'tplink_ex220-v2',n:'TP-Link EX220',c:'MT7621'}, {id:'tplink_mr600-v2-eu',n:'tplink_mr600-v2-eu',c:'MT7621'},
+    {id:'tplink_re350-v1',n:'tplink_re350-v1',c:'MT7621'}, {id:'tplink_re500-v1',n:'tplink_re500-v1',c:'MT7621'}, {id:'tplink_re650-v1',n:'tplink_re650-v1',c:'MT7621'}, {id:'tplink_re650-v2',n:'tplink_re650-v2',c:'MT7621'},
+    {id:'tplink_tl-wpa8631p-v3',n:'tplink_tl-wpa8631p-v3',c:'MT7621'}, {id:'ubnt_edgerouter-x',n:'ubnt_edgerouter-x',c:'MT7621'}, {id:'ubnt_edgerouter-x-sfp',n:'ubnt_edgerouter-x-sfp',c:'MT7621'}, {id:'ubnt_unifi-6-lite',n:'Ubiquiti UniFi U6 Lite',c:'MT7621'},
+    {id:'ubnt_unifi-flexhd',n:'Ubiquiti UniFi FlexHD',c:'MT7621'}, {id:'ubnt_unifi-nanohd',n:'Ubiquiti UniFi nanoHD',c:'MT7621'}, {id:'ubnt_usw-flex',n:'Ubiquiti UniFi Switch Flex',c:'MT7621'}, {id:'unielec_u7621-01-16m',n:'UniElec U7621-01',c:'MT7621'},
+    {id:'unielec_u7621-06-16m',n:'UniElec U7621-06',c:'MT7621'}, {id:'unielec_u7621-06-32m',n:'UniElec U7621-06',c:'MT7621'}, {id:'unielec_u7621-06-64m',n:'UniElec U7621-06',c:'MT7621'}, {id:'wavlink_halo-base-pro',n:'Wavlink Halo Base Pro',c:'MT7621'},
+    {id:'wavlink_wl-wn531a6',n:'Wavlink WL-WN531A6',c:'MT7621'}, {id:'wavlink_wl-wn533a8',n:'Wavlink WL-WN533A8',c:'MT7621'}, {id:'wavlink_ws-wn572hp3-4g',n:'Wavlink WS-WN572HP3',c:'MT7621'}, {id:'wavlink_wl-wn573hx1',n:'Wavlink WL-WN573HX1',c:'MT7621'},
+    {id:'wevo_11acnas',n:'WeVO 11AC NAS Router',c:'MT7621'}, {id:'wevo_w2914ns-v2',n:'WeVO W2914NS',c:'MT7621'}, {id:'wifire_s1500-nbn',n:'WiFire S1500.NBN',c:'MT7621'}, {id:'winstars_ws-wn536p3',n:'Winstars WS-WN536P3',c:'MT7621'},
+    {id:'winstars_ws-wn583a6',n:'Winstars WS-WN583A6',c:'MT7621'}, {id:'wodesys_wd-r1802u',n:'Wodesys WD-R1802U',c:'MT7621'}, {id:'xiaomi_mi-router-3g',n:'xiaomi_mi-router-3g',c:'MT7621'}, {id:'xiaomi_mi-router-3g-v2',n:'Xiaomi Mi Router 3G',c:'MT7621'},
+    {id:'xiaomi_mi-router-3-pro',n:'Xiaomi Mi Router 3 Pro',c:'MT7621'}, {id:'xiaomi_mi-router-4',n:'xiaomi_mi-router-4',c:'MT7621'}, {id:'xiaomi_mi-router-4a-gigabit',n:'Xiaomi Mi Router 4A',c:'MT7621'}, {id:'xiaomi_mi-router-4a-gigabit-v2',n:'Xiaomi Mi Router 4A',c:'MT7621'},
+    {id:'xiaomi_mi-router-ac2100',n:'xiaomi_mi-router-ac2100',c:'MT7621'}, {id:'xiaomi_mi-router-cr6606',n:'xiaomi_mi-router-cr6606',c:'MT7621'}, {id:'xiaomi_mi-router-cr6608',n:'xiaomi_mi-router-cr6608',c:'MT7621'}, {id:'xiaomi_mi-router-cr6609',n:'xiaomi_mi-router-cr6609',c:'MT7621'},
+    {id:'xiaomi_redmi-router-ac2100',n:'xiaomi_redmi-router-ac2100',c:'MT7621'}, {id:'xiaoyu_xy-c5',n:'XiaoYu XY-C5',c:'MT7621'}, {id:'xzwifi_creativebox-v1',n:'CreativeBox v1',c:'MT7621'}, {id:'youhua_wr1200js',n:'YouHua WR1200JS',c:'MT7621'},
+    {id:'youku_yk-l2',n:'Youku YK-L2',c:'MT7621'}, {id:'yuncore_ax820',n:'YunCore AX820',c:'MT7621'}, {id:'yuncore_fap640',n:'YunCore FAP640',c:'MT7621'}, {id:'yuncore_fap690',n:'YunCore FAP690',c:'MT7621'},
+    {id:'yuncore_g720',n:'YunCore G720',c:'MT7621'}, {id:'z-router_zr-2660',n:'Z-ROUTER ZR-2660',c:'MT7621'}, {id:'z-router_zr-2662',n:'Z-ROUTER ZR-2662',c:'MT7621'}, {id:'zbtlink_zbt-we1326',n:'Zbtlink ZBT-WE1326',c:'MT7621'},
+    {id:'zbtlink_zbt-we3526',n:'Zbtlink ZBT-WE3526',c:'MT7621'}, {id:'zbtlink_zbt-wg108',n:'Zbtlink ZBT-WG108',c:'MT7621'}, {id:'zbtlink_zbt-wg1602-16m',n:'Zbtlink ZBT-WG1602',c:'MT7621'}, {id:'zbtlink_zbt-wg1602-v04-16m',n:'Zbtlink ZBT-WG1602-V04',c:'MT7621'},
+    {id:'zbtlink_zbt-wg1602-v04-32m',n:'Zbtlink ZBT-WG1602-V04',c:'MT7621'}, {id:'zbtlink_zbt-wg1608-16m',n:'Zbtlink ZBT-WG1608',c:'MT7621'}, {id:'zbtlink_zbt-wg1608-32m',n:'Zbtlink ZBT-WG1608',c:'MT7621'}, {id:'zbtlink_zbt-wg2626',n:'Zbtlink ZBT-WG2626',c:'MT7621'},
+    {id:'zbtlink_zbt-wg3526-16m',n:'Zbtlink ZBT-WG3526',c:'MT7621'}, {id:'zbtlink_zbt-wg3526-32m',n:'Zbtlink ZBT-WG3526',c:'MT7621'}, {id:'zio_freezio',n:'ZIO FREEZIO',c:'MT7621'}, {id:'zte_e8820s',n:'ZTE E8820S',c:'MT7621'},
+    {id:'zyxel_lte3301-plus',n:'Zyxel LTE3301-PLUS',c:'MT7621'}, {id:'zyxel_lte5398-m904',n:'Zyxel LTE5398-M904',c:'MT7621'}, {id:'zyxel_lte7490-m904',n:'Zyxel LTE7490-M904',c:'MT7621'}, {id:'zyxel_nr7101',n:'Zyxel NR7101',c:'MT7621'},
+    {id:'zyxel_nwa50ax',n:'zyxel_nwa50ax',c:'MT7621'}, {id:'zyxel_nwa55axe',n:'zyxel_nwa55axe',c:'MT7621'}, {id:'zyxel_wap6805',n:'Zyxel WAP6805',c:'MT7621'}, {id:'zyxel_wsm20',n:'Zyxel WSM20',c:'MT7621'},
+  ],
+  'ramips-mt7620': [
+    {id:'aigale_ai-br100',n:'Aigale Ai-BR100',c:'MT7620'}, {id:'alfa-network_ac1200rm',n:'ALFA Network AC1200RM',c:'MT7620'}, {id:'alfa-network_r36m-e4g',n:'ALFA Network R36M-E4G',c:'MT7620'}, {id:'alfa-network_tube-e4g',n:'ALFA Network Tube-E4G',c:'MT7620'},
+    {id:'ampedwireless_b1200ex',n:'Amped Wireless B1200EX',c:'MT7620'}, {id:'asus_rp-n53',n:'ASUS RP-N53',c:'MT7620'}, {id:'asus_rt-ac51u',n:'ASUS RT-AC51U',c:'MT7620'}, {id:'asus_rt-ac54u',n:'ASUS RT-AC54U',c:'MT7620'},
+    {id:'asus_rt-n12p',n:'ASUS RT-N11P/RT-N12+/RT-N12Eb1',c:'MT7620'}, {id:'asus_rt-n14u',n:'ASUS RT-N14u',c:'MT7620'}, {id:'bdcom_wap2100-sk',n:'BDCOM WAP2100-SK (ZTE ZXECS EBG3130)',c:'MT7620'}, {id:'bolt_bl100',n:'Bolt BL100',c:'MT7620'},
+    {id:'bolt_bl201',n:'Bolt BL201',c:'MT7620'}, {id:'buffalo_whr-1166d',n:'Buffalo WHR-1166D',c:'MT7620'}, {id:'buffalo_whr-300hp2',n:'Buffalo WHR-300HP2',c:'MT7620'}, {id:'buffalo_whr-600d',n:'Buffalo WHR-600D',c:'MT7620'},
+    {id:'buffalo_wmr-300',n:'Buffalo WMR-300',c:'MT7620'}, {id:'comfast_cf-wr800n',n:'Comfast CF-WR800N',c:'MT7620'}, {id:'devolo_rac',n:'devolo WiFi Repeater ac',c:'MT7620'}, {id:'dlink_dch-m225',n:'D-Link DCH-M225',c:'MT7620'},
+    {id:'dlink_dir-510l',n:'D-Link DIR-510L',c:'MT7620'}, {id:'dlink_dir-806a-b1',n:'D-Link DIR-806A',c:'MT7620'}, {id:'dlink_dir-810l',n:'D-Link DIR-810L',c:'MT7620'}, {id:'dlink_dwr-116-a1',n:'D-Link DWR-116',c:'MT7620'},
+    {id:'dlink_dwr-118-a1',n:'D-Link DWR-118',c:'MT7620'}, {id:'dlink_dwr-118-a2',n:'D-Link DWR-118',c:'MT7620'}, {id:'dlink_dwr-921-c1',n:'D-Link DWR-921',c:'MT7620'}, {id:'dlink_dwr-921-c3',n:'D-Link DWR-921',c:'MT7620'},
+    {id:'dlink_dwr-922-e2',n:'D-Link DWR-922',c:'MT7620'}, {id:'dlink_dwr-960',n:'D-Link DWR-960',c:'MT7620'}, {id:'dlink_dwr-961-a1',n:'D-Link DWR-961',c:'MT7620'}, {id:'domywifi_dm202',n:'DomyWifi DM202',c:'MT7620'},
+    {id:'domywifi_dm203',n:'DomyWifi DM203',c:'MT7620'}, {id:'domywifi_dw22d',n:'DomyWifi DW22D',c:'MT7620'}, {id:'dovado_tiny-ac',n:'Dovado Tiny AC',c:'MT7620'}, {id:'edimax_br-6208ac-v2',n:'Edimax BR-6208AC',c:'MT7620'},
+    {id:'edimax_br-6478ac-v2',n:'Edimax BR-6478AC',c:'MT7620'}, {id:'edimax_ew-7476rpc',n:'Edimax EW-7476RPC',c:'MT7620'}, {id:'edimax_ew-7478ac',n:'Edimax EW-7478AC',c:'MT7620'}, {id:'edimax_ew-7478apc',n:'Edimax EW-7478APC',c:'MT7620'},
+    {id:'elecom_wrh-300cr',n:'Elecom WRH-300CR',c:'MT7620'}, {id:'engenius_epg600',n:'EnGenius EPG600',c:'MT7620'}, {id:'engenius_esr600',n:'EnGenius ESR600',c:'MT7620'}, {id:'fon_fon2601',n:'Fon FON2601',c:'MT7620'},
+    {id:'glinet_gl-mt300a',n:'GL.iNet GL-MT300A',c:'MT7620'}, {id:'glinet_gl-mt300n',n:'GL.iNet GL-MT300N',c:'MT7620'}, {id:'glinet_gl-mt750',n:'GL.iNet GL-MT750',c:'MT7620'}, {id:'head-weblink_hdrm200',n:'Head Weblink HDRM2000',c:'MT7620'},
+    {id:'hiwifi_hc5661',n:'HiWiFi HC5661',c:'MT7620'}, {id:'hiwifi_hc5761',n:'HiWiFi HC5761',c:'MT7620'}, {id:'hiwifi_hc5861',n:'HiWiFi HC5861',c:'MT7620'}, {id:'hnet_c108',n:'HNET C108',c:'MT7620'},
+    {id:'hongdian_h8922-v30',n:'Hongdian H8922',c:'MT7620'}, {id:'humax_e2',n:'HUMAX E2',c:'MT7620'}, {id:'hootoo_ht-tm05',n:'HooToo HT-TM05',c:'MT7620'}, {id:'iodata_wn-ac1167gr',n:'I-O DATA WN-AC1167GR',c:'MT7620'},
+    {id:'iodata_wn-ac733gr3',n:'I-O DATA WN-AC733GR3',c:'MT7620'}, {id:'iptime_a1004ns',n:'ipTIME A1004ns',c:'MT7620'}, {id:'iptime_a104ns',n:'ipTIME A104ns',c:'MT7620'}, {id:'kimax_u25awf-h1',n:'Kimax U25AWF',c:'MT7620'},
+    {id:'kimax_u35wf',n:'Kimax U35WF',c:'MT7620'}, {id:'kingston_mlw221',n:'Kingston MLW221',c:'MT7620'}, {id:'kingston_mlwg2',n:'Kingston MLWG2',c:'MT7620'}, {id:'lava_lr-25g001',n:'LAVA LR-25G001',c:'MT7620'},
+    {id:'lb-link_bl-w1200',n:'LB-Link BL-W1200',c:'MT7620'}, {id:'lenovo_newifi-y1',n:'Lenovo Y1',c:'MT7620'}, {id:'lenovo_newifi-y1s',n:'Lenovo Y1S',c:'MT7620'}, {id:'linksys_e1700',n:'Linksys E1700',c:'MT7620'},
+    {id:'microduino_microwrt',n:'Microduino MicroWRT',c:'MT7620'}, {id:'netcore_nw5212',n:'Netcore NW5212',c:'MT7620'}, {id:'netgear_ex2700',n:'NETGEAR EX2700',c:'MT7620'}, {id:'netgear_ex3700',n:'NETGEAR EX3700/EX3800',c:'MT7620'},
+    {id:'netgear_ex6120',n:'NETGEAR EX6120',c:'MT7620'}, {id:'netgear_ex6130',n:'NETGEAR EX6130',c:'MT7620'}, {id:'netgear_jwnr2010-v5',n:'netgear_jwnr2010-v5',c:'MT7620'}, {id:'netgear_pr2000',n:'netgear_pr2000',c:'MT7620'},
+    {id:'netgear_wn3000rp-v3',n:'NETGEAR WN3000RP',c:'MT7620'}, {id:'netgear_wn3100rp-v2',n:'NETGEAR WN3100RP',c:'MT7620'}, {id:'netis_wf2770',n:'NETIS WF2770',c:'MT7620'}, {id:'nexx_wt3020-4m',n:'Nexx WT3020',c:'MT7620'},
+    {id:'nexx_wt3020-8m',n:'Nexx WT3020',c:'MT7620'}, {id:'ohyeah_oy-0001',n:'Oh Yeah OY-0001',c:'MT7620'}, {id:'phicomm_k2-v22.4',n:'Phicomm K2',c:'MT7620'}, {id:'phicomm_k2-v22.5',n:'Phicomm K2',c:'MT7620'},
+    {id:'phicomm_k2g',n:'Phicomm K2G',c:'MT7620'}, {id:'phicomm_psg1208',n:'Phicomm PSG1208',c:'MT7620'}, {id:'phicomm_psg1218b',n:'Phicomm PSG1218',c:'MT7620'}, {id:'planex_cs-qr10',n:'Planex CS-QR10',c:'MT7620'},
+    {id:'planex_db-wrt01',n:'Planex DB-WRT01',c:'MT7620'}, {id:'planex_mzk-750dhp',n:'Planex MZK-750DHP',c:'MT7620'}, {id:'planex_mzk-ex300np',n:'Planex MZK-EX300NP',c:'MT7620'}, {id:'planex_mzk-ex750np',n:'Planex MZK-EX750NP',c:'MT7620'},
+    {id:'ralink_mt7620a-evb',n:'MediaTek MT7620a EVB',c:'MT7620'}, {id:'ralink_mt7620a-mt7530-evb',n:'MediaTek MT7620a + MT7530 EVB',c:'MT7620'}, {id:'ralink_mt7620a-mt7610e-evb',n:'MediaTek MT7620a + MT7610e EVB',c:'MT7620'}, {id:'ralink_mt7620a-v22sg-evb',n:'MediaTek MT7620a V22SG',c:'MT7620'},
+    {id:'ravpower_rp-wd03',n:'RAVPower RP-WD03',c:'MT7620'}, {id:'rostelecom_rt-fl-1',n:'rostelecom_rt-fl-1',c:'MT7620'}, {id:'rostelecom_s1010',n:'rostelecom_s1010',c:'MT7620'}, {id:'sanlinking_d240',n:'Sanlinking Technologies D240',c:'MT7620'},
+    {id:'sercomm_na930',n:'Sercomm NA930',c:'MT7620'}, {id:'sitecom_wlr-4100-v1-002',n:'Sitecom WLR-4100',c:'MT7620'}, {id:'snr_cpe-w4n-mt',n:'SNR CPE-W4N',c:'MT7620'}, {id:'tplink_archer-c20i',n:'tplink_archer-c20i',c:'MT7620'},
+    {id:'tplink_archer-c20-v1',n:'tplink_archer-c20-v1',c:'MT7620'}, {id:'tplink_archer-c2-v1',n:'tplink_archer-c2-v1',c:'MT7620'}, {id:'tplink_archer-c5-v4',n:'tplink_archer-c5-v4',c:'MT7620'}, {id:'tplink_archer-c50-v1',n:'tplink_archer-c50-v1',c:'MT7620'},
+    {id:'tplink_archer-mr200',n:'tplink_archer-mr200',c:'MT7620'}, {id:'tplink_ec220-g5-v2',n:'tplink_ec220-g5-v2',c:'MT7620'}, {id:'tplink_re200-v1',n:'tplink_re200-v1',c:'MT7620'}, {id:'tplink_re210-v1',n:'tplink_re210-v1',c:'MT7620'},
+    {id:'trendnet_tew-810dr',n:'TRENDnet TEW-810DR',c:'MT7620'}, {id:'trendnet_tha103ac',n:'TRENDnet THA-103AC',c:'MT7620'}, {id:'vonets_var11n-300',n:'Vonets VAR11N-300',c:'MT7620'}, {id:'wavlink_wl-wn530hg4',n:'Wavlink WL-WN530HG4',c:'MT7620'},
+    {id:'wavlink_wl-wn531g3',n:'Wavlink WL-WN531G3',c:'MT7620'}, {id:'wavlink_wl-wn531g3-a2',n:'Wavlink WL-WN531G3-A2',c:'MT7620'}, {id:'wavlink_wl-wn535k1',n:'Wavlink WL-WN535K1',c:'MT7620'}, {id:'wavlink_wl-wn579x3',n:'Wavlink WL-WN579X3',c:'MT7620'},
+    {id:'wevo_air-duo',n:'WeVO AIR DUO',c:'MT7620'}, {id:'wrtnode_wrtnode',n:'WRTNode WRTNode',c:'MT7620'}, {id:'xiaomi_miwifi-mini',n:'Xiaomi MiWiFi Mini',c:'MT7620'}, {id:'youku_x2',n:'Youku X2',c:'MT7620'},
+    {id:'youku_yk-l1',n:'Youku YK-L1',c:'MT7620'}, {id:'youku_yk-l1c',n:'Youku YK-L1c',c:'MT7620'}, {id:'yukai_bocco',n:'YUKAI Engineering BOCCO',c:'MT7620'}, {id:'zbtlink_zbt-ape522ii',n:'Zbtlink ZBT-APE522II',c:'MT7620'},
+    {id:'zbtlink_zbt-cpe102',n:'Zbtlink ZBT-CPE102',c:'MT7620'}, {id:'zbtlink_zbt-wa05',n:'Zbtlink ZBT-WA05',c:'MT7620'}, {id:'zbtlink_zbt-we1026-5g-16m',n:'Zbtlink ZBT-WE1026-5G',c:'MT7620'}, {id:'zbtlink_zbt-we1026-h-32m',n:'Zbtlink ZBT-WE1026-H',c:'MT7620'},
+    {id:'zbtlink_zbt-we2026',n:'Zbtlink ZBT-WE2026',c:'MT7620'}, {id:'zbtlink_zbt-we826-16m',n:'Zbtlink ZBT-WE826',c:'MT7620'}, {id:'zbtlink_zbt-we826-32m',n:'Zbtlink ZBT-WE826',c:'MT7620'}, {id:'zbtlink_zbt-we826-e',n:'Zbtlink ZBT-WE826-E',c:'MT7620'},
+    {id:'zbtlink_zbt-wr8305rt',n:'Zbtlink ZBT-WR8305RT',c:'MT7620'}, {id:'zte_q7',n:'ZTE Q7',c:'MT7620'}, {id:'zyxel_keenetic-lite-iii-a',n:'Zyxel Keenetic Lite III',c:'MT7620'}, {id:'zyxel_keenetic-omni',n:'Zyxel Keenetic Omni',c:'MT7620'},
+    {id:'zyxel_keenetic-omni-ii',n:'Zyxel Keenetic Omni II',c:'MT7620'}, {id:'zyxel_keenetic-viva',n:'Zyxel Keenetic Viva',c:'MT7620'},
+  ],
+  'ramips-mt76x8': [
+    {id:'7links_wlr-1230',n:'7links_wlr-1230',c:'MT76x8'}, {id:'7links_wlr-1240',n:'7links_wlr-1240',c:'MT76x8'}, {id:'alfa-network_awusfree1',n:'ALFA Network AWUSFREE1',c:'MT76x8'}, {id:'asus_rt-ac1200',n:'ASUS RT-AC1200',c:'MT76x8'},
+    {id:'asus_rt-ac1200-v2',n:'ASUS RT-AC1200',c:'MT76x8'}, {id:'asus_rt-n10p-v3',n:'ASUS RT-N10P',c:'MT76x8'}, {id:'asus_rt-n11p-b1',n:'ASUS RT-N11P',c:'MT76x8'}, {id:'asus_rt-n12-vp-b1',n:'ASUS RT-N12 VP',c:'MT76x8'},
+    {id:'buffalo_wcr-1166ds',n:'Buffalo WCR-1166DS',c:'MT76x8'}, {id:'comfast_cf-wr617ac',n:'COMFAST CF-WR617AC',c:'MT76x8'}, {id:'comfast_cf-wr758ac-v1',n:'comfast_cf-wr758ac-v1',c:'MT76x8'}, {id:'comfast_cf-wr758ac-v2',n:'comfast_cf-wr758ac-v2',c:'MT76x8'},
+    {id:'creality_wb-01',n:'Creality WB-01',c:'MT76x8'}, {id:'cudy_lt300-v3',n:'Cudy LT300',c:'MT76x8'}, {id:'cudy_lt400e-v1',n:'Cudy LT400E',c:'MT76x8'}, {id:'cudy_m1200-v1',n:'Cudy M1200',c:'MT76x8'},
+    {id:'cudy_re1200-outdoor-v1',n:'Cudy RE1200 Outdoor',c:'MT76x8'}, {id:'cudy_tr1200-v1',n:'Cudy TR1200',c:'MT76x8'}, {id:'cudy_wr1000',n:'Cudy WR1000',c:'MT76x8'}, {id:'d-team_pbr-d1',n:'PandoraBox PBR-D1',c:'MT76x8'},
+    {id:'dlink_dap-1325-a1',n:'D-Link DAP-1325 A1',c:'MT76x8'}, {id:'duzun_dm06',n:'DuZun DM06',c:'MT76x8'}, {id:'elecom_wrc-1167fs',n:'ELECOM WRC-1167FS',c:'MT76x8'}, {id:'glinet_gl-mt300n-v2',n:'GL.iNet GL-MT300N',c:'MT76x8'},
+    {id:'glinet_microuter-n300',n:'GL.iNet microuter-N300',c:'MT76x8'}, {id:'glinet_vixmini',n:'GL.iNet VIXMINI',c:'MT76x8'}, {id:'hak5_wifi-pineapple-mk7',n:'Hak5 WiFi Pineapple Mark 7',c:'MT76x8'}, {id:'hilink_hlk-7628n',n:'HILINK HLK-7628N',c:'MT76x8'},
+    {id:'hilink_hlk-7688a',n:'Hi-Link HLK-7688A',c:'MT76x8'}, {id:'hiwifi_hc5611',n:'HiWiFi HC5611',c:'MT76x8'}, {id:'hiwifi_hc5661a',n:'HiWiFi HC5661A',c:'MT76x8'}, {id:'hiwifi_hc5761a',n:'HiWiFi HC5761A',c:'MT76x8'},
+    {id:'hiwifi_hc5861b',n:'HiWiFi HC5861B',c:'MT76x8'}, {id:'hongdian_h7920-v40',n:'Hongdian H7920',c:'MT76x8'}, {id:'hongdian_h8850-v20',n:'Hongdian H8850',c:'MT76x8'}, {id:'huasifei_shf283',n:'Huasifei SHF283',c:'MT76x8'},
+    {id:'iptime_a3',n:'ipTIME A3',c:'MT76x8'}, {id:'iptime_a604m',n:'ipTIME A604M',c:'MT76x8'}, {id:'jotale_js76x8-8m',n:'jotale_js76x8-8m',c:'MT76x8'}, {id:'jotale_js76x8-16m',n:'jotale_js76x8-16m',c:'MT76x8'},
+    {id:'jotale_js76x8-32m',n:'jotale_js76x8-32m',c:'MT76x8'}, {id:'keenetic_kn-1112',n:'Keenetic KN-1112',c:'MT76x8'}, {id:'keenetic_kn-1212',n:'Keenetic KN-1212',c:'MT76x8'}, {id:'keenetic_kn-1221',n:'Keenetic KN-1221',c:'MT76x8'},
+    {id:'keenetic_kn-1510',n:'Keenetic KN-1510',c:'MT76x8'}, {id:'keenetic_kn-1613',n:'Keenetic KN-1613',c:'MT76x8'}, {id:'keenetic_kn-1711',n:'Keenetic KN-1711',c:'MT76x8'}, {id:'keenetic_kn-1713',n:'Keenetic KN-1713',c:'MT76x8'},
+    {id:'keenetic_kn-3211',n:'Keenetic KN-3211',c:'MT76x8'}, {id:'kroks_kndrt31r16',n:'Kroks Rt-Cse5 UW DRSIM',c:'MT76x8'}, {id:'kroks_kndrt31r19',n:'Kroks Rt-Pot mXw DS RSIM',c:'MT76x8'}, {id:'linksys_e5400',n:'Linksys E5400',c:'MT76x8'},
+    {id:'mediatek_linkit-smart-7688',n:'MediaTek LinkIt Smart 7688',c:'MT76x8'}, {id:'mediatek_mt7628an-eval-board',n:'MediaTek MT7628 EVB',c:'MT76x8'}, {id:'mercury_mac1200r-v2',n:'Mercury MAC1200R',c:'MT76x8'}, {id:'mercusys_mb130-4g-v1',n:'MERCUSYS MB130-4G',c:'MT76x8'},
+    {id:'minew_g1-c',n:'Minew G1-C',c:'MT76x8'}, {id:'motorola_mwr03',n:'Motorola MWR03',c:'MT76x8'}, {id:'netgear_r6020',n:'netgear_r6020',c:'MT76x8'}, {id:'netgear_r6080',n:'netgear_r6080',c:'MT76x8'},
+    {id:'netgear_r6120',n:'netgear_r6120',c:'MT76x8'}, {id:'onion_omega2',n:'Onion Omega2',c:'MT76x8'}, {id:'onion_omega2p',n:'Onion Omega2+',c:'MT76x8'}, {id:'oraybox_x1',n:'OrayBox X1',c:'MT76x8'},
+    {id:'qding_qc202',n:'Qding QC202',c:'MT76x8'}, {id:'rakwireless_rak633',n:'Rakwireless RAK633',c:'MT76x8'}, {id:'ravpower_rp-wd009',n:'RAVPower RP-WD009',c:'MT76x8'}, {id:'skylab_skw92a',n:'Skylab SKW92A',c:'MT76x8'},
+    {id:'tama_w06',n:'Tama W06',c:'MT76x8'}, {id:'teltonika_rut9x1',n:'Teltonika RUT951',c:'MT76x8'}, {id:'teltonika_rut9x6',n:'Teltonika RUT956',c:'MT76x8'}, {id:'teltonika_rut976',n:'Teltonika RUT976',c:'MT76x8'},
+    {id:'totolink_a3',n:'TOTOLINK A3',c:'MT76x8'}, {id:'totolink_lr1200',n:'TOTOLINK LR1200',c:'MT76x8'}, {id:'tplink_archer-c20-v4',n:'tplink_archer-c20-v4',c:'MT76x8'}, {id:'tplink_archer-c20-v5',n:'tplink_archer-c20-v5',c:'MT76x8'},
+    {id:'tplink_archer-c50-v3',n:'tplink_archer-c50-v3',c:'MT76x8'}, {id:'tplink_archer-c50-v4',n:'tplink_archer-c50-v4',c:'MT76x8'}, {id:'tplink_archer-c50-v6',n:'tplink_archer-c50-v6',c:'MT76x8'}, {id:'tplink_archer-mr200-v5',n:'tplink_archer-mr200-v5',c:'MT76x8'},
+    {id:'tplink_archer-mr200-v6',n:'tplink_archer-mr200-v6',c:'MT76x8'}, {id:'tplink_re200-v2',n:'tplink_re200-v2',c:'MT76x8'}, {id:'tplink_re200-v3',n:'tplink_re200-v3',c:'MT76x8'}, {id:'tplink_re200-v4',n:'tplink_re200-v4',c:'MT76x8'},
+    {id:'tplink_re205-v3',n:'tplink_re205-v3',c:'MT76x8'}, {id:'tplink_re220-v2',n:'tplink_re220-v2',c:'MT76x8'}, {id:'tplink_re305-v1',n:'tplink_re305-v1',c:'MT76x8'}, {id:'tplink_re305-v3',n:'tplink_re305-v3',c:'MT76x8'},
+    {id:'tplink_re365-v1',n:'tplink_re365-v1',c:'MT76x8'}, {id:'tplink_tl-mr3020-v3',n:'tplink_tl-mr3020-v3',c:'MT76x8'}, {id:'tplink_tl-mr3420-v5',n:'tplink_tl-mr3420-v5',c:'MT76x8'}, {id:'tplink_tl-mr6400-v4',n:'tplink_tl-mr6400-v4',c:'MT76x8'},
+    {id:'tplink_tl-mr6400-v5',n:'tplink_tl-mr6400-v5',c:'MT76x8'}, {id:'tplink_tl-mr6400-v7',n:'tplink_tl-mr6400-v7',c:'MT76x8'}, {id:'tplink_tl-wa801nd-v5',n:'tplink_tl-wa801nd-v5',c:'MT76x8'}, {id:'tplink_tl-wr802n-v4',n:'tplink_tl-wr802n-v4',c:'MT76x8'},
+    {id:'tplink_tl-wr840n-v4',n:'tplink_tl-wr840n-v4',c:'MT76x8'}, {id:'tplink_tl-wr840n-v5',n:'tplink_tl-wr840n-v5',c:'MT76x8'}, {id:'tplink_tl-wr841n-v13',n:'tplink_tl-wr841n-v13',c:'MT76x8'}, {id:'tplink_tl-wr841n-v14',n:'tplink_tl-wr841n-v14',c:'MT76x8'},
+    {id:'tplink_tl-wr842n-v5',n:'tplink_tl-wr842n-v5',c:'MT76x8'}, {id:'tplink_tl-wr850n-v2',n:'tplink_tl-wr850n-v2',c:'MT76x8'}, {id:'tplink_tl-wr902ac-v3',n:'tplink_tl-wr902ac-v3',c:'MT76x8'}, {id:'tplink_tl-wr902ac-v4',n:'tplink_tl-wr902ac-v4',c:'MT76x8'},
+    {id:'unielec_u7628-01-16m',n:'UniElec U7628-01',c:'MT76x8'}, {id:'vocore_vocore2',n:'VoCore VoCore2',c:'MT76x8'}, {id:'vocore_vocore2-lite',n:'VoCore VoCore2-Lite',c:'MT76x8'}, {id:'wavlink_wl-wn531a3',n:'Wavlink WL-WN531A3',c:'MT76x8'},
+    {id:'wavlink_wl-wn570ha1',n:'Wavlink WL-WN570HA1',c:'MT76x8'}, {id:'wavlink_wl-wn570ha2',n:'Wavlink WL-WN570HA2',c:'MT76x8'}, {id:'wavlink_wl-wn575a3',n:'Wavlink WL-WN575A3',c:'MT76x8'}, {id:'wavlink_wl-wn576a2',n:'Wavlink WL-WN576A2',c:'MT76x8'},
+    {id:'wavlink_wl-wn577a2',n:'Wavlink WL-WN577A2',c:'MT76x8'}, {id:'wavlink_wl-wn578a2',n:'Wavlink WL-WN578A2',c:'MT76x8'}, {id:'widora_neo-16m',n:'Widora Widora-NEO',c:'MT76x8'}, {id:'widora_neo-32m',n:'Widora Widora-NEO',c:'MT76x8'},
+    {id:'wiznet_wizfi630s',n:'WIZnet WizFi630S',c:'MT76x8'}, {id:'wodesys_wd-r1208u',n:'Wodesys WD-R1208U',c:'MT76x8'}, {id:'wrtnode_wrtnode2p',n:'WRTnode WRTnode 2P',c:'MT76x8'}, {id:'wrtnode_wrtnode2r',n:'WRTnode WRTnode 2R',c:'MT76x8'},
+    {id:'xiaomi_mi-router-4a-100m',n:'Xiaomi Mi Router 4A',c:'MT76x8'}, {id:'xiaomi_mi-router-4a-100m-intl',n:'Xiaomi Mi Router 4A',c:'MT76x8'}, {id:'xiaomi_mi-router-4a-100m-intl-v2',n:'Xiaomi Mi Router 4A',c:'MT76x8'}, {id:'xiaomi_mi-router-4c',n:'Xiaomi Mi Router 4C',c:'MT76x8'},
+    {id:'xiaomi_miwifi-3a',n:'Xiaomi MiWiFi 3A',c:'MT76x8'}, {id:'xiaomi_miwifi-3c',n:'Xiaomi MiWiFi 3C',c:'MT76x8'}, {id:'xiaomi_miwifi-nano',n:'Xiaomi MiWiFi Nano',c:'MT76x8'}, {id:'xiaomi_mi-ra75',n:'Xiaomi MiWiFi Range Extender AC1200',c:'MT76x8'},
+    {id:'yuncore_cpe200',n:'Yuncore CPE200',c:'MT76x8'}, {id:'yuncore_m300',n:'Yuncore M300',c:'MT76x8'}, {id:'zbtlink_zbt-we1226',n:'Zbtlink ZBT-WE1226',c:'MT76x8'}, {id:'zbtlink_zbt-we2426-b',n:'Zbtlink ZBT-WE2426-B',c:'MT76x8'},
+    {id:'zyxel_keenetic-extra-ii',n:'Zyxel Keenetic Extra II',c:'MT76x8'}, {id:'teltonika_rut200',n:'Teltonika RUT200',c:'MT76x8'}, {id:'teltonika_rut241',n:'Teltonika RUT241',c:'MT76x8'},
+  ],
+  'bcm53xx': [
+    {id:'Default',n:'Default',c:'BCM53xx'}, {id:'asus',n:'asus',c:'BCM53xx'}, {id:'asus_rt-ac3100',n:'asus_rt-ac3100',c:'BCM53xx'}, {id:'asus_rt-ac3200',n:'asus_rt-ac3200',c:'BCM53xx'},
+    {id:'asus_rt-ac5300',n:'asus_rt-ac5300',c:'BCM53xx'}, {id:'asus_rt-ac56u',n:'asus_rt-ac56u',c:'BCM53xx'}, {id:'asus_rt-ac68u',n:'asus_rt-ac68u',c:'BCM53xx'}, {id:'asus_rt-ac87u',n:'asus_rt-ac87u',c:'BCM53xx'},
+    {id:'asus_rt-ac88u',n:'asus_rt-ac88u',c:'BCM53xx'}, {id:'asus_rt-n18u',n:'asus_rt-n18u',c:'BCM53xx'}, {id:'buffalo/Default',n:'buffalo/Default',c:'BCM53xx'}, {id:'buffalo_wxr-1900dhp',n:'buffalo_wxr-1900dhp',c:'BCM53xx'},
+    {id:'buffalo_wzr-600dhp2',n:'buffalo_wzr-600dhp2',c:'BCM53xx'}, {id:'buffalo_wzr-900dhp',n:'buffalo_wzr-900dhp',c:'BCM53xx'}, {id:'buffalo_wzr-1750dhp',n:'buffalo_wzr-1750dhp',c:'BCM53xx'}, {id:'dlink',n:'dlink',c:'BCM53xx'},
+    {id:'dlink_dir-885l',n:'dlink_dir-885l',c:'BCM53xx'}, {id:'dlink_dir-890l',n:'dlink_dir-890l',c:'BCM53xx'}, {id:'dlink_dwl-8610ap',n:'D-Link DIR-890L',c:'BCM53xx'}, {id:'linksys_ea6300-v1',n:'D-Link DWL-8610AP',c:'BCM53xx'},
+    {id:'linksys_ea6500-v2',n:'Linksys EA6300',c:'BCM53xx'}, {id:'linksys_ea9200',n:'Linksys EA6500',c:'BCM53xx'}, {id:'linksys_ea9500',n:'Linksys EA9200',c:'BCM53xx'}, {id:'luxul',n:'Linksys EA9500',c:'BCM53xx'},
+    {id:'luxul_abr-4500-v1',n:'luxul_abr-4500-v1',c:'BCM53xx'}, {id:'luxul_xap-1610-v1',n:'luxul_xap-1610-v1',c:'BCM53xx'}, {id:'luxul_xbr-4500-v1',n:'luxul_xbr-4500-v1',c:'BCM53xx'}, {id:'luxul_xwr-3150-v1',n:'luxul_xwr-3150-v1',c:'BCM53xx'},
+    {id:'meraki_mr26',n:'meraki_mr26',c:'BCM53xx'}, {id:'meraki_mr32',n:'Meraki MR26',c:'BCM53xx'}, {id:'meraki_mx6x',n:'Meraki MR32',c:'BCM53xx'}, {id:'meraki_mx64',n:'meraki_mx64',c:'BCM53xx'},
+    {id:'meraki_mx64-a0',n:'meraki_mx64-a0',c:'BCM53xx'}, {id:'meraki_mx65',n:'meraki_mx65',c:'BCM53xx'}, {id:'netgear',n:'netgear',c:'BCM53xx'}, {id:'netgear_r6250-v1',n:'netgear_r6250-v1',c:'BCM53xx'},
+    {id:'netgear_r6300-v2',n:'netgear_r6300-v2',c:'BCM53xx'}, {id:'netgear_r7000',n:'netgear_r7000',c:'BCM53xx'}, {id:'netgear_r7900',n:'netgear_r7900',c:'BCM53xx'}, {id:'netgear_r8000',n:'netgear_r8000',c:'BCM53xx'},
+    {id:'netgear_r8500',n:'netgear_r8500',c:'BCM53xx'}, {id:'smartrg_sr400ac',n:'smartrg_sr400ac',c:'BCM53xx'}, {id:'phicomm_k3',n:'SmartRG SR400ac',c:'BCM53xx'}, {id:'tenda_ac9',n:'PHICOMM K3',c:'BCM53xx'},
+    {id:'tplink_archer-c5-v2',n:'Tenda AC9',c:'BCM53xx'}, {id:'tplink_archer-c9-v1',n:'TP-Link Archer C5',c:'BCM53xx'},
+  ],
+  'bcm4908': [
+    {id:'Default',n:'Default',c:'BCM4908'}, {id:'asus_gt-ac5300',n:'asus_gt-ac5300',c:'BCM4908'}, {id:'asus_gt-ax6000',n:'ASUS GT-AC5300',c:'BCM4908'}, {id:'netgear_r8000p',n:'ASUS GT-AX6000',c:'BCM4908'},
+    {id:'tplink_archer-c2300-v1',n:'Netgear R8000P',c:'BCM4908'}, {id:'netgear',n:'TP-Link Archer C2300',c:'BCM4908'}, {id:'netgear_raxe500',n:'netgear_raxe500',c:'BCM4908'},
+  ],
+  'mvebu-cortexa9': [
+    {id:'buffalo_ls220de',n:'Buffalo LinkStation LS220DE',c:'Armada'}, {id:'buffalo_ls421de',n:'Buffalo LinkStation LS421DE',c:'Armada'}, {id:'ctera_c200-v2',n:'Ctera C200',c:'Armada'}, {id:'cznic_turris-omnia',n:'CZ.NIC Turris Omnia',c:'Armada'},
+    {id:'fortinet_fg-30e',n:'fortinet_fg-30e',c:'Armada'}, {id:'fortinet_fwf-30e',n:'fortinet_fwf-30e',c:'Armada'}, {id:'fortinet_fg-50e',n:'fortinet_fg-50e',c:'Armada'}, {id:'fortinet_fg-51e',n:'fortinet_fg-51e',c:'Armada'},
+    {id:'fortinet_fg-52e',n:'fortinet_fg-52e',c:'Armada'}, {id:'fortinet_fwf-50e-2r',n:'fortinet_fwf-50e-2r',c:'Armada'}, {id:'fortinet_fwf-51e',n:'fortinet_fwf-51e',c:'Armada'}, {id:'globalscale_mirabox',n:'Globalscale Mirabox',c:'Armada'},
+    {id:'iij_sa-w2',n:'IIJ SA-W2',c:'Armada'}, {id:'iptime_nas1dual',n:'ipTIME NAS1dual',c:'Armada'}, {id:'kobol_helios4',n:'Kobol Helios4',c:'Armada'}, {id:'linksys_wrt1200ac',n:'linksys_wrt1200ac',c:'Armada'},
+    {id:'linksys_wrt1900acs',n:'linksys_wrt1900acs',c:'Armada'}, {id:'linksys_wrt1900ac-v1',n:'linksys_wrt1900ac-v1',c:'Armada'}, {id:'linksys_wrt1900ac-v2',n:'linksys_wrt1900ac-v2',c:'Armada'}, {id:'linksys_wrt3200acm',n:'linksys_wrt3200acm',c:'Armada'},
+    {id:'linksys_wrt32x',n:'linksys_wrt32x',c:'Armada'}, {id:'marvell_a370-db',n:'Marvell Armada 370 Development Board (DB-88F6710-BP-DDR3)',c:'Armada'}, {id:'marvell_a370-rd',n:'Marvell Armada 370 RD (RD-88F6710-A1)',c:'Armada'}, {id:'marvell_a385-db-ap',n:'Marvell Armada 385 Development Board AP (DB-88F6820-AP)',c:'Armada'},
+    {id:'marvell_a388-rd',n:'Marvell Armada 388 RD (RD-88F6820-AP)',c:'Armada'}, {id:'marvell_axp-db',n:'Marvell Armada XP Development Board (DB-78460-BP)',c:'Armada'}, {id:'marvell_axp-gp',n:'Marvell Armada Armada XP GP (DB-MV784MP-GP)',c:'Armada'}, {id:'plathome_openblocks-ax3-4',n:'Plat\'Home OpenBlocks AX3',c:'Armada'},
+    {id:'solidrun_clearfog-base-a1',n:'SolidRun ClearFog Base',c:'Armada'}, {id:'solidrun_clearfog-pro-a1',n:'SolidRun ClearFog Pro',c:'Armada'}, {id:'synology_ds213j',n:'Synology DS213j',c:'Armada'}, {id:'wd_cloud-ex2-ultra',n:'Western Digital MyCloud EX2 Ultra',c:'Armada'},
+    {id:'wd_cloud-mirror-gen2',n:'Western Digital MyCloud Mirror Gen 2 (BWVZ/Grand Teton)',c:'Armada'},
+  ],
+  'mvebu-cortexa72': [
+    {id:'checkpoint_v-80',n:'Check Point V-80',c:'Armada'}, {id:'checkpoint_v-81',n:'Check Point V-81',c:'Armada'}, {id:'globalscale_mochabin',n:'Globalscale MOCHAbin',c:'Armada'}, {id:'marvell_armada7040-db',n:'Marvell Armada 7040 Development Board',c:'Armada'},
+    {id:'marvell_armada8040-db',n:'Marvell Armada 8040 Development Board',c:'Armada'}, {id:'marvell_macchiatobin-doubleshot',n:'SolidRun MACCHIATObin',c:'Armada'}, {id:'marvell_macchiatobin-singleshot',n:'SolidRun MACCHIATObin',c:'Armada'}, {id:'mikrotik_rb5009',n:'MikroTik RB5009',c:'Armada'},
+    {id:'marvell_clearfog-gt-8k',n:'SolidRun Clearfog',c:'Armada'}, {id:'iei_puzzle-m901',n:'iEi Puzzle-M901',c:'Armada'}, {id:'iei_puzzle-m902',n:'iEi Puzzle-M902',c:'Armada'}, {id:'solidrun_clearfog-pro',n:'SolidRun ClearFog Pro',c:'Armada'},
+  ],
+  'mvebu-cortexa53': [
+    {id:'cznic_turris-mox',n:'CZ.NIC Turris MOX',c:'Armada'}, {id:'glinet_gl-mv1000',n:'GL.iNet GL-MV1000',c:'Armada'}, {id:'globalscale_espressobin',n:'Marvell ESPRESSObin',c:'Armada'}, {id:'globalscale_espressobin-emmc',n:'Marvell ESPRESSObin',c:'Armada'},
+    {id:'globalscale_espressobin-ultra',n:'Marvell ESPRESSObin',c:'Armada'}, {id:'globalscale_espressobin-v7',n:'Marvell ESPRESSObin',c:'Armada'}, {id:'globalscale_espressobin-v7-emmc',n:'Marvell ESPRESSObin',c:'Armada'}, {id:'marvell_armada-3720-db',n:'Marvell Armada 3720 Development Board (DB-88F3720-DDR3)',c:'Armada'},
+    {id:'methode_udpu',n:'Methode micro-DPU (uDPU)',c:'Armada'}, {id:'methode_edpu',n:'methode_edpu',c:'Armada'}, {id:'ripe_atlas-v5',n:'RIPE Atlas v5',c:'Armada'},
+  ],
+  'lantiq-vr9': [
+    {id:'arcadyan_arv7519rw22',n:'Arcadyan ARV7519RW22',c:'VR9'}, {id:'arcadyan_vgv7510kw22-brn',n:'Arcadyan VGV7510KW22',c:'VR9'}, {id:'arcadyan_vgv7510kw22-nor',n:'Arcadyan VGV7510KW22',c:'VR9'}, {id:'arcadyan_vgv7519-brn',n:'Arcadyan VGV7519',c:'VR9'},
+    {id:'arcadyan_vgv7519-nor',n:'Arcadyan VGV7519',c:'VR9'}, {id:'arcadyan_vrv9510kwac23',n:'Arcadyan VRV9510KWAC23',c:'VR9'}, {id:'avm_fritz3370-rev2-hynix',n:'avm_fritz3370-rev2-hynix',c:'VR9'}, {id:'avm_fritz3370-rev2-micron',n:'avm_fritz3370-rev2-micron',c:'VR9'},
+    {id:'avm_fritz3390',n:'avm_fritz3390',c:'VR9'}, {id:'avm_fritz3490',n:'avm_fritz3490',c:'VR9'}, {id:'avm_fritz3490-micron',n:'avm_fritz3490-micron',c:'VR9'}, {id:'avm_fritz5490',n:'avm_fritz5490',c:'VR9'},
+    {id:'avm_fritz5490-micron',n:'avm_fritz5490-micron',c:'VR9'}, {id:'avm_fritz7360sl',n:'avm_fritz7360sl',c:'VR9'}, {id:'avm_fritz7360-v2',n:'avm_fritz7360-v2',c:'VR9'}, {id:'avm_fritz7362sl',n:'avm_fritz7362sl',c:'VR9'},
+    {id:'avm_fritz7412',n:'avm_fritz7412',c:'VR9'}, {id:'avm_fritz7430',n:'avm_fritz7430',c:'VR9'}, {id:'avm_fritz7490',n:'avm_fritz7490',c:'VR9'}, {id:'avm_fritz7490-micron',n:'avm_fritz7490-micron',c:'VR9'},
+    {id:'bt_homehub-v5a',n:'British Telecom (BT) Home Hub 5',c:'VR9'}, {id:'buffalo_wbmr-300hpd',n:'Buffalo WBMR-300HPD',c:'VR9'}, {id:'lantiq_easy80920-nand',n:'Lantiq VR9 EASY80920',c:'VR9'}, {id:'lantiq_easy80920-nor',n:'Lantiq VR9 EASY80920',c:'VR9'},
+    {id:'zyxel_p-2812hnu-f1',n:'Zyxel P-2812HNU',c:'VR9'}, {id:'zyxel_p-2812hnu-f3',n:'Zyxel P-2812HNU',c:'VR9'},
+  ],
+  'lantiq-xway_legacy': [
+    {id:'arcadyan_arv4518pwr01',n:'Arcadyan ARV4518PWR01',c:'XWAY'}, {id:'arcadyan_arv4518pwr01a',n:'Arcadyan ARV4518PWR01A',c:'XWAY'}, {id:'arcadyan_arv4520pw',n:'Arcadyan ARV4520PW',c:'XWAY'}, {id:'arcadyan_arv4525pw',n:'Arcadyan ARV4525PW',c:'XWAY'},
+    {id:'arcadyan_arv452cqw',n:'Arcadyan ARV452CQW',c:'XWAY'},
+  ],
+  'lantiq-falcon': [
+    {id:'lantiq_easy88388',n:'Lantiq EASY88388 Falcon FTTDP8 Reference Board',c:'Falcon'}, {id:'lantiq_easy88444',n:'Lantiq EASY88444 Falcon FTTdp G.FAST Reference Board',c:'Falcon'}, {id:'lantiq_easy98020',n:'Lantiq Falcon SFU Reference Board (EASY98020)',c:'Falcon'}, {id:'lantiq_easy98020-v18',n:'Lantiq Falcon SFU Reference Board (EASY98020)',c:'Falcon'},
+    {id:'lantiq_easy98021',n:'Lantiq Falcon HGU Reference Board (EASY98021)',c:'Falcon'}, {id:'lantiq_easy98035synce',n:'Lantiq Falcon SFP Stick (EASY98035SYNCE)',c:'Falcon'}, {id:'lantiq_easy98035synce1588',n:'Lantiq Falcon SFP Stick (EASY98035SYNCE1588)',c:'Falcon'}, {id:'lantiq_easy98000-nand',n:'Lantiq EASY98000 Falcon Eval Board',c:'Falcon'},
+    {id:'lantiq_easy98000-nor',n:'Lantiq EASY98000 Falcon Eval Board',c:'Falcon'}, {id:'lantiq_easy98000-sflash',n:'Lantiq EASY98000 Falcon Eval Board',c:'Falcon'}, {id:'lantiq_falcon-mdu',n:'Lantiq Falcon / VINAXdp MDU Board',c:'Falcon'}, {id:'lantiq_falcon-sfp',n:'Lantiq Falcon SFP Stick',c:'Falcon'},
+  ],
+  'lantiq-danube': [
+    {id:'arcadyan_arv4510pw',n:'Arcadyan ARV4510PW',c:'Danube'}, {id:'arcadyan_arv4519pw',n:'Arcadyan ARV4519PW',c:'Danube'}, {id:'arcadyan_arv7506pw11',n:'Arcadyan ARV7506PW11',c:'Danube'}, {id:'arcadyan_arv7510pw22',n:'Arcadyan ARV7510PW22',c:'Danube'},
+    {id:'arcadyan_arv7518pw',n:'Arcadyan ARV7518PW',c:'Danube'}, {id:'arcadyan_arv7519pw',n:'Arcadyan ARV7519PW',c:'Danube'}, {id:'arcadyan_arv7525pw',n:'Arcadyan ARV7525PW',c:'Danube'}, {id:'arcadyan_arv752dpw',n:'Arcadyan ARV752DPW',c:'Danube'},
+    {id:'arcadyan_arv752dpw22',n:'Arcadyan ARV752DPW22',c:'Danube'}, {id:'arcadyan_arv8539pw22',n:'Arcadyan ARV8539PW22',c:'Danube'}, {id:'audiocodes_mp-252',n:'AudioCodes MediaPack MP-252',c:'Danube'}, {id:'bt_homehub-v2b',n:'British Telecom (BT) Home Hub 2',c:'Danube'},
+    {id:'lantiq_easy50712',n:'Lantiq Danube (EASY50712)',c:'Danube'}, {id:'siemens_gigaset-sx76x',n:'Siemens Gigaset sx76x',c:'Danube'},
+  ],
+  'airoha-en7523': [
+    {id:'airoha_en7523-evb',n:'Airoha EN7523 Evaluation Board',c:'EN7523'},
+  ],
+  'airoha-an7581': [
+    {id:'airoha_an7581-evb',n:'Airoha AN7581 Evaluation Board (SNAND)',c:'AN7581'}, {id:'airoha_an7581-evb-emmc-eagle',n:'Airoha AN7581 Evaluation Board (eMMC + Eagle)',c:'AN7581'}, {id:'airoha_an7581-evb-emmc-kite',n:'Airoha AN7581 Evaluation Board (eMMC + Kite)',c:'AN7581'}, {id:'gemtek_w1700k-ubi',n:'Gemtek W1700K',c:'AN7581'},
+    {id:'nokia_valyrian',n:'Nokia Valyrian',c:'AN7581'},
+  ],
+  'airoha-an7583': [
+    {id:'airoha_an7583-evb',n:'Airoha AN7583 Evaluation Board (SNAND)',c:'AN7583'}, {id:'airoha_an7583-evb-emmc',n:'Airoha AN7583 Evaluation Board (EMMC)',c:'AN7583'},
+  ],
+  'rockchip': [
+    {id:'Default',n:'Default',c:'RK'},
   ],
 };
 
@@ -614,6 +1053,7 @@ let state = {
 // ═══════════════════════════════════════
 function init() {
   initTabs();
+  initPlatformTabs();
   initDevices();
   initPlugins();
   updateSummary();
@@ -630,27 +1070,16 @@ function initTabs() {
     });
   });
 
-  document.querySelectorAll('#target-tabs .tab').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('#target-tabs .tab').forEach(x => x.classList.remove('on'));
-      t.classList.add('on');
-      state.target = t.dataset.t;
-      state.subtarget = t.dataset.s || '';
-      document.getElementById('sel-target').value = state.target;
-      if (state.subtarget) document.getElementById('sel-subtarget').value = state.subtarget;
-      state.devices.clear();
-      initDevices();
-      updateSummary();
-    });
-  });
+  // Target tabs now managed by initPlatformTabs/switchSubTab
 
   document.getElementById('sel-target').addEventListener('change', e => {
     state.target = e.target.value;
     state.subtarget = state.target === 'qualcommax' ? document.getElementById('sel-subtarget').value : '';
-    // sync target tabs
-    document.querySelectorAll('#target-tabs .tab').forEach(t => {
-      t.classList.toggle('on', t.dataset.t === state.target && (t.dataset.s || '') === state.subtarget);
-    });
+    // sync platform tabs
+    const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
+    currentSubKey = key;
+    const group = PLATFORM_GROUPS.find(g => g.subs.some(s=>s.k===key));
+    if (group) { currentPlatformGroup = group.id; initPlatformTabs(); }
     state.devices.clear();
     initDevices();
     updateSummary();
@@ -658,9 +1087,10 @@ function initTabs() {
 
   document.getElementById('sel-subtarget').addEventListener('change', e => {
     state.subtarget = e.target.value;
-    document.querySelectorAll('#target-tabs .tab').forEach(t => {
-      t.classList.toggle('on', t.dataset.t === state.target && t.dataset.s === state.subtarget);
-    });
+    const key = `${state.target}-${state.subtarget}`;
+    currentSubKey = key;
+    const group = PLATFORM_GROUPS.find(g => g.subs.some(s=>s.k===key));
+    if (group) { currentPlatformGroup = group.id; initPlatformTabs(); }
     state.devices.clear();
     initDevices();
     updateSummary();
@@ -668,18 +1098,97 @@ function initTabs() {
 }
 
 // 设备
+const PLATFORM_GROUPS = [
+  {id:'qualcommax',name:'Qualcomm IPQ',icon:'🔵',subs:[{k:'qualcommax-ipq807x',n:'IPQ807x'},{k:'qualcommax-ipq60xx',n:'IPQ60xx'},{k:'qualcommax-ipq50xx',n:'IPQ50xx'}]},
+  {id:'ipq40xx',name:'IPQ40xx',icon:'🔵',subs:[{k:'ipq40xx',n:'IPQ40xx'}]},
+  {id:'ipq806x',name:'IPQ806x',icon:'🔵',subs:[{k:'ipq806x',n:'IPQ806x'}]},
+  {id:'qualcommbe',name:'Qualcomm BE',icon:'🟣',subs:[{k:'qualcommbe-ipq95xx',n:'IPQ95xx'}]},
+  {id:'mediatek',name:'MediaTek',icon:'🟢',subs:[{k:'mediatek-filogic',n:'Filogic'},{k:'mediatek-mt7622',n:'MT7622'},{k:'mediatek-mt7623',n:'MT7623'},{k:'mediatek-mt7629',n:'MT7629'}]},
+  {id:'ramips',name:'MTK MIPS',icon:'🟡',subs:[{k:'ramips-mt7621',n:'MT7621'},{k:'ramips-mt7620',n:'MT7620'},{k:'ramips-mt76x8',n:'MT76x8'}]},
+  {id:'ath79',name:'Atheros MIPS',icon:'🟠',subs:[{k:'ath79-generic',n:'Generic'},{k:'ath79-tiny',n:'Tiny'},{k:'ath79-nand',n:'NAND'},{k:'ath79-mikrotik',n:'MikroTik'}]},
+  {id:'broadcom',name:'Broadcom',icon:'🔴',subs:[{k:'bcm53xx',n:'BCM53xx'},{k:'bcm4908',n:'BCM4908'}]},
+  {id:'mvebu',name:'Marvell',icon:'⚪',subs:[{k:'mvebu-cortexa9',n:'Cortex-A9'},{k:'mvebu-cortexa72',n:'Cortex-A72'},{k:'mvebu-cortexa53',n:'Cortex-A53'}]},
+  {id:'lantiq',name:'Lantiq',icon:'🟤',subs:[{k:'lantiq-vr9',n:'VR9'},{k:'lantiq-xway_legacy',n:'XWAY'},{k:'lantiq-falcon',n:'Falcon'},{k:'lantiq-danube',n:'Danube'}]},
+  {id:'airoha',name:'Airoha',icon:'⚪',subs:[{k:'airoha-en7523',n:'EN7523'},{k:'airoha-an7581',n:'AN7581'},{k:'airoha-an7583',n:'AN7583'}]},
+];
+
+let currentPlatformGroup = 'qualcommax';
+let currentSubKey = 'qualcommax-ipq807x';
+let searchQuery = '';
+
+function initPlatformTabs() {
+  const container = document.getElementById('platform-tabs');
+  container.innerHTML = PLATFORM_GROUPS.map(g => {
+    const total = g.subs.reduce((a,s) => a + (DEVICES[s.k]||[]).length, 0);
+    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')">${g.icon} ${g.name}<span class="cnt">${total}</span></div>`;
+  }).join('');
+  renderSubTabs();
+}
+
+function switchPlatformGroup(gid) {
+  currentPlatformGroup = gid;
+  const group = PLATFORM_GROUPS.find(g=>g.id===gid);
+  currentSubKey = group.subs[0].k;
+  document.querySelectorAll('.pgroup').forEach(t=>t.classList.toggle('on',t.dataset.g===gid));
+  renderSubTabs();
+  state.devices.clear();
+  initDevices();
+  updateSummary();
+}
+
+function renderSubTabs() {
+  const group = PLATFORM_GROUPS.find(g=>g.id===currentPlatformGroup);
+  const container = document.getElementById('target-tabs');
+  container.innerHTML = group.subs.map(s => {
+    const n = (DEVICES[s.k]||[]).length;
+    return `<div class="tab ${s.k===currentSubKey?'on':''}" data-k="${s.k}" onclick="switchSubTab('${s.k}')">${s.n} (${n})</div>`;
+  }).join('');
+}
+
+function switchSubTab(key) {
+  currentSubKey = key;
+  const group = PLATFORM_GROUPS.find(g=>g.id===currentPlatformGroup);
+  // Also update the target/subtarget selects
+  const parts = key.split('-');
+  const target = parts[0];
+  const subtarget = parts.slice(1).join('-') || '';
+  document.getElementById('sel-target').value = target === 'qualcommax' ? 'qualcommax' : target;
+  if (target === 'qualcommax') document.getElementById('sel-subtarget').value = subtarget;
+  state.target = target;
+  state.subtarget = subtarget;
+  document.querySelectorAll('#target-tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.k===key));
+  state.devices.clear();
+  initDevices();
+  updateSummary();
+}
+
+function searchDevices(q) {
+  searchQuery = q.toLowerCase().trim();
+  initDevices();
+}
+
 function initDevices() {
-  const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
-  const devs = DEVICES[key] || [];
+  let devs = DEVICES[currentSubKey] || [];
+  if (searchQuery) {
+    devs = devs.filter(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery) || d.c.toLowerCase().includes(searchQuery));
+  }
   const grid = document.getElementById('device-grid');
-  grid.innerHTML = devs.map(d => `
-    <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${d.id}" onclick="toggleDevice(this,'${d.id}')">
-      <div class="n">${d.n}</div>
-      <div class="c">${d.c}</div>
-      <div class="dot">${state.devices.has(d.id)?'✓':''}</div>
-    </div>
-  `).join('');
+  if (devs.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t3);font-size:.85em">未找到匹配设备</div>';
+  } else {
+    // Virtual limit for performance - show first 200, lazy load rest
+    const show = devs.slice(0, 200);
+    const remaining = devs.length - show.length;
+    grid.innerHTML = show.map(d => `
+      <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${d.id}" onclick="toggleDevice(this,\'${d.id}\')">
+        <div class="n">${d.n}</div>
+        <div class="c">${d.c}</div>
+        <div class="dot">${state.devices.has(d.id)?'✓':''}</div>
+      </div>
+    `).join('') + (remaining > 0 ? `<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--t3);font-size:.75em">还有 ${remaining} 个设备未显示，请使用搜索缩小范围</div>` : '');
+  }
   updateDevCount();
+  document.getElementById('dev-total').textContent = `共 ${devs.length} 个设备`;
 }
 
 function toggleDevice(el, id) {
@@ -689,8 +1198,8 @@ function toggleDevice(el, id) {
 }
 
 function toggleAllDevices() {
-  const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
-  const devs = DEVICES[key] || [];
+  let devs = DEVICES[currentSubKey] || [];
+  if (searchQuery) devs = devs.filter(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery));
   const cb = document.getElementById('dev-all');
   if (cb.checked) devs.forEach(d => state.devices.add(d.id));
   else state.devices.clear();
