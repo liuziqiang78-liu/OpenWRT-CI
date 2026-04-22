@@ -44,6 +44,10 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]] || [[ "${WRT_TARGET^^}" == *"IPQ"* 
 
     echo "CONFIG_PACKAGE_kmod-usb-serial-qualcomm=y" >> .config
 
+    # 修复 NSS 与 dnsmasq conntrack 冲突（同 LiBwrt）
+    echo "CONFIG_PACKAGE_dnsmasq_full_conntrack=n" >> .config
+    echo "✅ 高通平台：禁用 dnsmasq conntrack 避免 NSS 冲突"
+
     echo "✅ qosmio NSS 配置完成"
 fi
 

@@ -107,7 +107,6 @@ EXTRACT_FROM_CONSOLIDATED "sbwml/luci" "main" \
     "luci-app-snmpd" \
     "luci-app-transmission" \
     "luci-app-ttyd" \
-    "luci-app-upnp" \
     "luci-app-watchcat" \
     "luci-app-wifischedule"
 
@@ -123,8 +122,7 @@ EXTRACT_FROM_CONSOLIDATED "sbwml/openwrt_pkgs" "main" \
 # sbwml/openwrt-package - 旧版兼容包
 EXTRACT_FROM_CONSOLIDATED "sbwml/openwrt-package" "main" \
     "automount" \
-    "luci-app-arpbind" \
-    "luci-app-samba4"
+    "luci-app-arpbind"
 
 # ============================================================
 # 单独仓库插件 (仍保持独立的仓库)
@@ -160,7 +158,6 @@ UPDATE_PACKAGE "viking" "VIKINGYFY/packages" "main" "" "luci-app-timewol luci-ap
 UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
 UPDATE_PACKAGE "lucky" "gdy666/luci-app-lucky" "main"
 UPDATE_PACKAGE "ssr-plus" "fw876/helloworld" "main" "pkg"
-UPDATE_PACKAGE "adguardhome" "rufengsuixing/luci-app-adguardhome" "main"
 
 
 # ============================================================
