@@ -1,0 +1,9 @@
+name: luci-app-unblockneteasemusic
+display: 解锁网易云灰色歌曲
+desc: "UnblockNeteaseMusic"
+firewall: 1
+category: multimedia
+source: kenzo
+deps_source: []
+deps:
+  - node

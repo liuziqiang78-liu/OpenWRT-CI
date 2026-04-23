@@ -1,0 +1,9 @@
+name: luci-app-argon-config
+display: Argon 主题设置
+desc: "Argon 主题配置工具"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps:
+  - luci-theme-argon

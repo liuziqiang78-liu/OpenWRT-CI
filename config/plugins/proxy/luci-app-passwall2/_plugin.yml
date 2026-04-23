@@ -1,0 +1,17 @@
+name: luci-app-passwall2
+display: PassWall 2
+desc: "PassWall 精简版"
+firewall: 1
+category: proxy
+source: kenzo
+deps_source:
+  - small
+deps:
+  - chinadns-ng
+  - dns2socks
+  - ipt2socks
+  - lua-neturl
+  - microsocks
+  - sing-box
+  - tcping
+  - xray-core
