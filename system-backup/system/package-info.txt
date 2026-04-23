@@ -1,0 +1,8 @@
+OpenClaw Version: 2026.3.12 (6472949)
+Node.js: v22.22.1
+npm: 10.9.4
+OS: PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+Kernel: 6.8.0-100-generic
+Hostname: iZ2zefm9hekotrnn4tqvnjZ
+Backup Time: 2026-04-23 16:29:16 CST
