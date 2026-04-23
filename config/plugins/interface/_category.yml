@@ -1,0 +1,40 @@
+category: interface
+name: 界面主题
+description: "LuCI 主题/界面增强"
+
+plugins:
+  luci-theme-argon:
+    name: Argon 主题
+    desc: "Material Design 风格主题"
+    firewall: 0
+    deps: []
+
+  luci-theme-argonepro:
+    name: Argon E-Pro 主题
+    desc: "Argon 增强版"
+    firewall: 0
+    deps: []
+
+  luci-app-argon-config:
+    name: Argon 设置
+    desc: "Argon 主题配置工具"
+    firewall: 0
+    deps: [luci-theme-argon]
+
+  luci-theme-design:
+    name: Design 主题
+    desc: "现代设计主题"
+    firewall: 0
+    deps: []
+
+  luci-theme-kucat:
+    name: Kucat 主题
+    desc: "简洁猫猫主题"
+    firewall: 0
+    deps: []
+
+  luci-app-quickstart:
+    name: 快速开始
+    desc: "新手引导"
+    firewall: 0
+    deps: []

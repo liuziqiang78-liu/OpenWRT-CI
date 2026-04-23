@@ -1,0 +1,48 @@
+platform: ipq60xx
+vendor: qualcomm
+description: "Qualcomm Atheros IPQ60xx (WiFi 6)"
+kernel_patchver: "6.12"
+source_branch: "25.12-nss"
+
+subtargets:
+  ipq60xx:
+    soc: ipq6010
+    chips: [ipq6000, ipq6010, ipq6018]
+    default_device: 8devices_mango-dvk
+    features: [squashfs, ext4, f2fs, nand, emmc, ramdisk, fpu, rtc]
+    nss: true
+
+packages:
+  default:
+    - ath11k-firmware-ipq6018
+    - nss-firmware-ipq60xx
+    - kmod-qca-nss-crypto
+    - kmod-ath11k
+    - kmod-ath11k-ahb
+    - kmod-ath11k-pci
+  nss:
+    - kmod-qca-nss-drv
+    - kmod-qca-nss-ecm
+    - kmod-qca-nss-dp
+    - kmod-nss-ifb
+    - kmod-qca-nss-drv-bridge-mgr
+    - kmod-qca-nss-drv-pppoe
+    - kmod-qca-nss-drv-vlan-mgr
+    - kmod-qca-nss-drv-gre
+    - kmod-qca-nss-drv-l2tpv2
+    - kmod-qca-nss-drv-vxlanmgr
+    - kmod-qca-nss-drv-mirror
+    - kmod-qca-nss-drv-tunipip6
+    - kmod-qca-nss-drv-wifi-meshmgr
+  base:
+    - luci-app-sqm
+    - luci-app-diskman
+    - luci-app-ledtrig-rssi
+    - luci-app-ledtrig-switch
+    - luci-app-ledtrig-usbport
+
+constraints:
+  firewall: [iptables, nftables]
+  rootfs: [squashfs, ext4, f2fs]
+  wifi: true
+  emmc: true

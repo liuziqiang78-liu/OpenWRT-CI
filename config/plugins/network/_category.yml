@@ -1,0 +1,76 @@
+category: network
+name: 网络工具
+description: "VPN/代理/网络加速/防火墙"
+
+plugins:
+  luci-app-ssr-plus:
+    name: SSR Plus+
+    desc: "Shadowsocks/V2Ray/Trojan 客户端"
+    firewall: 1
+    deps: [shadowsocks-libev, dns2socks, ipt2socks, microsocks, simple-obfs, tcping]
+
+  luci-app-passwall:
+    name: PassWall
+    desc: "多协议透明代理客户端"
+    firewall: 1
+    deps: [chinadns-ng, dns2socks, ipt2socks, sing-box, xray-core, trojan]
+
+  luci-app-passwall2:
+    name: PassWall 2
+    desc: "PassWall 精简版"
+    firewall: 1
+    deps: [dns2socks, ipt2socks, sing-box]
+
+  luci-app-vssr:
+    name: HelloWorld (VSSR)
+    desc: "多协议代理客户端"
+    firewall: 1
+    deps: [shadowsocks-libev, dns2socks, ipt2socks]
+
+  luci-app-openclash:
+    name: OpenClash
+    desc: "Clash 客户端 (Meta 内核)"
+    firewall: 1
+    deps: [coreutils-nohup, bash, curl, ipset, ip-full, kmod-tun]
+
+  luci-app-bypass:
+    name: Bypass
+    desc: "简易透明代理"
+    firewall: 1
+    deps: [dns2socks, ipt2socks]
+
+  luci-app-adguardhome:
+    name: AdGuard Home
+    desc: "全网广告拦截 DNS"
+    firewall: 0
+    deps: [AdGuardHome]
+
+  luci-app-turboacc:
+    name: Turbo ACC
+    desc: "网络加速 (SFE/Flow Offload)"
+    firewall: 1
+    deps: [kmod-fast-classifier, kmod-shortcut-fe]
+
+  luci-app-nft-qos:
+    name: nft QoS
+    desc: "nftables 流量控制"
+    firewall: 2
+    deps: [nftables]
+
+  luci-app-vlmcsd:
+    name: KMS 服务
+    desc: "KMS 激活服务器"
+    firewall: 0
+    deps: [vlmcsd]
+
+  luci-app-ddns:
+    name: 动态 DNS
+    desc: "DDNS 动态域名解析"
+    firewall: 0
+    deps: [ddns-scripts]
+
+  luci-app-unblockneteasemusic:
+    name: 解锁网易云灰色歌曲
+    desc: "UnblockNeteaseMusic"
+    firewall: 1
+    deps: [node]

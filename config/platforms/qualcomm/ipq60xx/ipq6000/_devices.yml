@@ -1,0 +1,35 @@
+chip_group: ipq6000
+platform: ipq60xx
+vendor: qualcomm
+
+devices:
+  - id: alfa-network_ap120c-ax
+    name: ALFA Network AP120C-AX
+  - id: cmiot_ax18
+    name: CMIOT AX18
+  - id: glinet_gl-ax1800
+    name: GL.iNet GL-AX1800
+  - id: glinet_gl-axt1800
+    name: GL.iNet GL-AXT1800
+  - id: jdcloud_re-ss-01
+    name: JDCloud RE-SS-01
+  - id: kt_ar06-012h
+    name: KT AR06-012H
+  - id: lg_gapd-7500
+    name: LG GAPD-7500
+  - id: link_nn6000-v1
+    name: Link NN6000 v1
+  - id: link_nn6000-v2
+    name: Link NN6000 v2
+  - id: linksys_mr7350
+    name: Linksys MR7350
+  - id: qihoo_360v6
+    name: Qihoo 360V6
+  - id: redmi_ax5
+    name: Redmi AX5
+  - id: redmi_ax5-jdcloud
+    name: Redmi AX5 JDCloud
+  - id: xiaomi_ax1800
+    name: Xiaomi AX1800
+  - id: zn_m2
+    name: ZN M2

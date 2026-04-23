@@ -1,58 +1,67 @@
 # ═══════════════════════════════════════════════════════
-#  OpenWRT-CI 平台配置 Schema (v1)
-#  所有 platforms/*.yml 必须遵循此结构
+#  OpenWRT-CI 配置 Schema v2 (分层)
+# ═══════════════════════════════════════════════════════
+#
+#  目录结构:
+#    config/
+#    ├── schema.yml                        ← 本文件
+#    ├── platforms/                        ← 按厂商 → 平台 → 芯片组
+#    │   └── <vendor>/
+#    │       ├── _vendor.yml              ← 厂商元数据
+#    │       └── <platform>/
+#    │           ├── _platform.yml        ← 平台配置 (subtargets/包/约束)
+#    │           └── <chip_group>/
+#    │               └── _devices.yml     ← 设备列表
+#    ├── plugins/                          ← 按分类
+#    │   └── <category>/
+#    │       └── _category.yml            ← 分类 + 插件列表
+#    └── templates/                        ← .config 模板
+#        ├── base.config
+#        ├── nss.config
+#        └── firewall-*.config
+#
 # ═══════════════════════════════════════════════════════
 
-# ── 顶层字段 ──
-# target: string          # 必填，平台标识符 (如 qualcommax)
-# version: string         # 必填，配置版本 (如 "1.0.0")
-# description: string     # 可选，平台描述
-# kernel_patchver: string # 可选，内核版本 (如 "6.12")
+# ── _vendor.yml 结构 ──
+# vendor: string            # 厂商标识 (qualcomm/mediatek/lantiq/...)
+# name: string              # 显示名称
+# description: string       # 厂商描述
 
-# ── subtargets 结构 ──
-# subtargets:
-#   <subtarget_id>:
-#     default_device: string    # 必填，默认设备 ID
-#     soc: string               # 必填，SoC 型号
-#     features: [string]        # 必填，支持特性列表
-#     nss: bool                 # 可选，是否支持 NSS，默认 false
-#     kernel_name: string       # 可选，内核镜像名，默认 "Image"
-
-# ── features 枚举 ──
-# squashfs   - SquashFS 根文件系统
-# ext4       - EXT4 根文件系统
-# f2fs       - F2FS 根文件系统
-# nand       - NAND Flash 存储
-# emmc       - eMMC 存储
-# ramdisk    - 内存盘支持
-# fpu        - 浮点单元
-# rtc        - 实时时钟
-
-# ── packages 结构 ──
+# ── _platform.yml 结构 ──
+# platform: string          # 平台标识 (ipq60xx/mt7981/...)
+# vendor: string            # 所属厂商
+# description: string       # 平台描述
+# kernel_patchver: string   # 内核版本
+# source_branch: string     # 默认源码分支
+# subtargets:               # 子目标列表
+#   <id>:
+#     soc: string           # SoC 型号
+#     chips: [string]       # 包含的芯片组
+#     default_device: string
+#     features: [string]
+#     nss: bool
 # packages:
-#   default: [string]       # 必填，默认包列表
-#   nss: [string]           # 条件必填 (nss=true 时)
-#   base: [string]          # 可选，基础插件
-#   blocked: [string]       # 可选，此平台上不可用的包
-
-# ── constraints 结构 ──
+#   default: [string]
+#   nss: [string]
+#   base: [string]
 # constraints:
-#   firewall: [string]      # 支持的防火墙类型 (iptables/nftables)
-#   wifi: bool              # 是否支持 WiFi
-#   rootfs: [string]        # 支持的 rootfs 类型
-#   max_kernel_size: string # 可选，内核最大尺寸 (如 "6144k")
-#   min_flash_size: string  # 可选，最小 Flash 尺寸
+#   firewall: [string]
+#   rootfs: [string]
+#   wifi: bool
 
-# ── build_hints 结构 ──
-# build_hints:
-#   parallel_jobs: int      # 建议并行任务数，0=auto
-#   ccache: bool            # 建议是否启用 ccache
-#   timeout_minutes: int    # 建议超时时间
-#   download_retry: int     # 下载失败重试次数
+# ── _devices.yml 结构 ──
+# chip_group: string        # 芯片组名 (ipq6010/mt7981/...)
+# platform: string          # 所属平台
+# devices:
+#   - id: string            # OpenWrt 设备 ID
+#     name: string          # 显示名称
 
-# ── metadata 结构 ──
-# metadata:
-#   source_url: string      # 源码仓库地址
-#   docs_url: string        # 文档地址
-#   maintainer: string      # 维护者
-#   last_verified: string   # 最后验证日期 (YYYY-MM-DD)
+# ── _category.yml 结构 ──
+# category: string          # 分类标识
+# name: string              # 显示名称
+# plugins:
+#   <plugin_name>:
+#     name: string          # 显示名称
+#     desc: string          # 描述
+#     firewall: int         # 0=双兼容, 1=仅iptables, 2=仅nftables
+#     deps: [string]        # 依赖

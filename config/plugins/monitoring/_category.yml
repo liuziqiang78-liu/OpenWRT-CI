@@ -1,0 +1,40 @@
+category: monitoring
+name: 监控工具
+description: "流量监控/网络检测/日志"
+
+plugins:
+  luci-app-vssr:
+    name: HelloWorld
+    desc: "多协议代理 + 流量监控"
+    firewall: 1
+    deps: []
+
+  luci-app-netdata:
+    name: Netdata
+    desc: "实时系统监控仪表盘"
+    firewall: 0
+    deps: [netdata]
+
+  luci-app-nlbwmon:
+    name: 宽带监控
+    desc: "Netlink 带宽监控"
+    firewall: 0
+    deps: [nlbwmon]
+
+  luci-app-accesscontrol:
+    name: 上网控制
+    desc: "设备上网时间控制"
+    firewall: 0
+    deps: []
+
+  luci-app-arpbind:
+    name: ARP 绑定
+    desc: "IP/MAC 绑定"
+    firewall: 1
+    deps: []
+
+  luci-app-upnp:
+    name: UPnP
+    desc: "通用即插即用"
+    firewall: 0
+    deps: [miniupnpd]

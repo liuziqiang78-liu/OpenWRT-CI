@@ -48,11 +48,24 @@ if [ -z "$TARGET" ]; then
   exit 1
 fi
 
-PLATFORM_FILE="${CONFIG_DIR}/platforms/${TARGET}.yml"
-if [ ! -f "$PLATFORM_FILE" ]; then
-  echo "错误: 平台配置不存在: ${PLATFORM_FILE}"
+# 查找平台配置 (支持新旧两种路径)
+PLATFORM_FILE=""
+for candidate in \
+  "${CONFIG_DIR}/platforms/"*"/${TARGET}/_platform.yml" \
+  "${CONFIG_DIR}/platforms/${TARGET}.yml"; do
+  if [ -f $candidate ]; then
+    PLATFORM_FILE="$candidate"
+    break
+  fi
+done
+
+if [ -z "$PLATFORM_FILE" ]; then
+  echo "错误: 平台配置不存在: ${TARGET}"
+  echo "搜索路径: ${CONFIG_DIR}/platforms/*/${TARGET}/_platform.yml"
   exit 1
 fi
+
+echo "📂 平台配置: ${PLATFORM_FILE}"
 
 # ── 工具函数 ──
 # 简单的 YAML 值提取 (无需 yq)

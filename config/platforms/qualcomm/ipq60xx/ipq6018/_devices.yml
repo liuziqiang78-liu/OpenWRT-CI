@@ -1,0 +1,21 @@
+chip_group: ipq6018
+platform: ipq60xx
+vendor: qualcomm
+
+devices:
+  - id: linksys_mr7500
+    name: Linksys MR7500
+  - id: netgear_rbr350
+    name: Netgear RBR350
+  - id: netgear_rbs350
+    name: Netgear RBS350
+  - id: tplink_eap610-outdoor
+    name: TP-Link EAP610-Outdoor
+  - id: tplink_eap620-hd-v3
+    name: TP-Link EAP620 HD v3
+  - id: tplink_eap623-outdoor-hd-v1
+    name: TP-Link EAP623-Outdoor HD v1
+  - id: tplink_eap625-outdoor-hd-v1
+    name: TP-Link EAP625-Outdoor HD v1
+  - id: yuncore_fap650
+    name: Yuncore FAP650

@@ -1,0 +1,52 @@
+category: system
+name: 系统管理
+description: "系统工具/容器/文件管理"
+
+plugins:
+  luci-app-dockerman:
+    name: Docker 管理
+    desc: "Docker 容器管理界面"
+    firewall: 1
+    deps: [docker, dockerd, luci-lib-docker]
+
+  luci-app-diskman:
+    name: 磁盘管理
+    desc: "磁盘分区/格式化/挂载"
+    firewall: 0
+    deps: [parted, e2fsprogs, f2fs-tools]
+
+  luci-app-ttyd:
+    name: 终端
+    desc: "Web 终端 (ttyd)"
+    firewall: 0
+    deps: [ttyd]
+
+  luci-app-argon-config:
+    name: Argon 主题设置
+    desc: "Argon 主题配置"
+    firewall: 0
+    deps: [luci-theme-argon]
+
+  luci-app-attendedsysupgrade:
+    name: 在线升级
+    desc: "Attended Sysupgrade"
+    firewall: 0
+    deps: [attendedsysupgrade-common]
+
+  luci-app-samba4:
+    name: 网络共享 (Samba4)
+    desc: "SMB/CIFS 文件共享"
+    firewall: 0
+    deps: [samba4-server]
+
+  luci-app-usb-printer:
+    name: USB 打印机
+    desc: "USB 打印服务器"
+    firewall: 1
+    deps: [p910nd]
+
+  luci-app-vlmcsd:
+    name: KMS 服务器
+    desc: "Windows/Office KMS 激活"
+    firewall: 0
+    deps: [vlmcsd]
