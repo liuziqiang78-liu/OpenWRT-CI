@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-# OpenWrt 云编译工作流 (分层架构 v2)
-# 仓库: LiBwrt/openwrt-6.x
+# OpenWrt 云编译工作流 (分层架构 v3)
+# 所有逻辑下沉到 scripts/，workflow 纯编排
 # ──────────────────────────────────────────────
 name: 🚀 Build OpenWrt Firmware
 
@@ -102,28 +102,16 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 720
     steps:
-      # ── Layer 2.1: 检出 (含平台配置 + 脚本) ──
-      - name: 🛎️ Checkout workflow repo
+      # ── L1: 检出 (含 scripts/ + config/) ──
+      - name: 🛎️ Checkout
         uses: actions/checkout@v4
 
-      # ── Layer 2.2: 克隆源码 ──
-      - name: 📦 Clone OpenWrt Source
-        run: |
-          git clone --depth 1 --single-branch \
-            -b ${{ inputs.source_branch }} \
-            ${{ env.REPO_URL }} openwrt
+      # ── L2: 源码准备 ──
+      - name: 📦 Setup Source
+        run: bash scripts/setup-source.sh "${{ env.REPO_URL }}" "${{ inputs.source_branch }}" openwrt
 
-      # ── Layer 2.3: 安装 Feeds ──
-      - name: 📥 Update & Install Feeds
-        run: |
-          cd openwrt
-          echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.default
-          echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      # ── Layer 3+4: 配置生成 + 验证 (composite action) ──
-      - name: ⚙️ Generate & Validate Config
+      # ── L3: 配置生成 + 验证 ──
+      - name: ⚙️ Generate Config
         uses: ./.github/actions/generate-config
         with:
           target: ${{ inputs.target }}
@@ -138,48 +126,33 @@ jobs:
           custom_config: ${{ inputs.custom_config }}
           enable_ccache: ${{ inputs.enable_ccache }}
 
-      # ── Layer 2.4: 编译配置摘要 ──
+      # ── L4: 配置摘要 ──
       - name: 📋 Config Summary
         if: always()
+        run: bash scripts/config-summary.sh openwrt/.config "${{ inputs.source_branch }}"
+
+      # ── L5: 编译 ──
+      - name: 🏗️ Build
         run: |
-          cd openwrt
-          ACTUAL_TARGET=$(grep -oP 'CONFIG_TARGET_\K[a-z0-9]+(?==y)' .config | head -1)
-          ACTUAL_SUBTARGET=$(grep -oP "CONFIG_TARGET_${ACTUAL_TARGET}_\\K[a-z0-9]+(?==y)" .config | head -1)
-          ACTUAL_DEVICE=$(grep -oP 'CONFIG_TARGET.*DEVICE_\K[^=]+(?==y)' .config | head -1)
-          FW_TYPE=$(grep -q 'CONFIG_PACKAGE_firewall4=y' .config && echo 'nftables' || echo 'iptables')
-          PLUGIN_COUNT=$(grep -c '=y' .config || echo 0)
+          date +%s > openwrt/.build_start_time
+          bash scripts/build.sh openwrt
 
-          echo "### 📋 编译配置" >> $GITHUB_STEP_SUMMARY
-          echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
-          echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-          echo "| 源码分支 | \`${{ inputs.source_branch }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target | \`${ACTUAL_TARGET}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Subtarget | \`${ACTUAL_SUBTARGET}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 设备 | \`${ACTUAL_DEVICE:-'(全部)'}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 防火墙 | \`${FW_TYPE}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 插件数 | \`${PLUGIN_COUNT}\` |" >> $GITHUB_STEP_SUMMARY
+      # ── L6: 编译后检查 ──
+      - name: 🔍 Post-Build Check
+        if: always()
+        run: bash scripts/post-build-check.sh openwrt "${{ inputs.target }}" "${{ inputs.subtarget }}"
 
-      # ── Layer 5: 下载源码 ──
-      - name: 🔨 Download Sources
-        run: |
-          cd openwrt
-          make download -j$(nproc) || make download -j1 V=s
+      # ── L7: 构建摘要 ──
+      - name: 📊 Build Summary
+        if: always()
+        run: bash scripts/build-summary.sh openwrt
 
-      # ── Layer 6: 编译工具链 ──
-      - name: 🔧 Build Toolchain
-        run: |
-          cd openwrt
-          make tools/install -j$(nproc)
-          make toolchain/install -j$(nproc)
+      # ── L8: 清单生成 ──
+      - name: 📄 Generate Manifest
+        if: always()
+        run: bash scripts/generate-manifest.sh openwrt openwrt/manifest.json
 
-      # ── Layer 7: 编译固件 ──
-      - name: 🏗️ Build Firmware
-        run: |
-          cd openwrt
-          BUILD_JOBS=$(($(nproc) + 1))
-          make -j${BUILD_JOBS} 2>&1 | tee build.log
-
-      # ── Layer 8: 打包上传 ──
+      # ── L9: 上传 ──
       - name: 📤 Upload Firmware
         if: inputs.upload_artifacts == 'true'
         uses: actions/upload-artifact@v4
@@ -191,26 +164,6 @@ jobs:
             openwrt/bin/targets/**/*.img
             openwrt/bin/targets/**/*.ubi
             openwrt/bin/targets/**/*.tar
+            openwrt/manifest.json
           retention-days: 7
           if-no-files-found: warn
-
-      # ── Layer 9: 构建报告 ──
-      - name: 📊 Build Summary
-        if: always()
-        run: |
-          cd openwrt
-          echo "### 📊 编译结果" >> $GITHUB_STEP_SUMMARY
-          if [ -f build.log ]; then
-            ERRORS=$(grep -ci "error" build.log 2>/dev/null || echo 0)
-            WARNINGS=$(grep -ci "warning" build.log 2>/dev/null || echo 0)
-            echo "| 指标 | 值 |" >> $GITHUB_STEP_SUMMARY
-            echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-            echo "| 错误数 | ${ERRORS} |" >> $GITHUB_STEP_SUMMARY
-            echo "| 警告数 | ${WARNINGS} |" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 固件文件" >> $GITHUB_STEP_SUMMARY
-          find bin/targets/ -type f \( -name "*.bin" -o -name "*.itb" -o -name "*.img" -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null | head -30 | while read f; do
-            SIZE=$(du -sh "$f" 2>/dev/null | cut -f1)
-            echo "- \`$f\` (${SIZE})" >> $GITHUB_STEP_SUMMARY
-          done
