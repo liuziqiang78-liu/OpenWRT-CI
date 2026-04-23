@@ -133,11 +133,15 @@ textarea{min-height:80px;resize:vertical}
 .pc .pd-full .pd-title{font-weight:700;color:var(--cyan);font-size:.85em;margin-bottom:4px}
 .pc .pd-full .pd-cat{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.8em;font-weight:600;background:var(--v-d);color:var(--vio);margin-bottom:6px}
 
-/* Toggle */
-.cr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:border-color .25s var(--ease)}
-.cr:hover{border-color:var(--brd-h)}
-.cr input[type=checkbox]{width:18px;height:18px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
-.cr .ct{font-size:.82em;font-weight:700}.cr .ci{font-size:.7em;color:var(--t3);margin-left:auto}
+/* Toggle Buttons (unified selection style) */
+.tog-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:all .25s var(--ease);user-select:none}
+.tog-row:hover{border-color:var(--brd-h)}
+.tog-row .ct{font-size:.82em;font-weight:700;flex:1}
+.tog-row .ci{font-size:.7em;color:var(--t3)}
+.tog-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;font-size:.72em;font-weight:700;background:rgba(12,18,36,.5);border:1px solid var(--brd);color:var(--t3);transition:all .25s var(--ease);flex-shrink:0}
+.tog-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--t3);transition:all .25s var(--ease)}
+.tog-row.on .tog-pill{background:var(--c-d);border-color:rgba(56,189,248,.2);color:var(--cyan)}
+.tog-row.on .tog-pill::before{background:var(--cyan);box-shadow:0 0 8px var(--c-g)}
 
 /* Summary */
 .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
@@ -223,10 +227,10 @@ textarea{min-height:80px;resize:vertical}
 <div class="tabs" id="target-tabs" style="margin-bottom:14px"></div>
 <div class="dg" id="device-grid"></div>
 <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-  <label class="cr" onclick="toggleAllDevices()" style="flex:1;min-width:200px">
-    <input type="checkbox" id="dev-all">
+  <div class="tog-row on" id="tog-dev-all" onclick="toggleAllDevices()" style="flex:1;min-width:200px">
     <span class="ct">全选当前平台设备</span>
-  </label>
+    <span class="tog-pill">全选</span>
+  </div>
   <span style="font-size:.7em;color:var(--t3)" id="dev-total"></span>
 </div>
 </div>
@@ -258,18 +262,18 @@ textarea{min-height:80px;resize:vertical}
   </select>
 </div>
 <div class="f">
-  <label class="cr">
-    <input type="checkbox" id="opt-ccache" checked>
+  <div class="tog-row on" id="tog-ccache" onclick="toggleOpt(this)">
     <span class="ct">启用 ccache 编译加速</span>
     <span class="ci">推荐</span>
-  </label>
+    <span class="tog-pill">开</span>
+  </div>
 </div>
 <div class="f">
-  <label class="cr">
-    <input type="checkbox" id="opt-upload" checked>
+  <div class="tog-row on" id="tog-upload" onclick="toggleOpt(this)">
     <span class="ct">编译完成后上传固件</span>
     <span class="ci">保留 7 天</span>
-  </label>
+    <span class="tog-pill">开</span>
+  </div>
 </div>
 </div>
 
@@ -1108,8 +1112,8 @@ function saveState() {
     wifiSsid: document.getElementById('wifi-ssid').value,
     wifiPassword: document.getElementById('wifi-password').value,
     customConfig: document.getElementById('custom-config').value,
-    optCcache: document.getElementById('opt-ccache').checked,
-    optUpload: document.getElementById('opt-upload').checked,
+    optCcache: document.getElementById('tog-ccache').classList.contains('on'),
+    optUpload: document.getElementById('tog-upload').classList.contains('on'),
     // 自定义参数
     customKey: document.getElementById('custom-key').value,
     customVal: document.getElementById('custom-val').value,
@@ -1139,8 +1143,8 @@ function loadState() {
     if (data.wifiSsid) document.getElementById('wifi-ssid').value = data.wifiSsid;
     if (data.wifiPassword) document.getElementById('wifi-password').value = data.wifiPassword;
     if (data.customConfig) document.getElementById('custom-config').value = data.customConfig;
-    if (data.optCcache !== undefined) document.getElementById('opt-ccache').checked = data.optCcache;
-    if (data.optUpload !== undefined) document.getElementById('opt-upload').checked = data.optUpload;
+    if (data.optCcache !== undefined) { const el = document.getElementById('tog-ccache'); el.classList.toggle('on', data.optCcache); el.querySelector('.tog-pill').textContent = data.optCcache ? '开' : '关'; }
+    if (data.optUpload !== undefined) { const el = document.getElementById('tog-upload'); el.classList.toggle('on', data.optUpload); el.querySelector('.tog-pill').textContent = data.optUpload ? '开' : '关'; }
     if (data.customKey) document.getElementById('custom-key').value = data.customKey;
     if (data.customVal) document.getElementById('custom-val').value = data.customVal;
     // 恢复 tab 选中状态
@@ -1179,10 +1183,10 @@ function bindAutoSave() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', saveState);
   });
-  // checkbox
-  ['opt-ccache','opt-upload'].forEach(id => {
+  // toggle buttons
+  ['tog-ccache','tog-upload'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', saveState);
+    if (el) el.addEventListener('click', saveState);
   });
 }
 
@@ -1322,20 +1326,33 @@ function toggleDevice(el, id) {
 function toggleAllDevices() {
   let devs = DEVICES[currentSubKey] || [];
   if (searchQuery) devs = devs.filter(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery));
-  const cb = document.getElementById('dev-all');
-  if (cb.checked) devs.forEach(d => state.devices.add(d.id));
-  else state.devices.clear();
+  const el = document.getElementById('tog-dev-all');
+  const isOn = el.classList.contains('on');
+  if (isOn) { devs.forEach(d => state.devices.add(d.id)); }
+  else { state.devices.clear(); }
+  el.classList.toggle('on');
+  el.querySelector('.tog-pill').textContent = el.classList.contains('on') ? '全选' : '全不选';
   initDevices(); updateSummary(); saveState();
 }
 
 function syncAllCheckbox() {
   const devs = DEVICES[currentSubKey] || [];
-  const cb = document.getElementById('dev-all');
-  cb.checked = devs.length > 0 && devs.every(d => state.devices.has(d.id));
+  const el = document.getElementById('tog-dev-all');
+  const allSelected = devs.length > 0 && devs.every(d => state.devices.has(d.id));
+  el.classList.toggle('on', allSelected);
+  el.querySelector('.tog-pill').textContent = allSelected ? '全选' : '全不选';
 }
 
 function updateDevCount() {
   document.getElementById('dev-count').textContent = state.devices.size + ' 已选';
+}
+
+// 通用开关切换
+function toggleOpt(el) {
+  const isOn = el.classList.toggle('on');
+  const pill = el.querySelector('.tog-pill');
+  if (pill) pill.textContent = isOn ? '开' : '关';
+  updateSummary(); saveState();
 }
 
 // 插件
@@ -1448,8 +1465,8 @@ function updateSummary() {
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
   document.getElementById('s-firewall').textContent = state.firewall;
-  document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
-  document.getElementById('s-upload').textContent = document.getElementById('opt-upload').checked ? '开' : '关';
+  document.getElementById('s-ccache').textContent = document.getElementById('tog-ccache').classList.contains('on') ? '开' : '关';
+  document.getElementById('s-upload').textContent = document.getElementById('tog-upload').classList.contains('on') ? '开' : '关';
   document.getElementById('s-custom').textContent = state.customOpts.length || '0';
   // Root 密码
   const rootPw = document.getElementById('root-pw').value.trim();
@@ -1570,8 +1587,8 @@ async function startBuild() {
     wifi_ssid: document.getElementById('wifi-ssid').value.trim(),
     wifi_password: document.getElementById('wifi-password').value.trim(),
     custom_config: customB64,
-    enable_ccache: document.getElementById('opt-ccache').checked ? 'true' : 'false',
-    upload_artifacts: document.getElementById('opt-upload').checked ? 'true' : 'false',
+    enable_ccache: document.getElementById('tog-ccache').classList.contains('on') ? 'true' : 'false',
+    upload_artifacts: document.getElementById('tog-upload').classList.contains('on') ? 'true' : 'false',
   };
 
   btn.disabled = true;
