@@ -1279,6 +1279,32 @@ function switchSubTab(key) {
 
 function searchDevices(q) {
   searchQuery = q.toLowerCase().trim();
+  if (!searchQuery) { initDevices(); return; }
+  // Find the first platform sub-key that has matching devices
+  for (const group of PLATFORM_GROUPS) {
+    for (const sub of group.subs) {
+      const devs = DEVICES[sub.k] || [];
+      const match = devs.some(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery) || d.c.toLowerCase().includes(searchQuery));
+      if (match) {
+        // Auto-switch to this platform group and sub-tab
+        if (currentPlatformGroup !== group.id) {
+          currentPlatformGroup = group.id;
+          document.querySelectorAll('.pgroup').forEach(t=>t.classList.toggle('on', t.dataset.g===group.id));
+          renderSubTabs();
+        }
+        if (currentSubKey !== sub.k) {
+          currentSubKey = sub.k;
+          document.querySelectorAll('#target-tabs .tab').forEach(t=>t.classList.toggle('on', t.dataset.k===sub.k));
+          const parts = sub.k.split('-');
+          state.target = parts[0];
+          state.subtarget = parts.slice(1).join('-') || '';
+        }
+        initDevices();
+        return;
+      }
+    }
+  }
+  // No match found in any platform, just filter current
   initDevices();
 }
 
@@ -1369,7 +1395,31 @@ function initPlugins() {
   document.getElementById('plug-search').addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
     if (!q) { const active = document.querySelector('.pt.on'); renderPlugins(active?.dataset.cat || cats[0]); return; }
-    // 搜索所有分类
+    // Find the first category with matching plugins and auto-switch
+    for (const cat of cats) {
+      const plugs = PLUGIN_CATS[cat];
+      const hasMatch = Object.entries(plugs).some(([name, info]) => {
+        const desc = typeof info === 'string' ? info : info.d;
+        const features = typeof info === 'string' ? '' : (info.f || '');
+        return name.includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q);
+      });
+      if (hasMatch) {
+        // Auto-switch to this category tab
+        document.querySelectorAll('.pt').forEach(t => t.classList.toggle('on', t.dataset.cat === cat));
+        // Filter within this category
+        const filtered = {};
+        for (const [name, info] of Object.entries(plugs)) {
+          const desc = typeof info === 'string' ? info : info.d;
+          const features = typeof info === 'string' ? '' : (info.f || '');
+          if (name.includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
+            filtered[name] = info;
+          }
+        }
+        renderGrid(filtered);
+        return;
+      }
+    }
+    // No match in any category, search all
     const all = {};
     for (const [cat, plugs] of Object.entries(PLUGIN_CATS)) {
       for (const [name, info] of Object.entries(plugs)) {
