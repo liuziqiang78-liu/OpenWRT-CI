@@ -93,12 +93,11 @@ textarea{min-height:80px;resize:vertical}
 .dg::-webkit-scrollbar-thumb{background:rgba(90,130,255,.15);border-radius:4px}
 .dc{padding:15px 14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
 .dc:hover{border-color:var(--brd-h);transform:translateY(-1px)}
-.dc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 28px rgba(56,189,248,.1)}
-.dc .n{font-weight:800;font-size:.8em}
+.dc.on{background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(167,139,250,.12));border-color:var(--cyan);box-shadow:0 0 28px rgba(56,189,248,.1);border-left:3px solid var(--cyan)}
+.dc .n{font-weight:800;font-size:.8em;transition:color .25s var(--ease)}
 .dc .c{font-size:.68em;color:var(--t2);margin-top:3px}
+.dc.on .n{color:var(--cyan)}
 .dc.on .c{color:rgba(56,189,248,.6)}
-.dc .dot{position:absolute;top:11px;right:11px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
-.dc.on .dot{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px var(--c-g)}
 
 /* Plugin */
 .ptabs{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:wrap}
@@ -1305,7 +1304,6 @@ function initDevices() {
         <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${d.id}" onclick="toggleDevice(this,'${d.id}')">
           <div class="n">${d.n}</div>
           <div class="c">${d.c}</div>
-          <div class="dot">${state.devices.has(d.id)?'✓':''}</div>
         </div>
       `).join('');
     });
@@ -1316,8 +1314,8 @@ function initDevices() {
 }
 
 function toggleDevice(el, id) {
-  if (state.devices.has(id)) { state.devices.delete(id); el.classList.remove('on'); el.querySelector('.dot').textContent=''; }
-  else { state.devices.add(id); el.classList.add('on'); el.querySelector('.dot').textContent='✓'; }
+  if (state.devices.has(id)) { state.devices.delete(id); el.classList.remove('on'); }
+  else { state.devices.add(id); el.classList.add('on'); }
   syncAllCheckbox(); updateDevCount(); updateSummary(); saveState();
 }
 
