@@ -101,11 +101,10 @@ textarea{min-height:80px;resize:vertical}
 .pg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .pc{padding:14px;border-radius:var(--r2);cursor:pointer;background:rgba(6,10,22,.45);border:1px solid var(--brd);transition:all .25s var(--ease);position:relative}
 .pc:active{transform:scale(.97)}.pc:hover{border-color:var(--brd-h)}
-.pc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 22px rgba(56,189,248,.08)}
-.pc .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
-.pc .pn{font-weight:800;font-size:.8em;word-break:break-all}
-.pc .ck{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
-.pc.on .ck{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px var(--c-g)}
+.pc.on{background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(167,139,250,.12));border-color:var(--cyan);box-shadow:0 0 22px rgba(56,189,248,.1);border-left:3px solid var(--cyan)}
+.pc .tp{display:flex;align-items:center;gap:4px}
+.pc .pn{font-weight:800;font-size:.8em;word-break:break-all;flex:1;transition:color .25s var(--ease)}
+.pc.on .pn{color:var(--cyan)}
 
 /* Plugin Dropdown */
 .pc .pd-wrap{display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;user-select:none}
@@ -1374,7 +1373,6 @@ function renderGrid(plugs) {
     <div class="pc ${state.plugins.has(name)?'on':''}" id="pc-${name}">
       <div class="tp" onclick="togglePlug(this.parentElement,'${name}')">
         <div class="pn">${shortName}</div>
-        <div class="ck">${state.plugins.has(name)?'✓':''}</div>
       </div>
       <div class="pd-wrap" onclick="togglePlugDesc(event,'${name}')">
         <div class="pd-brief">${desc}</div>
@@ -1404,8 +1402,8 @@ function togglePlugDesc(e, name) {
 }
 
 function togglePlug(el, name) {
-  if (state.plugins.has(name)) { state.plugins.delete(name); el.classList.remove('on'); el.querySelector('.ck').textContent=''; }
-  else { state.plugins.add(name); el.classList.add('on'); el.querySelector('.ck').textContent='✓'; }
+  if (state.plugins.has(name)) { state.plugins.delete(name); el.classList.remove('on'); }
+  else { state.plugins.add(name); el.classList.add('on'); }
   updatePlugCount(); updateSummary(); saveState();
 }
 
@@ -1424,7 +1422,6 @@ function refreshGrid() {
   document.querySelectorAll('.pc').forEach(el => {
     const name = el.id.replace('pc-', '');
     el.classList.toggle('on', state.plugins.has(name));
-    el.querySelector('.ck').textContent = state.plugins.has(name) ? '✓' : '';
   });
 }
 function updatePlugCount() { document.getElementById('plug-count').textContent = state.plugins.size + ' 已选'; }
