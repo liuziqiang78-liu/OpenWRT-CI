@@ -1034,6 +1034,8 @@ const NSS_MODULES = [
 // ═══════════════════════════════════════
 //  状态
 // ═══════════════════════════════════════
+const STORAGE_KEY = 'openwrt-ci-state';
+
 let state = {
   sourceBranch: 'main-nss',
   branch: 'main-nss',
@@ -1045,9 +1047,81 @@ let state = {
 };
 
 // ═══════════════════════════════════════
+//  持久化 (localStorage)
+// ═══════════════════════════════════════
+function saveState() {
+  const data = {
+    sourceBranch: state.sourceBranch,
+    branch: state.branch,
+    target: state.target,
+    subtarget: state.subtarget,
+    devices: [...state.devices],
+    plugins: [...state.plugins],
+    customOpts: state.customOpts,
+    currentPlatformGroup: currentPlatformGroup,
+    currentSubKey: currentSubKey,
+    // 表单字段
+    ghToken: document.getElementById('gh-token').value,
+    ghRepo: document.getElementById('gh-repo').value,
+    rootPw: document.getElementById('root-pw').value,
+    lanIp: document.getElementById('lan-ip').value,
+    wifiCfg: document.getElementById('wifi-cfg').value,
+    customConfig: document.getElementById('custom-config').value,
+    optCcache: document.getElementById('opt-ccache').checked,
+    optUpload: document.getElementById('opt-upload').checked,
+    // 自定义参数
+    customKey: document.getElementById('custom-key').value,
+    customVal: document.getElementById('custom-val').value,
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    state.sourceBranch = data.sourceBranch || 'main-nss';
+    state.branch = data.branch || 'main-nss';
+    state.target = data.target || 'qualcommax';
+    state.subtarget = data.subtarget || 'ipq807x';
+    state.devices = new Set(data.devices || []);
+    state.plugins = new Set(data.plugins || []);
+    state.customOpts = data.customOpts || [];
+    currentPlatformGroup = data.currentPlatformGroup || 'qualcommax';
+    currentSubKey = data.currentSubKey || 'qualcommax-ipq807x';
+    // 表单字段
+    if (data.ghToken) document.getElementById('gh-token').value = data.ghToken;
+    if (data.ghRepo) document.getElementById('gh-repo').value = data.ghRepo;
+    if (data.rootPw !== undefined) document.getElementById('root-pw').value = data.rootPw;
+    if (data.lanIp) document.getElementById('lan-ip').value = data.lanIp;
+    if (data.wifiCfg) document.getElementById('wifi-cfg').value = data.wifiCfg;
+    if (data.customConfig) document.getElementById('custom-config').value = data.customConfig;
+    if (data.optCcache !== undefined) document.getElementById('opt-ccache').checked = data.optCcache;
+    if (data.optUpload !== undefined) document.getElementById('opt-upload').checked = data.optUpload;
+    if (data.customKey) document.getElementById('custom-key').value = data.customKey;
+    if (data.customVal) document.getElementById('custom-val').value = data.customVal;
+    // 恢复 tab 选中状态
+    restoreTabStates();
+  } catch(e) { console.warn('Failed to load state:', e); }
+}
+
+function restoreTabStates() {
+  // 源码分支
+  document.querySelectorAll('#source-branch-tabs .tab').forEach(t => {
+    t.classList.toggle('on', t.dataset.val === state.sourceBranch);
+  });
+  // 内核版本
+  document.querySelectorAll('#branch-tabs .tab').forEach(t => {
+    t.classList.toggle('on', t.dataset.val === state.branch);
+  });
+}
+
+// ═══════════════════════════════════════
 //  初始化
 // ═══════════════════════════════════════
 function init() {
+  loadState();
   initTabs();
   initPlatformTabs();
   initDevices();
@@ -1055,11 +1129,27 @@ function init() {
   renderCustomOpts();
   updateSummary();
   initRepoInput();
+  // 自动保存：监听所有表单变化
+  bindAutoSave();
+}
+
+function bindAutoSave() {
+  // 输入框
+  ['gh-token','gh-repo','root-pw','lan-ip','wifi-cfg','custom-config','custom-key','custom-val'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveState);
+  });
+  // checkbox
+  ['opt-ccache','opt-upload'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', saveState);
+  });
 }
 
 // 自动填充编译仓库
 function initRepoInput() {
   const repoInput = document.getElementById('gh-repo');
+  // 只在没有保存值时才自动填充
   if (repoInput && !repoInput.value) {
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const owner = window.location.hostname.replace('.github.io', '');
@@ -1077,7 +1167,7 @@ function initTabs() {
       document.querySelectorAll('#source-branch-tabs .tab').forEach(x => x.classList.remove('on'));
       t.classList.add('on');
       state.sourceBranch = t.dataset.val;
-      updateSummary();
+      updateSummary(); saveState();
     });
   });
 
@@ -1086,7 +1176,7 @@ function initTabs() {
       document.querySelectorAll('#branch-tabs .tab').forEach(x => x.classList.remove('on'));
       t.classList.add('on');
       state.branch = t.dataset.val;
-      updateSummary();
+      updateSummary(); saveState();
     });
   });
 
@@ -1130,6 +1220,7 @@ function switchPlatformGroup(gid) {
   state.devices.clear();
   initDevices();
   updateSummary();
+  saveState();
 }
 
 function renderSubTabs() {
@@ -1151,6 +1242,7 @@ function switchSubTab(key) {
   state.devices.clear();
   initDevices();
   updateSummary();
+  saveState();
 }
 
 function searchDevices(q) {
@@ -1197,7 +1289,7 @@ function initDevices() {
 function toggleDevice(el, id) {
   if (state.devices.has(id)) { state.devices.delete(id); el.classList.remove('on'); el.querySelector('.dot').textContent=''; }
   else { state.devices.add(id); el.classList.add('on'); el.querySelector('.dot').textContent='✓'; }
-  syncAllCheckbox(); updateDevCount(); updateSummary();
+  syncAllCheckbox(); updateDevCount(); updateSummary(); saveState();
 }
 
 function toggleAllDevices() {
@@ -1206,7 +1298,7 @@ function toggleAllDevices() {
   const cb = document.getElementById('dev-all');
   if (cb.checked) devs.forEach(d => state.devices.add(d.id));
   else state.devices.clear();
-  initDevices(); updateSummary();
+  initDevices(); updateSummary(); saveState();
 }
 
 function syncAllCheckbox() {
@@ -1274,19 +1366,19 @@ function renderGrid(plugs) {
 function togglePlug(el, name) {
   if (state.plugins.has(name)) { state.plugins.delete(name); el.classList.remove('on'); el.querySelector('.ck').textContent=''; }
   else { state.plugins.add(name); el.classList.add('on'); el.querySelector('.ck').textContent='✓'; }
-  updatePlugCount(); updateSummary();
+  updatePlugCount(); updateSummary(); saveState();
 }
 
 function plugAll() {
   for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) state.plugins.add(name);
-  refreshGrid(); updatePlugCount(); updateSummary();
+  refreshGrid(); updatePlugCount(); updateSummary(); saveState();
 }
-function plugNone() { state.plugins.clear(); refreshGrid(); updatePlugCount(); updateSummary(); }
+function plugNone() { state.plugins.clear(); refreshGrid(); updatePlugCount(); updateSummary(); saveState(); }
 function plugInvert() {
   for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) {
     if (state.plugins.has(name)) state.plugins.delete(name); else state.plugins.add(name);
   }
-  refreshGrid(); updatePlugCount(); updateSummary();
+  refreshGrid(); updatePlugCount(); updateSummary(); saveState();
 }
 function refreshGrid() {
   document.querySelectorAll('.pc').forEach(el => {
@@ -1328,12 +1420,14 @@ function addCustomOpt() {
   valEl.value = '';
   renderCustomOpts();
   updateSummary();
+  saveState();
 }
 
 function removeCustomOpt(idx) {
   state.customOpts.splice(idx, 1);
   renderCustomOpts();
   updateSummary();
+  saveState();
 }
 
 function renderCustomOpts() {
@@ -1488,7 +1582,7 @@ function toast(title, body, err) {
 }
 
 // 监听变化更新 summary
-document.addEventListener('change', updateSummary);
+document.addEventListener('change', () => { updateSummary(); saveState(); });
 
 // 启动
 init();
