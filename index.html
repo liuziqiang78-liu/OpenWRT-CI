@@ -175,7 +175,6 @@ textarea{min-height:80px;resize:vertical}
   <div class="hint">存放 <code>build-openwrt.yml</code> 工作流的仓库，默认自动检测当前仓库。</div>
 </div>
 </div>
-</div>
 
 <!-- ═══════ 2. 编译设置 ═══════ -->
 <div class="card" id="card-build">
@@ -1198,7 +1197,7 @@ function initDevices() {
 function toggleDevice(el, id) {
   if (state.devices.has(id)) { state.devices.delete(id); el.classList.remove('on'); el.querySelector('.dot').textContent=''; }
   else { state.devices.add(id); el.classList.add('on'); el.querySelector('.dot').textContent='✓'; }
-  updateDevCount(); updateSummary();
+  syncAllCheckbox(); updateDevCount(); updateSummary();
 }
 
 function toggleAllDevices() {
@@ -1208,6 +1207,12 @@ function toggleAllDevices() {
   if (cb.checked) devs.forEach(d => state.devices.add(d.id));
   else state.devices.clear();
   initDevices(); updateSummary();
+}
+
+function syncAllCheckbox() {
+  const devs = DEVICES[currentSubKey] || [];
+  const cb = document.getElementById('dev-all');
+  cb.checked = devs.length > 0 && devs.every(d => state.devices.has(d.id));
 }
 
 function updateDevCount() {
@@ -1380,22 +1385,18 @@ async function startBuild() {
   // 组装 plugins
   const plugins = [...state.plugins].join(' ');
   const customConfig = document.getElementById('custom-config').value.trim();
-  const customB64 = customConfig ? btoa(customConfig) : '';
+  const customB64 = customConfig ? btoa(unescape(encodeURIComponent(customConfig))) : '';
 
-  // 组装 inputs
+  // 组装 inputs (只传 workflow 定义了的字段)
   const inputs = {
     branch: state.sourceBranch,
-    kernel: state.branch,
     target: state.target,
     subtarget: state.subtarget,
     profile: [...state.devices].join(' '),
     plugins: plugins,
-    feed_packages: 'nss,sqm_nss,routing',
-    wifi_config: document.getElementById('wifi-cfg').value.trim(),
     root_password: document.getElementById('root-pw').value.trim(),
     lan_ip: document.getElementById('lan-ip').value.trim(),
     custom_config: customB64,
-    custom_options: getCustomOptsString(),
     enable_ccache: document.getElementById('opt-ccache').checked ? 'true' : 'false',
     upload_artifacts: document.getElementById('opt-upload').checked ? 'true' : 'false',
   };
@@ -1408,11 +1409,9 @@ async function startBuild() {
   log('info', '📡 正在连接 GitHub API...');
   log('info', `📦 仓库: ${owner}/${repo}`);
   log('info', `🌿 源码分支: ${inputs.branch}`);
-  log('info', `⚡ 内核版本: ${inputs.kernel}`);
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
-  if (inputs.custom_options) log('info', `✏️ 自定义: ${inputs.custom_options}`);
 
   try {
     // 先检查 workflow 文件是否存在
