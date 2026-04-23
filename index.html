@@ -227,6 +227,13 @@ textarea{min-height:80px;resize:vertical}
 <div class="card" id="card-advanced">
 <div class="ch"><div class="ch-i v">🛠️</div><div class="ch-t">高级选项</div></div>
 <div class="f">
+  <label class="lb">防火墙</label>
+  <div class="tabs" id="firewall-tabs">
+    <div class="tab on" data-val="iptables">🧱 iptables (默认)</div>
+    <div class="tab" data-val="nftables">🧱 nftables</div>
+  </div>
+</div>
+<div class="f">
   <label class="cr">
     <input type="checkbox" id="opt-ccache" checked>
     <span class="ct">启用 ccache 编译加速</span>
@@ -283,6 +290,7 @@ textarea{min-height:80px;resize:vertical}
   <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
   <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
+  <div class="si"><div class="sl">防火墙</div><div class="sv" id="s-firewall">iptables</div></div>
   <div class="si"><div class="sl">自定义</div><div class="sv" id="s-custom">0</div></div>
 </div>
 <div style="margin-top:8px;font-size:.7em;color:var(--t3)" id="s-plugin-list"></div>
@@ -1037,6 +1045,7 @@ let state = {
   sourceBranch: 'main-nss',
   target: 'qualcommax',
   subtarget: 'ipq807x',
+  firewall: 'iptables',
   devices: new Set(),
   plugins: new Set(),
   customOpts: [],
@@ -1050,6 +1059,7 @@ function saveState() {
     sourceBranch: state.sourceBranch,
     target: state.target,
     subtarget: state.subtarget,
+    firewall: state.firewall,
     devices: [...state.devices],
     plugins: [...state.plugins],
     customOpts: state.customOpts,
@@ -1080,6 +1090,7 @@ function loadState() {
     state.sourceBranch = data.sourceBranch || 'main-nss';
     state.target = data.target || 'qualcommax';
     state.subtarget = data.subtarget || 'ipq807x';
+    state.firewall = data.firewall || 'iptables';
     state.devices = new Set(data.devices || []);
     state.plugins = new Set(data.plugins || []);
     state.customOpts = data.customOpts || [];
@@ -1106,6 +1117,10 @@ function restoreTabStates() {
   // 源码分支
   document.querySelectorAll('#source-branch-tabs .tab').forEach(t => {
     t.classList.toggle('on', t.dataset.val === state.sourceBranch);
+  });
+  // 防火墙
+  document.querySelectorAll('#firewall-tabs .tab').forEach(t => {
+    t.classList.toggle('on', t.dataset.val === state.firewall);
   });
 }
 
@@ -1159,6 +1174,15 @@ function initTabs() {
       document.querySelectorAll('#source-branch-tabs .tab').forEach(x => x.classList.remove('on'));
       t.classList.add('on');
       state.sourceBranch = t.dataset.val;
+      updateSummary(); saveState();
+    });
+  });
+
+  document.querySelectorAll('#firewall-tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#firewall-tabs .tab').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+      state.firewall = t.dataset.val;
       updateSummary(); saveState();
     });
   });
@@ -1370,6 +1394,7 @@ function updateSummary() {
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
   document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
+  document.getElementById('s-firewall').textContent = state.firewall;
   document.getElementById('s-custom').textContent = state.customOpts.length || '0';
   if (state.plugins.size > 0) {
     const list = [...state.plugins].map(p => p.replace('luci-app-','')).join(', ');
@@ -1460,6 +1485,7 @@ async function startBuild() {
     source_branch: state.sourceBranch,
     target: state.target,
     subtarget: state.subtarget,
+    firewall: state.firewall,
     profile: [...state.devices].join(' '),
     plugins: plugins,
     root_password: document.getElementById('root-pw').value.trim(),

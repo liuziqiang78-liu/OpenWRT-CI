@@ -33,6 +33,14 @@ on:
           - ipq807x
           - ipq60xx
           - ipq50xx
+      firewall:
+        description: '防火墙'
+        required: true
+        default: 'iptables'
+        type: choice
+        options:
+          - iptables
+          - nftables
       profile:
         description: '设备型号 (空格分隔, 留空=全部)'
         required: false
@@ -156,6 +164,21 @@ jobs:
           EOF
           fi
 
+          # ── 防火墙选择 ──
+          if [ "${{ inputs.firewall }}" = "nftables" ]; then
+            cat >> .config <<'EOF'
+          # Firewall4 (nftables)
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
+          EOF
+          else
+            cat >> .config <<'EOF'
+          # Firewall (iptables)
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iptables=y
+          EOF
+          fi
+
           # ── LuCI 中文 ──
           cat >> .config <<'EOF'
           # LuCI
@@ -214,6 +237,7 @@ jobs:
           echo "| 插件数 | \`${PLUGIN_COUNT}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| ccache | \`${{ inputs.enable_ccache }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| WiFi | \`${{ inputs.wifi_ssid }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 防火墙 | \`${{ inputs.firewall }}\` |" >> $GITHUB_STEP_SUMMARY
 
       - name: 🔨 Download Sources
         run: |
