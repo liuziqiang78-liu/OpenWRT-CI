@@ -1,0 +1,139 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.12",
+    "lastTouchedAt": "2026-04-23T08:12:54.799Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-15T12:37:56.817Z",
+    "lastRunVersion": "2026.3.12",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "remote"
+  },
+  "browser": {
+    "enabled": true,
+    "executablePath": "/usr/bin/chromium",
+    "headless": false,
+    "noSandbox": true,
+    "defaultProfile": "openclaw"
+  },
+  "auth": {
+    "profiles": {
+      "openrouter:default": {
+        "provider": "openrouter",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "xiaomi": {
+        "baseUrl": "https://api-oc.xiaomimimo.com/v1",
+        "apiKey": "${MIMO_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "clawl-alpha",
+            "name": "Claw Alpha",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 1048576,
+            "maxTokens": 65536
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "xiaomi/clawl-alpha"
+      },
+      "models": {
+        "xiaomi/clawl-alpha": {}
+      },
+      "workspace": "/root/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "deny": [
+      "tts"
+    ],
+    "web": {
+      "search": {
+        "enabled": false
+      }
+    },
+    "exec": {
+      "security": "allowlist",
+      "ask": "on-miss"
+    },
+    "fs": {
+      "workspaceOnly": true
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": [
+        "http://localhost:18789",
+        "http://127.0.0.1:18789"
+      ],
+      "dangerouslyAllowHostHeaderOriginFallback": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "df512a7c8a78cdd6cd837c1a354dab2c6113f3840d7d8506"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "contacts.add",
+        "calendar.add",
+        "reminders.add",
+        "sms.send"
+      ]
+    }
+  },
+  "plugins": {
+    "allow": [
+      "mimo-search"
+    ],
+    "entries": {
+      "mimo-search": {
+        "enabled": true,
+        "config": {
+          "token": "c155c91c64f25ef1c9e7fa23edc1c0b6816c29948a45d632"
+        }
+      }
+    }
+  }
+}
