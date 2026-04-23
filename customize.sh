@@ -1,15 +1,39 @@
 #!/sbin/sh
 
 #################
-# Initialization
+# MiMo v2.5 Pro AI Module Installer
+# 兼容 APatch / KernelSU / Magisk
 #################
 
 MODDIR=${0%/*}
-. /data/adb/apatch/util_functions.sh
 
-MODULE_ID="apatch-mimo-v2.5-pro"
-MODULE_NAME="MiMo v2.5 Pro AI Module"
-MODULE_VERSION="v2.5.0"
+# 自动检测 root 方案并加载工具函数
+if [ -f /data/adb/apatch/util_functions.sh ]; then
+    . /data/adb/apatch/util_functions.sh
+elif [ -f /data/adb/ksu/bin/ksu_functions.sh ]; then
+    . /data/adb/ksu/bin/ksu_functions.sh
+elif [ -f /data/adb/magisk/util_functions.sh ]; then
+    . /data/adb/magisk/util_functions.sh
+fi
+
+# 如果 ui_print 未定义，自行定义
+if ! command -v ui_print > /dev/null 2>&1; then
+    ui_print() {
+        echo "$1"
+        # 尝试写入安装日志
+        if [ -e /proc/self/fd/1 ]; then
+            echo "$1" > /proc/self/fd/1 2>/dev/null
+        fi
+    }
+fi
+
+# 如果 abort 未定义，自行定义
+if ! command -v abort > /dev/null 2>&1; then
+    abort() {
+        ui_print "错误: $1"
+        exit 1
+    }
+fi
 
 MIMO_DIR="/data/adb/mimo"
 MIMO_CACHE="/data/cache/mimo"
@@ -110,20 +134,24 @@ EOF
     ui_print "     设置 API Token"
 }
 
+# 检查 Python
+check_python() {
+    PYTHON=$(command -v python3 || command -v python)
+    if [ -z "$PYTHON" ]; then
+        ui_print ""
+        ui_print "⚠️  Python 未安装"
+        ui_print "  WebUI 需要 Python，请安装后运行:"
+        ui_print "  pkg install python"
+        ui_print ""
+    else
+        ui_print "  ✓ Python: $PYTHON"
+    fi
+}
+
 # 主流程
 check_device
 setup_dirs
-
-# 检查 Python
-PYTHON=$(command -v python3 || command -v python)
-if [ -z "$PYTHON" ]; then
-    ui_print ""
-    ui_print "⚠️  Python 未安装"
-    ui_print "  WebUI 需要 Python，请安装后运行:"
-    ui_print "  pkg install python"
-    ui_print ""
-fi
-
+check_python
 install_tools
 write_config
 
