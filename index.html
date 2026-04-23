@@ -169,6 +169,11 @@ textarea{min-height:80px;resize:vertical}
   <input type="password" class="inp" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
   <div class="hint">需要 <code>repo</code> 和 <code>workflow</code> 权限。<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--cyan)">创建 Token →</a></div>
 </div>
+<div class="f">
+  <label class="lb">编译仓库 <span class="req">*</span></label>
+  <input type="text" class="inp" id="gh-repo" placeholder="owner/repo (例: LiBwrt/openwrt-6.x)" autocomplete="off">
+  <div class="hint">存放 <code>build-openwrt.yml</code> 工作流的仓库，默认自动检测当前仓库。</div>
+</div>
 </div>
 </div>
 
@@ -1050,6 +1055,20 @@ function init() {
   initPlugins();
   renderCustomOpts();
   updateSummary();
+  initRepoInput();
+}
+
+// 自动填充编译仓库
+function initRepoInput() {
+  const repoInput = document.getElementById('gh-repo');
+  if (repoInput && !repoInput.value) {
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const owner = window.location.hostname.replace('.github.io', '');
+    const repo = pathParts[0] || '';
+    if (owner && repo) {
+      repoInput.value = owner + '/' + repo;
+    }
+  }
 }
 
 // Tab 切换
@@ -1337,12 +1356,26 @@ function getCustomOptsString() {
 // ═══════════════════════════════════════
 async function startBuild() {
   const token = document.getElementById('gh-token').value.trim();
-  const owner = 'LiBwrt';
-  const repo = 'openwrt-6.x';
+  const repoInput = document.getElementById('gh-repo').value.trim();
   const btn = document.getElementById('btn-build');
   const logPanel = document.getElementById('log-panel');
 
   if (!token) { toast('错误', '请输入 GitHub Token', true); return; }
+
+  // 解析 owner/repo：优先用输入框，否则从当前页面 URL 自动检测
+  let owner, repo;
+  if (repoInput && repoInput.includes('/')) {
+    [owner, repo] = repoInput.split('/');
+  } else {
+    // 从 GitHub Pages URL 自动检测：https://<owner>.github.io/<repo>/
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    owner = window.location.hostname.replace('.github.io', '');
+    repo = pathParts[0] || '';
+    if (!owner || !repo) {
+      toast('错误', '无法自动检测仓库，请手动输入编译仓库 (owner/repo)', true);
+      return;
+    }
+  }
 
   // 组装 plugins
   const plugins = [...state.plugins].join(' ');
