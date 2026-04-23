@@ -212,11 +212,6 @@ textarea{min-height:80px;resize:vertical}
   </div>
 </div>
 
-<div class="f">
-  <label class="lb">LAN IP 地址</label>
-  <input type="text" class="inp" id="lan-ip" value="192.168.1.1" placeholder="192.168.1.1">
-</div>
-
 <div class="hint w">⚠️ 选择 qualcommax 平台时才需要选择 Subtarget。ipq40xx / ipq806x 无子目标。</div>
 </div>
 
@@ -269,9 +264,18 @@ textarea{min-height:80px;resize:vertical}
     <span class="ci">保留 7 天</span>
   </label>
 </div>
+</div>
+
+<!-- ═══════ 6. 自定义选项 ═══════ -->
+<div class="card" id="card-custom">
+<div class="ch"><div class="ch-i a">✏️</div><div class="ch-t">自定义选项</div><span class="ch-b" id="custom-count">0 项</span></div>
 <div class="f">
   <label class="lb">Root 密码 (留空=无密码)</label>
   <input type="text" class="inp" id="root-pw" placeholder="留空则不设密码">
+</div>
+<div class="f">
+  <label class="lb">LAN IP 地址</label>
+  <input type="text" class="inp" id="lan-ip" value="192.168.1.1" placeholder="192.168.1.1">
 </div>
 <div class="f">
   <label class="lb">WiFi 配置 (格式: SSID|密码|频段)</label>
@@ -281,12 +285,8 @@ textarea{min-height:80px;resize:vertical}
   <label class="lb">自定义 .config (base64 编码，可选)</label>
   <textarea id="custom-config" placeholder="粘贴 base64 编码的额外 .config 配置"></textarea>
 </div>
-</div>
-
-<!-- ═══════ 6. 自定义选项 ═══════ -->
-<div class="card" id="card-custom">
-<div class="ch"><div class="ch-i a">✏️</div><div class="ch-t">自定义选项</div><span class="ch-b" id="custom-count">0 项</span></div>
-<div class="hint w" style="margin-bottom:14px">添加自定义编译参数，每行一个，格式: <code>KEY=VALUE</code>。例如 <code>ENABLE_SFE=1</code>、<code>DNS_SERVER=8.8.8.8</code></div>
+<div class="ch-line" style="margin:18px 0 14px"></div>
+<div class="hint w" style="margin-bottom:14px">添加自定义编译参数，格式: <code>KEY=VALUE</code>。例如 <code>ENABLE_SFE=1</code>、<code>DNS_SERVER=8.8.8.8</code></div>
 <div id="custom-opts-list"></div>
 <div style="margin-top:10px;display:flex;gap:8px">
   <input type="text" class="inp" id="custom-key" placeholder="参数名" style="flex:1">
