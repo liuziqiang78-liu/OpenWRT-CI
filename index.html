@@ -1408,7 +1408,7 @@ function initPlugins() {
       const hasMatch = Object.entries(plugs).some(([name, info]) => {
         const desc = typeof info === 'string' ? info : info.d;
         const features = typeof info === 'string' ? '' : (info.f || '');
-        return name.includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q);
+        return name.toLowerCase().includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q);
       });
       if (hasMatch) {
         // Auto-switch to this category tab
@@ -1418,7 +1418,7 @@ function initPlugins() {
         for (const [name, info] of Object.entries(plugs)) {
           const desc = typeof info === 'string' ? info : info.d;
           const features = typeof info === 'string' ? '' : (info.f || '');
-          if (name.includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
+          if (name.toLowerCase().includes(q) || desc.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
             filtered[name] = info;
           }
         }
@@ -1432,7 +1432,7 @@ function initPlugins() {
       for (const [name, info] of Object.entries(plugs)) {
         const desc = typeof info === 'string' ? info : info.d;
         const features = typeof info === 'string' ? '' : (info.f || '');
-        if (name.includes(q) || desc.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
+        if (name.toLowerCase().includes(q) || desc.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
           all[name] = info;
         }
       }
