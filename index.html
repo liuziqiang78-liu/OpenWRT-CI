@@ -1206,7 +1206,8 @@ function initPlatformTabs() {
   const container = document.getElementById('platform-tabs');
   container.innerHTML = PLATFORM_GROUPS.map(g => {
     const total = g.subs.reduce((a,s) => a + (DEVICES[s.k]||[]).length, 0);
-    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')">${g.icon} ${g.name}<span class="cnt">${total}</span></div>`;
+    const supported = g.subs.some(s => ['qualcommax','ipq40xx','ipq806x'].includes(s.k.split('-')[0]));
+    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')" style="${supported?'':'opacity:.45;pointer-events:none'}">${g.icon} ${g.name}<span class="cnt">${total}</span>${supported?'':' 🚫'}</div>`;
   }).join('');
   renderSubTabs();
 }
@@ -1461,6 +1462,14 @@ async function startBuild() {
 
   if (!token) { toast('错误', '请输入 GitHub Token', true); return; }
 
+  // 校验 workflow 支持的 target
+  const supportedTargets = ['qualcommax', 'ipq40xx', 'ipq806x'];
+  if (!supportedTargets.includes(state.target)) {
+    toast('错误', `当前 workflow 不支持 ${state.target} 平台，仅支持: ${supportedTargets.join(', ')}`, true);
+    log('err', `❌ 不支持的平台: ${state.target}，当前 workflow 仅支持 ${supportedTargets.join(', ')}`);
+    return;
+  }
+
   // 解析 owner/repo：优先用输入框，否则从当前页面 URL 自动检测
   let owner, repo;
   if (repoInput && repoInput.includes('/')) {
@@ -1510,19 +1519,31 @@ async function startBuild() {
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
 
   try {
-    // 先检查 workflow 文件是否存在
+    // 先检查 workflow 文件是否存在，并获取默认分支
     log('info', '🔍 检查 workflow 文件...');
-    const checkRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/actions/workflows`,
-      { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
-    );
+    const [repoRes, workflowRes] = await Promise.all([
+      fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      }),
+      fetch(`https://api.github.com/repos/${owner}/${repo}/actions/workflows`, {
+        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      })
+    ]);
 
-    if (!checkRes.ok) {
-      const err = await checkRes.json();
-      throw new Error(err.message || `HTTP ${checkRes.status}`);
+    if (!repoRes.ok) {
+      const err = await repoRes.json().catch(() => ({}));
+      throw new Error(err.message || `仓库不存在或无权限 (HTTP ${repoRes.status})`);
+    }
+    const repoInfo = await repoRes.json();
+    const defaultBranch = repoInfo.default_branch || 'main';
+    log('info', `🌿 默认分支: ${defaultBranch}`);
+
+    if (!workflowRes.ok) {
+      const err = await workflowRes.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${workflowRes.status}`);
     }
 
-    const workflows = await checkRes.json();
+    const workflows = await workflowRes.json();
     const buildWorkflow = workflows.workflows?.find(w =>
       w.name.includes('Build') || w.path?.includes('build-openwrt')
     );
@@ -1544,7 +1565,7 @@ async function startBuild() {
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ref: 'main', inputs }),
+        body: JSON.stringify({ ref: defaultBranch, inputs }),
       }
     );
 
