@@ -7,8 +7,16 @@ name: 🚀 Build OpenWrt Firmware
 on:
   workflow_dispatch:
     inputs:
-      branch:
+      source_branch:
         description: '源码分支'
+        required: true
+        default: 'main-nss'
+        type: choice
+        options:
+          - main-nss
+          - 25.12-nss
+      branch:
+        description: '内核版本'
         required: true
         default: 'main-nss'
         type: choice
@@ -90,7 +98,7 @@ jobs:
       - name: 📦 Clone OpenWrt Source
         run: |
           git clone --depth 1 --single-branch \
-            -b ${{ inputs.branch }} \
+            -b ${{ inputs.source_branch }} \
             ${{ env.REPO_URL }} openwrt
 
       - name: 📥 Update & Install Feeds
@@ -179,7 +187,8 @@ jobs:
           echo "### 📋 编译配置" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-          echo "| 分支 | \`${{ inputs.branch }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 源码分支 | \`${{ inputs.source_branch }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 内核版本 | \`${{ inputs.branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Target | \`${{ inputs.target }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Subtarget | \`${{ inputs.subtarget }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 设备 | \`${{ inputs.profile }}\` |" >> $GITHUB_STEP_SUMMARY

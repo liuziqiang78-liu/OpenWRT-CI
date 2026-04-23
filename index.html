@@ -1389,7 +1389,8 @@ async function startBuild() {
 
   // 组装 inputs (只传 workflow 定义了的字段)
   const inputs = {
-    branch: state.sourceBranch,
+    source_branch: state.sourceBranch,
+    branch: state.branch,
     target: state.target,
     subtarget: state.subtarget,
     profile: [...state.devices].join(' '),
@@ -1408,7 +1409,8 @@ async function startBuild() {
 
   log('info', '📡 正在连接 GitHub API...');
   log('info', `📦 仓库: ${owner}/${repo}`);
-  log('info', `🌿 源码分支: ${inputs.branch}`);
+  log('info', `🌿 源码分支: ${inputs.source_branch}`);
+  log('info', `🔧 内核版本: ${inputs.branch}`);
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
