@@ -1,0 +1,18 @@
+#!/sbin/sh
+
+#################
+# APatch Module Installer
+#################
+
+# 获取模块路径
+ZIPFILE=$3
+OUTFD=$2
+
+# 使用 APatch 的 util_functions
+. /data/adb/apatch/util_functions.sh
+
+# 安装模块
+install_module
+
+# 完成
+exit 0

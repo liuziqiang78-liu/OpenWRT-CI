@@ -1,0 +1,7 @@
+id=apatch-mimo-v2.5-pro
+name=MiMo v2.5 Pro AI Module
+version=v2.5.0
+versionCode=1
+author=xiaomi
+description=Xiaomi MiMo v2.5 Pro AI - Cloud API Mode. Connect to MiMo cloud API for on-device AI assistant with WebUI.
+updateJson=https://raw.githubusercontent.com/xiaomi/mimo/main/module/update.json

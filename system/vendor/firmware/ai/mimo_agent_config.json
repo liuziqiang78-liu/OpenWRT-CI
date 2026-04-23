@@ -1,0 +1,80 @@
+{
+    "name": "MiMo v2.5 Pro",
+    "version": "2.5.0",
+    "codename": "apatch-mimo",
+    "identity": {
+        "name": "MiMo",
+        "creature": "AI assistant on-device",
+        "vibe": "sharp, capable, resourceful",
+        "emoji": "🤖"
+    },
+    "system_prompt": "mimo_system_prompt.txt",
+    "skills_dir": "/data/adb/mimo/skills",
+    "tools_dir": "/data/adb/mimo/tools",
+    "memory_dir": "/data/adb/mimo/memory",
+    "workspace_dir": "/data/adb/mimo/workspace",
+    "capabilities": {
+        "core": [
+            "text_generation",
+            "code_generation",
+            "translation",
+            "summarization",
+            "question_answering",
+            "reasoning",
+            "analysis",
+            "math"
+        ],
+        "skills": [
+            "web_search",
+            "web_fetch",
+            "file_operations",
+            "code_execution",
+            "shell_commands",
+            "weather",
+            "summarize",
+            "chart_image",
+            "svg_draw",
+            "image_analysis",
+            "audio_transcription",
+            "video_analysis",
+            "memory",
+            "cron_scheduler",
+            "github",
+            "notion",
+            "excel_xlsx",
+            "word_docx",
+            "powerpoint_pptx",
+            "frontend_design",
+            "writing_assistant",
+            "data_scientist",
+            "health_check",
+            "browser_control",
+            "node_control",
+            "message_send",
+            "session_manage"
+        ],
+        "tools": [
+            "read",
+            "write",
+            "edit",
+            "exec",
+            "web_fetch",
+            "web_search",
+            "browser",
+            "canvas",
+            "nodes",
+            "cron",
+            "message",
+            "memory_search",
+            "memory_get",
+            "session_spawn",
+            "session_send"
+        ]
+    },
+    "inference": {
+        "default_temperature": 0.7,
+        "default_max_tokens": 4096,
+        "context_window": 8192,
+        "system_prompt_tokens": 2048
+    }
+}

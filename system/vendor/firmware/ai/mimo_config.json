@@ -1,0 +1,46 @@
+{
+    "engine": "mimo-engine",
+    "model": {
+        "name": "MiMo-7B-RL",
+        "file": "MiMo-7B-RL-Q4_K_M.gguf",
+        "source": "jedisct1/MiMo-7B-RL-GGUF",
+        "base": "XiaomiMiMo/MiMo-7B-RL"
+    },
+    "architecture": {
+        "type": "mimo",
+        "num_layers": 32,
+        "hidden_size": 4096,
+        "num_attention_heads": 32,
+        "intermediate_size": 11008,
+        "vocab_size": 152064,
+        "max_position_embeddings": 131072,
+        "rope_theta": 1000000.0,
+        "rms_norm_eps": 1e-6
+    },
+    "quantization": {
+        "method": "Q4_K_M",
+        "bits": 4,
+        "group_size": 64,
+        "symmetric": true
+    },
+    "runtime": {
+        "backend": "vulkan",
+        "device": "gpu",
+        "num_threads": 4,
+        "batch_size": 1,
+        "context_length": 8192,
+        "flash_attention": true,
+        "memory_map": true,
+        "offload_layers": 28
+    },
+    "capabilities": [
+        "text-generation",
+        "code-generation",
+        "translation",
+        "summarization",
+        "question-answering",
+        "reasoning",
+        "math",
+        "analysis"
+    ]
+}
