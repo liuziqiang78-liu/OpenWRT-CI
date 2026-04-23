@@ -912,7 +912,6 @@ const PLUGIN_CATS = {
   '📡 网络管理': {
     'luci-app-mwan3': { d: '多 WAN 负载均衡和故障转移，支持按比例分配流量', f: '多 WAN / 负载均衡' , fw: 0},
     'luci-app-pbr': { d: '策略路由，按源 IP/目标 IP/端口等条件分流到不同网关', f: '策略路由 / 按规则分流' , fw: 0},
-    'luci-app-sqm': { d: 'SQM 智能队列管理，消除 Bufferbloat，降低延迟', f: 'QoS / 低延迟 / 抗 Bufferbloat' , fw: 0},
     'luci-app-eqos': { d: '简单设备限速，按 IP/MAC 控制上下行带宽', f: '设备限速 / 简单 QoS' , fw: 0},
     'luci-app-qos': { d: 'QoS 服务质量管理，流量优先级控制', f: 'QoS / 流量优先级' , fw: 0},
     'luci-app-ddns': { d: '动态 DNS 客户端，支持多种 DDNS 服务商', f: 'DDNS / 动态域名' , fw: 0},
@@ -972,7 +971,6 @@ const PLUGIN_CATS = {
     'luci-app-ttyd': { d: 'Web 终端，浏览器中使用命令行', f: 'Web 终端 / SSH' , fw: 0},
     'luci-app-cpufreq': { d: 'CPU 调频策略管理，调节 CPU 频率和调度器', f: 'CPU 调频 / 节能' , fw: 0},
     'luci-app-cpulimit': { d: 'CPU 限速工具，限制进程 CPU 占用', f: 'CPU 限速' , fw: 0},
-    'luci-app-diskman': { d: '磁盘管理工具，分区/格式化/挂载', f: '磁盘管理 / 分区' , fw: 0},
     'luci-app-hd-idle': { d: '硬盘休眠，空闲时让硬盘停转省电', f: '硬盘休眠 / 省电' , fw: 0},
     'luci-app-ramfree': { d: '释放内存，清理系统缓存', f: '内存释放' , fw: 0},
     'luci-app-irqbalance': { d: 'IRQ 负载均衡，多核 CPU 中断分配优化', f: 'IRQ 均衡 / 多核优化' , fw: 0},
@@ -997,9 +995,7 @@ const PLUGIN_CATS = {
     'luci-app-lorawan-basicstation': { d: 'LoRaWAN 基站服务', f: 'LoRaWAN / IoT' , fw: 0},
     'luci-app-nut': { d: 'UPS 电源管理，断电自动关机保护', f: 'UPS / 电源管理' , fw: 0},
     'luci-app-freq': { d: '频段管理/切换', f: '频段管理' , fw: 0},
-    'luci-app-ledtrig-rssi': { d: 'LED 信号强度指示', f: 'LED / 信号指示' , fw: 0},
-    'luci-app-ledtrig-switch': { d: 'LED 交换机触发', f: 'LED 触发' , fw: 0},
-    'luci-app-ledtrig-usbport': { d: 'LED USB 端口触发', f: 'LED / USB' , fw: 0},
+
   },
   '📊 监控 / 统计': {
     'luci-app-statistics': { d: 'Collectd 系统监控，CPU/内存/网络/温度等全面统计', f: '系统监控 / Collectd' , fw: 0},
