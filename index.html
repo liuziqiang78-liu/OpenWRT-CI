@@ -104,10 +104,19 @@ textarea{min-height:80px;resize:vertical}
 .pc.on{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));border-color:var(--cyan);box-shadow:0 0 22px rgba(56,189,248,.08)}
 .pc .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
 .pc .pn{font-weight:800;font-size:.8em;word-break:break-all}
-.pc .pd{font-size:.68em;color:var(--t2);line-height:1.45;margin-top:5px}
-.pc.on .pd{color:rgba(232,236,244,.65)}
 .pc .ck{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--t3);display:grid;place-items:center;font-size:9px;transition:all .25s var(--ease)}
 .pc.on .ck{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px var(--c-g)}
+
+/* Plugin Dropdown */
+.pc .pd-wrap{display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;user-select:none}
+.pc .pd-brief{font-size:.68em;color:var(--t2);line-height:1.4;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc.on .pd-brief{color:rgba(232,236,244,.65)}
+.pc .pd-arrow{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:8px;color:var(--t3);background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);flex-shrink:0}
+.pc .pd-arrow:hover{border-color:var(--cyan);color:var(--cyan)}
+.pc .pd-full{display:none;margin-top:8px;padding:10px 12px;border-radius:8px;background:rgba(6,10,22,.6);border:1px solid rgba(90,130,255,.1);font-size:.72em;color:var(--t2);line-height:1.6}
+.pc .pd-full.show{display:block}
+.pc .pd-full .pd-title{font-weight:700;color:var(--cyan);font-size:.85em;margin-bottom:4px}
+.pc .pd-full .pd-cat{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.8em;font-weight:600;background:var(--v-d);color:var(--vio);margin-bottom:6px}
 
 /* Toggle */
 .cr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:border-color .25s var(--ease)}
@@ -817,218 +826,224 @@ const DEVICES = {
 //  插件数据 (按类别)
 // ═══════════════════════════════════════
 const PLUGIN_CATS = {
-  '代理/VPN': {
-    'luci-app-passwall':'多协议代理 (SS/VMess/Trojan/SSR等)',
-    'luci-app-openclash':'Clash 代理客户端 (支持规则分流)',
-    'luci-app-v2raya':'V2RayA WebUI 代理管理',
-    'luci-app-dae':'eBPF 高性能代理 (新一代)',
-    'luci-app-daed':'dae 的 Web 管理面板',
-    'luci-app-homeproxy':'Sing-box 代理前端',
-    'luci-app-frpc':'FRP 内网穿透客户端',
-    'luci-app-frps':'FRP 内网穿透服务端',
-    'luci-app-xfrpc':'轻量 FRP 客户端',
-    'luci-app-n2n':'P2P VPN 穿透',
-    'luci-app-zerotier':'ZeroTier 虚拟局域网',
-    'luci-app-tailscale-community':'Tailscale VPN 组网',
-    'luci-app-ipsec-vpnd':'IPSec VPN 服务',
-    'luci-app-libreswan':'LibreSwan IPSec',
-    'luci-app-strongswan-swanctl':'StrongSwan IPSec',
-    'luci-app-openvpn-server':'OpenVPN 服务端',
-    'luci-app-ocserv':'OpenConnect VPN',
-    'luci-app-softethervpn':'SoftEther VPN',
-    'luci-app-sshtunnel':'SSH 隧道转发',
-    'luci-app-tor':'Tor 匿名网络',
-    'luci-app-gost':'GOST 多协议代理',
-    'luci-app-nps':'NPS 内网穿透',
-    'luci-app-ngrokc':'Ngrok 内网穿透',
-    'luci-app-rustdesk-server':'RustDesk 远程桌面服务端',
-    'luci-app-softether':'SoftEther VPN Client',
-    'luci-app-microsocks':'MicroSocks SOCKS5 代理',
-    'luci-app-csshnpd':'Cloudflare SSH 隧道',
+  '🚀 代理工具': {
+    'luci-app-passwall': { d: '多协议代理工具箱，支持 SS/VMess/Trojan/SSR/VLESS/Hysteria2 等，内置节点订阅、分流规则、DNS 模式切换', f: '科学上网 / 多协议支持 / 节点订阅' },
+    'luci-app-openclash': { d: '基于 Clash/Mihomo 的代理客户端，支持规则分流、Yacd 面板、订阅转换、TUN 模式，功能最全面', f: '规则分流 / TUN 模式 / Web 面板' },
+    'luci-app-v2raya': { d: 'V2Ray/Xray 的 Web 管理界面，支持多种协议和路由规则，界面简洁易用', f: 'V2Ray 前端 / 简洁 UI' },
+    'luci-app-dae': { d: '基于 eBPF 的高性能透明代理，内核级流量处理，零拷贝转发，性能极佳', f: 'eBPF / 高性能 / 内核级' },
+    'luci-app-daed': { d: 'dae 的 Web 管理面板，提供可视化配置和节点管理', f: 'dae 面板 / 可视化管理' },
+    'luci-app-homeproxy': { d: '基于 Sing-box 的代理前端，支持多种协议，配置灵活', f: 'Sing-box 前端 / 多协议' },
+    'luci-app-gost': { d: 'GOST 多协议隧道工具，支持 SOCKS5/HTTP/端口转发/中继等', f: '多协议隧道 / 端口转发' },
+    'luci-app-microsocks': { d: '轻量级 SOCKS5 代理服务器，资源占用极低', f: 'SOCKS5 / 轻量' },
   },
-  '广告过滤/安全': {
-    'luci-app-adguardhome':'AdGuard Home 广告拦截',
-    'luci-app-adblock':'DNS 广告拦截',
-    'luci-app-adblock-fast':'快速 DNS 广告拦截',
-    'luci-app-banip':'IP 黑名单封锁',
-    'luci-app-privoxy':'HTTP 代理过滤',
-    'luci-app-tinyproxy':'轻量 HTTP 代理',
-    'luci-app-clamav':'ClamAV 杀毒引擎',
-    'luci-app-fwknopd':'单包授权防火墙',
-    'luci-app-https-dns-proxy':'DNS-over-HTTPS 代理',
-    'luci-app-crowdsec-firewall-bouncer':'CrowdSec 防火墙',
-    'luci-app-appfilter':'应用过滤/上网行为管理',
-    'luci-app-antiblock':'AntiBlock 解锁',
+  '🔒 VPN / 隧道': {
+    'luci-app-zerotier': { d: 'ZeroTier 虚拟局域网，跨网络组建 P2P 局域网，支持打洞穿透', f: '虚拟局域网 / P2P 组网' },
+    'luci-app-tailscale-community': { d: '基于 WireGuard 的 Mesh VPN 组网，无需公网 IP，自动 NAT 穿透', f: 'Mesh VPN / WireGuard / 自动穿透' },
+    'luci-app-ipsec-vpnd': { d: 'IPSec VPN 服务端，支持站点到站点和远程访问 VPN', f: 'IPSec / 企业级 VPN' },
+    'luci-app-strongswan-swanctl': { d: 'StrongSwan IPSec 实现，支持 IKEv1/IKEv2，功能完整的 VPN 方案', f: 'IKEv2 / IPSec 完整实现' },
+    'luci-app-libreswan': { d: 'LibreSwan IPSec VPN 实现，企业级站点到站点 VPN', f: 'IPSec / 企业级' },
+    'luci-app-openvpn-server': { d: 'OpenVPN 服务端，支持 TCP/UDP、多种认证方式，广泛兼容', f: 'OpenVPN / 广泛兼容' },
+    'luci-app-ocserv': { d: 'OpenConnect VPN 服务端，兼容 Cisco AnyConnect 客户端', f: 'AnyConnect 兼容' },
+    'luci-app-softethervpn': { d: 'SoftEther VPN，支持 L2TP/OpenVPN/SSL-VPN 多协议，穿透性强', f: '多协议 VPN / 高穿透' },
+    'luci-app-softether': { d: 'SoftEther VPN 客户端', f: 'VPN 客户端' },
+    'luci-app-tor': { d: 'Tor 匿名网络接入，实现洋葱路由匿名上网', f: '匿名网络 / 洋葱路由' },
+    'luci-app-n2n': { d: 'N2N P2P VPN，去中心化穿透组网', f: 'P2P VPN / 去中心化' },
+    'luci-app-sshtunnel': { d: 'SSH 隧道转发管理，通过 SSH 建立加密隧道', f: 'SSH 隧道 / 加密转发' },
+    'luci-app-csshnpd': { d: 'Cloudflare SSH 隧道，通过 Cloudflare 网络访问 SSH', f: 'Cloudflare 隧道 / SSH' },
+    'luci-proto-wireguard': { d: 'WireGuard 协议支持，新一代轻量高速 VPN 协议', f: 'WireGuard / 高速 VPN' },
+    'luci-proto-openvpn': { d: 'OpenVPN 协议支持', f: 'OpenVPN 协议' },
+    'luci-proto-openfortivpn': { d: 'Fortinet FortiGate VPN 客户端', f: 'Fortinet VPN' },
+    'luci-proto-openconnect': { d: 'OpenConnect VPN 协议', f: 'OpenConnect 协议' },
+    'luci-proto-vpnc': { d: 'Cisco VPN 客户端协议', f: 'Cisco VPN' },
+    'luci-proto-sstp': { d: 'SSTP SSL VPN 协议', f: 'SSTP / SSL VPN' },
+    'luci-proto-nebula': { d: 'Nebula overlay 网络，基于 Noise 协议的加密组网', f: 'Nebula / 加密 overlay' },
+    'luci-proto-yggdrasil': { d: 'Yggdrasil IPv6 overlay 网络，去中心化加密路由', f: 'IPv6 overlay / 去中心化' },
+    'luci-proto-batman-adv': { d: 'B.A.T.M.A.N. 网状网络协议，适合 Mesh 组网', f: 'Mesh 网状网络' },
+    'luci-proto-pppossh': { d: '通过 SSH 建立 PPPoE 隧道', f: 'SSH PPPoE' },
   },
-  '网络管理': {
-    'luci-app-mwan3':'多 WAN 负载均衡/故障转移',
-    'luci-app-sqm':'SQM 智能队列管理',
-    'luci-app-eqos':'设备限速',
-    'luci-app-qos':'QoS 服务质量',
-    'luci-app-pbr':'策略路由 (按源/目标分流)',
-    'luci-app-nlbwmon':'带宽监控/统计',
-    'luci-app-vnstat2':'网络流量统计',
-    'luci-app-ddns':'动态 DNS',
-    'luci-app-ddns-go':'DDNS-Go 动态域名',
-    'luci-app-upnp':'UPnP 自动端口映射',
-    'luci-app-natmap':'NAT 映射/打洞',
-    'luci-app-keepalived':'Keepalived 高可用',
-    'luci-app-arpbind':'ARP 绑定',
-    'luci-app-syncdial':'多拨/叠加',
-    'luci-app-pppoe-relay':'PPPoE 中继',
-    'luci-app-pppoe-server':'PPPoE 服务端',
-    'luci-app-rp-pppoe-server':'Roaring Penguin PPPoE',
-    'luci-app-watchcat':'网络看门狗/自动重启',
-    'luci-app-usteer':'多 AP 漫游引导',
-    'luci-app-dawn':'DAWN 802.11k/v 漫游',
-    'luci-app-lldpd':'LLDP 链路发现',
-    'luci-app-snmpd':'SNMP 网管协议',
-    'luci-app-eoip':'EoIP 隧道',
-    'luci-app-dcwapd':'双频并发无线桥接',
-    'luci-app-udpxy':'UDP 转 HTTP 代理',
-    'luci-app-igmp-proxy':'IGMP 代理',
-    'luci-app-babeld':'Babel 路由协议',
-    'luci-app-bmx7':'BMX7 网状网络',
-    'luci-app-olsr':'OLSR 网状网络',
-    'luci-app-omcproxy':'MCAST 代理',
-    'luci-app-apinger':'网关 Ping 监控',
+  '🌐 内网穿透': {
+    'luci-app-frpc': { d: 'FRP 内网穿透客户端，将内网服务暴露到公网，支持 TCP/UDP/HTTP/HTTPS/STCP', f: 'FRP 客户端 / 内网暴露' },
+    'luci-app-frps': { d: 'FRP 内网穿透服务端，部署在公网服务器上', f: 'FRP 服务端' },
+    'luci-app-xfrpc': { d: '轻量级 FRP 客户端实现，资源占用更少', f: '轻量 FRP' },
+    'luci-app-nps': { d: 'NPS 内网穿透，支持 TCP/UDP/HTTP/HTTPS/SOCKS5，带 Web 管理', f: 'NPS / Web 管理' },
+    'luci-app-ngrokc': { d: 'Ngrok 内网穿透客户端，通过 Ngrok 隧道暴露服务', f: 'Ngrok 客户端' },
+    'luci-app-rustdesk-server': { d: 'RustDesk 远程桌面服务端，自建中继服务器', f: '远程桌面 / 自建中继' },
+    'luci-app-pagekitec': { d: 'PageKite 隧道，将本地服务暴露到公网', f: 'PageKite / 公网暴露' },
   },
-  '下载/文件': {
-    'luci-app-qbittorrent':'qBittorrent 下载器',
-    'luci-app-aria2':'Aria2 下载器',
-    'luci-app-transmission':'Transmission 下载器',
-    'luci-app-rclone':'Rclone 云存储同步',
-    'luci-app-samba4':'Samba4 文件共享',
-    'luci-app-ksmbd':'KSMBD 轻量文件共享',
-    'luci-app-cifs-mount':'CIFS 远程挂载',
-    'luci-app-nfs':'NFS 网络文件系统',
-    'luci-app-vsftpd':'FTP 服务端',
-    'luci-app-filebrowser':'文件管理器',
-    'luci-app-filebrowser-go':'文件管理器 Go 版',
-    'luci-app-filemanager':'文件管理',
-    'luci-app-usb-printer':'USB 打印服务器',
-    'luci-app-p910nd':'P910ND 打印服务',
-    'luci-app-dufs':'DUFS 文件服务',
+  '🛡️ DNS / 广告过滤': {
+    'luci-app-adguardhome': { d: 'AdGuard Home 全网广告拦截，支持 DNS 过滤、HTTPS DNS、家长控制、自定义规则', f: '广告拦截 / DNS 过滤 / 家长控制' },
+    'luci-app-smartdns': { d: 'SmartDNS 智能 DNS，支持多上游并发查询、测速优选、缓存加速', f: '智能 DNS / 测速优选' },
+    'luci-app-adblock': { d: '基于 dnsmasq 的 DNS 广告拦截，轻量高效', f: 'DNS 广告拦截 / 轻量' },
+    'luci-app-adblock-fast': { d: '快速 DNS 广告拦截，优化的列表加载和匹配', f: '快速广告拦截' },
+    'luci-app-https-dns-proxy': { d: 'DNS-over-HTTPS 代理，加密 DNS 查询防止劫持', f: 'DoH / DNS 加密' },
+    'luci-app-unbound': { d: 'Unbound DNS 解析器，支持 DNSSEC 验证', f: 'DNSSEC / DNS 解析' },
+    'luci-app-nextdns': { d: 'NextDNS 客户端，云端 DNS 过滤和分析', f: 'NextDNS / 云端过滤' },
+    'luci-app-privoxy': { d: 'Privoxy HTTP 代理过滤，可过滤广告和追踪脚本', f: 'HTTP 过滤 / 广告过滤' },
   },
-  '系统工具': {
-    'luci-app-ttyd':'Web 终端',
-    'luci-app-smartdns':'SmartDNS 智能 DNS',
-    'luci-app-cpufreq':'CPU 调频',
-    'luci-app-cpulimit':'CPU 限速',
-    'luci-app-diskman':'磁盘管理',
-    'luci-app-hd-idle':'硬盘休眠',
-    'luci-app-ramfree':'释放内存',
-    'luci-app-irqbalance':'IRQ 负载均衡',
-    'luci-app-statistics':'系统监控 (Collectd)',
-    'luci-app-netdata':'Netdata 实时监控',
-    'luci-app-wol':'Wake-on-LAN 网络唤醒',
-    'luci-app-timewol':'定时唤醒',
-    'luci-app-autoreboot':'定时重启',
-    'luci-app-advanced-reboot':'高级重启',
-    'luci-app-commands':'自定义命令',
-    'luci-app-package-manager':'软件包管理器',
-    'luci-app-attendedsysupgrade':'在线固件升级',
-    'luci-app-uhttpd':'Web 服务器配置',
-    'luci-app-unbound':'Unbound DNS',
-    'luci-app-chrony':'Chrony 时间同步',
-    'luci-app-nextdns':'NextDNS',
-    'luci-app-acme':'SSL 证书自动申请',
-    'luci-app-xinetd':'xinetd 服务管理',
-    'luci-app-ser2net':'串口转网络',
-    'luci-app-email':'邮件通知',
-    'luci-app-wechatpush':'微信推送通知',
-    'luci-app-openwisp':'OpenWISP 网管',
-    'luci-app-oled':'OLED 屏幕显示',
-    'luci-app-k3screenctrl':'K3 屏幕控制',
+  '📡 网络管理': {
+    'luci-app-mwan3': { d: '多 WAN 负载均衡和故障转移，支持按比例分配流量', f: '多 WAN / 负载均衡' },
+    'luci-app-pbr': { d: '策略路由，按源 IP/目标 IP/端口等条件分流到不同网关', f: '策略路由 / 按规则分流' },
+    'luci-app-sqm': { d: 'SQM 智能队列管理，消除 Bufferbloat，降低延迟', f: 'QoS / 低延迟 / 抗 Bufferbloat' },
+    'luci-app-eqos': { d: '简单设备限速，按 IP/MAC 控制上下行带宽', f: '设备限速 / 简单 QoS' },
+    'luci-app-qos': { d: 'QoS 服务质量管理，流量优先级控制', f: 'QoS / 流量优先级' },
+    'luci-app-ddns': { d: '动态 DNS 客户端，支持多种 DDNS 服务商', f: 'DDNS / 动态域名' },
+    'luci-app-ddns-go': { d: 'DDNS-Go 动态域名，支持阿里云/腾讯云/Cloudflare 等国内服务商', f: 'DDNS / 国内服务商' },
+    'luci-app-upnp': { d: 'UPnP 自动端口映射，P2P 下载和游戏自动开放端口', f: 'UPnP / 自动端口映射' },
+    'luci-app-natmap': { d: 'NAT 映射/打洞，自动获取公网端口映射', f: 'NAT 打洞 / 端口映射' },
+    'luci-app-keepalived': { d: 'Keepalived 高可用，VRRP 虚拟路由冗余', f: '高可用 / VRRP' },
+    'luci-app-igmp-proxy': { d: 'IGMP 代理，用于 IPTV 组播转发', f: 'IPTV / 组播转发' },
+    'luci-app-udpxy': { d: 'UDP 转 HTTP 代理，将组播流转为 HTTP 单播', f: 'IPTV / 组播转单播' },
+    'luci-app-syncdial': { d: '多拨/叠加，多条 PPPoE 拨号带宽叠加', f: '多拨 / 带宽叠加' },
+    'luci-app-pppoe-relay': { d: 'PPPoE 中继代理', f: 'PPPoE 中继' },
+    'luci-app-pppoe-server': { d: 'PPPoE 服务端，提供 PPPoE 拨号服务', f: 'PPPoE 服务端' },
+    'luci-app-watchcat': { d: '网络看门狗，检测网络异常自动重启接口或设备', f: '看门狗 / 自动重启' },
+    'luci-app-arpbind': { d: 'ARP 绑定，静态 ARP 映射防止 ARP 欺骗', f: 'ARP 绑定 / 防 ARP 欺骗' },
+    'luci-app-lldpd': { d: 'LLDP 链路层发现协议，网络设备自动发现', f: 'LLDP / 设备发现' },
+    'luci-app-snmpd': { d: 'SNMP 网管协议代理，支持网络监控和管理', f: 'SNMP / 网管' },
+    'luci-app-nlbwmon': { d: '带宽监控统计，按设备/接口统计流量', f: '带宽监控 / 流量统计' },
+    'luci-app-vnstat2': { d: 'vnStat 网络流量统计，记录历史流量数据', f: '流量统计 / 历史记录' },
+    'luci-app-apinger': { d: '网关 Ping 监控，检测网关可用性', f: '网关监控 / Ping 检测' },
+    'luci-app-eoip': { d: 'EoIP 隧道，MikroTik 以太网 over IP', f: 'EoIP / MikroTik 隧道' },
+    'luci-app-dcwapd': { d: '双频并发无线桥接', f: '无线桥接' },
+    'luci-app-usteer': { d: '多 AP 漫游引导，802.11k/v/r 快速漫游', f: 'WiFi 漫游 / 802.11k/v' },
+    'luci-app-dawn': { d: 'DAWN 802.11k/v 漫游辅助，智能 AP 切换', f: '802.11k/v 漫游' },
+    'luci-app-babeld': { d: 'Babel 路由协议，适合 Mesh 网络', f: 'Babel / Mesh 路由' },
+    'luci-app-bmx7': { d: 'BMX7 网状网络路由协议', f: 'BMX7 / 网状网络' },
+    'luci-app-olsr': { d: 'OLSR 网状网络路由协议', f: 'OLSR / 网状网络' },
+    'luci-app-omcproxy': { d: 'MCAST 代理，组播流量转发', f: '组播代理' },
   },
-  '多媒体/娱乐': {
-    'luci-app-minidlna':'DLNA 媒体服务器',
-    'luci-app-airplay2':'AirPlay 2 音频推送',
-    'luci-app-spotifyd':'Spotify Connect',
-    'luci-app-msd_lite':'组播转单播 (IPTV)',
-    'luci-app-ustreamer':'USB 摄像头推流',
-    'luci-app-dump1090':'航空 ADS-B 接收',
-    'luci-app-ps3netsrv':'PS3 网络存储',
-    'luci-app-music-remote-center':'音乐远程控制',
-    'luci-app-vlmcsd':'KMS 激活服务',
-    'luci-app-unblockneteasemusic':'解锁网易云灰色歌曲',
-    'luci-app-oscam':'智能卡读卡器',
-    'luci-app-radicale3':'CalDAV/CardDAV 服务器',
+  '🔥 防火墙 / 安全': {
+    'luci-app-banip': { d: 'IP 黑名单封锁，基于 IPSet 高效拦截恶意 IP', f: 'IP 黑名单 / IPSet' },
+    'luci-app-fwknopd': { d: '单包授权 (SPA) 隐形端口，通过加密包授权访问端口', f: 'SPA / 端口隐身' },
+    'luci-app-crowdsec-firewall-bouncer': { d: 'CrowdSec 协作式防火墙，社区共享威胁情报自动封禁', f: '威胁情报 / 协作防御' },
+    'luci-app-appfilter': { d: '应用过滤/上网行为管理，按应用类型控制网络访问', f: '应用过滤 / 行为管理' },
+    'luci-app-antiblock': { d: 'AntiBlock 解锁，绕过特定网络封锁', f: '解锁 / 绕过封锁' },
+    'luci-app-tinyproxy': { d: '轻量 HTTP 代理服务器', f: 'HTTP 代理 / 轻量' },
+    'luci-app-clamav': { d: 'ClamAV 杀毒引擎，文件病毒扫描', f: '杀毒 / 病毒扫描' },
+    'luci-plugin-2fa': { d: '双因素认证 (2FA)，增强 LuCI 登录安全', f: '2FA / 登录安全' },
   },
-  'Docker/容器': {
-    'luci-app-docker':'Docker 容器管理',
-    'luci-app-dockerman':'Docker 管理面板',
-    'luci-app-lxc':'LXC 容器管理',
+  '📁 文件共享 / 下载': {
+    'luci-app-qbittorrent': { d: 'qBittorrent BT 下载器，功能强大的 BT/磁力下载', f: 'BT 下载 / 磁力链接' },
+    'luci-app-aria2': { d: 'Aria2 多协议下载器，支持 HTTP/FTP/BT/磁力/磁力链', f: '多协议下载 / BT/HTTP' },
+    'luci-app-transmission': { d: 'Transmission BT 下载器，轻量简洁', f: 'BT 下载 / 轻量' },
+    'luci-app-samba4': { d: 'Samba4 文件共享，Windows 局域网共享协议', f: 'SMB / Windows 共享' },
+    'luci-app-ksmbd': { d: 'KSMBD 内核态 SMB 文件共享，性能优于 Samba', f: '内核 SMB / 高性能' },
+    'luci-app-cifs-mount': { d: 'CIFS 远程挂载，挂载 Windows/SMB 共享目录', f: 'CIFS / 远程挂载' },
+    'luci-app-nfs': { d: 'NFS 网络文件系统，Unix/Linux 标准共享', f: 'NFS / Unix 共享' },
+    'luci-app-vsftpd': { d: 'vsftpd FTP 服务端，安全高效的 FTP', f: 'FTP 服务端' },
+    'luci-app-filebrowser': { d: 'Web 文件管理器，浏览器中管理文件', f: 'Web 文件管理' },
+    'luci-app-filebrowser-go': { d: 'Go 版文件管理器，更轻量', f: '文件管理 / Go 版' },
+    'luci-app-filemanager': { d: '文件管理工具', f: '文件管理' },
+    'luci-app-rclone': { d: 'Rclone 云存储同步，支持 40+ 云盘/对象存储', f: '云存储同步 / 40+ 云盘' },
+    'luci-app-dufs': { d: 'DUFS 文件服务，支持 WebDAV/上传/下载', f: 'WebDAV / 文件服务' },
+    'luci-app-usb-printer': { d: 'USB 打印服务器，共享 USB 打印机到网络', f: '打印服务器 / USB 共享' },
+    'luci-app-p910nd': { d: 'P910ND 打印服务，轻量级网络打印', f: '打印服务 / 轻量' },
+    'luci-app-syncthing': { d: 'Syncthing 去中心化文件同步，P2P 实时同步', f: 'P2P 文件同步 / 去中心化' },
   },
-  '拨号/校园网': {
-    'luci-app-scutclient':'华工校园网认证',
-    'luci-app-bitsrunlogin-go':'深澜校园网认证',
-    'luci-app-xlnetacc':'迅雷快鸟加速',
-    'luci-app-ua2f':'UA 伪装 (防检测)',
-    'luci-app-sysuh3c':'华三 802.1x 认证',
-    'luci-app-njitclient':'南理工校园网',
-    'luci-app-cd8021x':'802.1x 认证',
+  '⚙️ 系统工具': {
+    'luci-app-ttyd': { d: 'Web 终端，浏览器中使用命令行', f: 'Web 终端 / SSH' },
+    'luci-app-cpufreq': { d: 'CPU 调频策略管理，调节 CPU 频率和调度器', f: 'CPU 调频 / 节能' },
+    'luci-app-cpulimit': { d: 'CPU 限速工具，限制进程 CPU 占用', f: 'CPU 限速' },
+    'luci-app-diskman': { d: '磁盘管理工具，分区/格式化/挂载', f: '磁盘管理 / 分区' },
+    'luci-app-hd-idle': { d: '硬盘休眠，空闲时让硬盘停转省电', f: '硬盘休眠 / 省电' },
+    'luci-app-ramfree': { d: '释放内存，清理系统缓存', f: '内存释放' },
+    'luci-app-irqbalance': { d: 'IRQ 负载均衡，多核 CPU 中断分配优化', f: 'IRQ 均衡 / 多核优化' },
+    'luci-app-wol': { d: 'Wake-on-LAN 网络唤醒，远程开机', f: '网络唤醒 / 远程开机' },
+    'luci-app-timewol': { d: '定时网络唤醒，按计划自动开机', f: '定时唤醒' },
+    'luci-app-autoreboot': { d: '定时重启，按计划自动重启设备', f: '定时重启' },
+    'luci-app-advanced-reboot': { d: '高级重启，切换固件分区/重启到恢复模式', f: '高级重启 / 分区切换' },
+    'luci-app-commands': { d: '自定义命令面板，一键执行常用命令', f: '自定义命令 / 快捷操作' },
+    'luci-app-package-manager': { d: '软件包管理器，图形化安装/卸载软件包', f: '软件包管理 / 图形化' },
+    'luci-app-attendedsysupgrade': { d: '在线固件升级，保留配置升级到新版本', f: '在线升级 / 保留配置' },
+    'luci-app-uhttpd': { d: 'uhttpd Web 服务器配置', f: 'Web 服务器配置' },
+    'luci-app-acme': { d: 'ACME SSL 证书自动申请 (Let\'s Encrypt)', f: 'SSL 证书 / 自动申请' },
+    'luci-app-xinetd': { d: 'xinetd 超级服务管理', f: 'xinetd / 服务管理' },
+    'luci-app-ser2net': { d: '串口转网络，将串口设备暴露到网络', f: '串口转网络' },
+    'luci-app-chrony': { d: 'Chrony NTP 时间同步，高精度时钟同步', f: 'NTP / 时间同步' },
+    'luci-app-email': { d: '邮件通知服务，支持 SMTP 发送告警邮件', f: '邮件通知 / SMTP' },
+    'luci-app-wechatpush': { d: '微信推送通知，通过 Server酱/PushPlus 推送到微信', f: '微信通知 / 推送' },
+    'luci-app-openwisp': { d: 'OpenWISP 网络管理平台，集中管理多台设备', f: '集中网管 / OpenWISP' },
+    'luci-app-oled': { d: 'OLED 屏幕显示，显示系统状态信息', f: 'OLED 显示' },
+    'luci-app-k3screenctrl': { d: 'K3 路由器屏幕控制', f: 'K3 屏幕' },
+    'luci-app-3cat': { d: '3Cat 网络工具集合', f: '网络工具' },
+    'luci-app-lorawan-basicstation': { d: 'LoRaWAN 基站服务', f: 'LoRaWAN / IoT' },
+    'luci-app-nut': { d: 'UPS 电源管理，断电自动关机保护', f: 'UPS / 电源管理' },
+    'luci-app-freq': { d: '频段管理/切换', f: '频段管理' },
+    'luci-app-ledtrig-rssi': { d: 'LED 信号强度指示', f: 'LED / 信号指示' },
+    'luci-app-ledtrig-switch': { d: 'LED 交换机触发', f: 'LED 触发' },
+    'luci-app-ledtrig-usbport': { d: 'LED USB 端口触发', f: 'LED / USB' },
   },
-  'VPN 协议': {
-    'luci-app-openlist':'OpenList 节点管理',
-    'luci-proto-wireguard':'WireGuard 协议',
-    'luci-proto-openvpn':'OpenVPN 协议',
-    'luci-proto-ipip':'IPIP 隧道',
-    'luci-proto-gre':'GRE 隧道',
-    'luci-proto-vxlan':'VXLAN 隧道',
-    'luci-proto-vti':'VTI 隧道',
-    'luci-proto-xfrm':'XFRM 隧道',
-    'luci-proto-ipv6':'IPv6 协议',
-    'luci-proto-3g':'3G/LTE 拨号',
-    'luci-proto-ncm':'NCM 拨号',
-    'luci-proto-qmi':'QMI 拨号',
-    'luci-proto-mbim':'MBIM 拨号',
-    'luci-proto-modemmanager':'ModemManager',
-    'luci-proto-quectel':'移远模组拨号',
-    'luci-proto-ppp':'PPPoE/PPPoA',
-    'luci-proto-openfortivpn':'Fortinet VPN',
-    'luci-proto-openconnect':'OpenConnect',
-    'luci-proto-vpnc':'VPNC (Cisco)',
-    'luci-proto-sstp':'SSTP VPN',
-    'luci-proto-nebula':'Nebula overlay',
-    'luci-proto-yggdrasil':'Yggdrasil 网络',
-    'luci-proto-batman-adv':'B.A.T.M.A.N. 网状',
-    'luci-proto-relay':'中继',
-    'luci-proto-autoip':'AutoIP',
-    'luci-proto-hnet':'HNCP 自动组网',
-    'luci-proto-external':'外部协议',
-    'luci-proto-pppossh':'SSH PPPoE',
-    'luci-proto-minieap':'MinieAP 认证',
+  '📊 监控 / 统计': {
+    'luci-app-statistics': { d: 'Collectd 系统监控，CPU/内存/网络/温度等全面统计', f: '系统监控 / Collectd' },
+    'luci-app-netdata': { d: 'Netdata 实时性能监控，Web 仪表盘，指标丰富', f: '实时监控 / Web 仪表盘' },
+    'luci-mod-dashboard': { d: 'Dashboard 仪表盘，系统概览界面', f: '仪表盘 / 系统概览' },
+    'luci-mod-battstatus': { d: '电池状态显示', f: '电池监控' },
+    'luci-mod-dsl': { d: 'DSL 状态监控', f: 'DSL 监控' },
+    'luci-app-3ginfo-lite': { d: '3G/LTE 信号信息显示', f: '4G/5G 信号监控' },
+    'luci-app-sms-tool-js': { d: '短信工具，收发短信管理', f: '短信工具' },
+    'luci-app-modemband': { d: '模组频段锁定，手动选择 4G/5G 频段', f: '频段锁定 / 模组管理' },
   },
-  '外观/主题': {
-    'luci-theme-argon':'Argon 主题 (推荐)',
-    'luci-theme-bootstrap':'Bootstrap 主题',
-    'luci-theme-material':'Material 主题',
-    'luci-theme-openwrt':'OpenWrt 经典主题',
-    'luci-theme-openwrt-2020':'OpenWrt 2020 主题',
-    'luci-app-argon-config':'Argon 主题配置',
+  '🎬 多媒体 / 娱乐': {
+    'luci-app-minidlna': { d: 'MiniDLNA 媒体服务器，向局域网设备推送视频/音乐/图片', f: 'DLNA / 媒体推送' },
+    'luci-app-airplay2': { d: 'AirPlay 2 音频推送，支持 Apple 设备投送音频', f: 'AirPlay 2 / Apple 投送' },
+    'luci-app-spotifyd': { d: 'Spotify Connect 设备，将路由器变为 Spotify 播放终端', f: 'Spotify Connect' },
+    'luci-app-msd_lite': { d: '组播转单播 (IPTV)，将 IPTV 组播转为 HTTP 单播流', f: 'IPTV / 组播转单播' },
+    'luci-app-ustreamer': { d: 'USB 摄像头 MJPEG 推流', f: '摄像头推流 / MJPEG' },
+    'luci-app-dump1090': { d: '航空 ADS-B 接收器，接收飞机应答信号', f: 'ADS-B / 航空接收' },
+    'luci-app-ps3netsrv': { d: 'PS3 网络存储服务', f: 'PS3 网络存储' },
+    'luci-app-music-remote-center': { d: '音乐远程控制中心', f: '音乐控制' },
+    'luci-app-vlmcsd': { d: 'KMS 激活服务，Windows/Office 本地激活', f: 'KMS / 激活服务' },
+    'luci-app-unblockneteasemusic': { d: '解锁网易云音乐灰色歌曲，代理不可用资源', f: '网易云解锁 / 灰色歌曲' },
+    'luci-app-oscam': { d: 'OSCam 智能卡读卡器', f: '智能卡 / 读卡器' },
+    'luci-app-radicale3': { d: 'Radicale CalDAV/CardDAV 服务器，日历和联系人同步', f: 'CalDAV / 日历同步' },
+    'luci-app-wifischedule': { d: 'WiFi 定时开关，按时间计划开启/关闭 WiFi', f: 'WiFi 定时 / 节能' },
+    'luci-app-wifihistory': { d: 'WiFi 连接历史记录', f: 'WiFi 历史' },
   },
-  '其他': {
-    'luci-app-wifischedule':'WiFi 定时开关',
-    'luci-app-wifihistory':'WiFi 连接历史',
-    'luci-app-syncthing':'Syncthing 文件同步',
-    'luci-compat':'LuCI 兼容层',
-    'luci-mod-dashboard':'Dashboard 仪表盘',
-    'luci-mod-battstatus':'电池状态显示',
-    'luci-mod-dsl':'DSL 状态',
-    'luci-plugin-2fa':'双因素认证',
-    'luci-app-3cat':'3Cat 工具',
-    'luci-app-3ginfo-lite':'3G/LTE 信息',
-    'luci-app-modemband':'模组频段锁定',
-    'luci-app-sms-tool-js':'短信工具',
-    'luci-app-nut':'UPS 管理',
-    'luci-app-freq':'频段管理',
-    'luci-app-ledtrig-rssi':'LED 信号强度',
-    'luci-app-ledtrig-switch':'LED 交换机',
-    'luci-app-ledtrig-usbport':'LED USB 端口',
-    'luci-app-coovachilli':'CoovaChilli 门户',
-    'luci-app-pagekitec':'PageKite 隧道',
-    'luci-app-lorawan-basicstation':'LoRaWAN',
+  '🐳 Docker / 容器': {
+    'luci-app-docker': { d: 'Docker 容器管理，图形化管理容器/镜像/网络/卷', f: 'Docker / 容器管理' },
+    'luci-app-dockerman': { d: 'Docker 管理面板，更丰富的 Docker 管理功能', f: 'Docker 面板 / 增强管理' },
+    'luci-app-lxc': { d: 'LXC 容器管理，Linux 系统级容器', f: 'LXC / 系统容器' },
+  },
+  '🎓 校园网 / 认证': {
+    'luci-app-scutclient': { d: '华工校园网客户端认证', f: '华工校园网' },
+    'luci-app-bitsrunlogin-go': { d: '深澜校园网认证 (多校通用)', f: '深澜认证 / 多校通用' },
+    'luci-app-njitclient': { d: '南理工校园网客户端', f: '南理工校园网' },
+    'luci-app-cd8021x': { d: '802.1x 认证客户端', f: '802.1x / 企业认证' },
+    'luci-app-sysuh3c': { d: '华三 802.1x 认证', f: '华三 802.1x' },
+    'luci-app-ua2f': { d: 'UA 伪装，修改 User-Agent 防检测', f: 'UA 伪装 / 防检测' },
+    'luci-app-xlnetacc': { d: '迅雷快鸟加速，提升宽带速度', f: '迅雷加速' },
+    'luci-app-coovachilli': { d: 'CoovaChilli 门户认证 (Captive Portal)', f: '门户认证 / Captive Portal' },
+    'luci-proto-minieap': { d: 'MinieAP 认证协议，锐捷等校园网', f: 'MinieAP / 锐捷认证' },
+  },
+  '🌐 协议 / 拨号': {
+    'luci-proto-ipip': { d: 'IPIP 隧道协议', f: 'IPIP 隧道' },
+    'luci-proto-gre': { d: 'GRE 隧道协议', f: 'GRE 隧道' },
+    'luci-proto-vxlan': { d: 'VXLAN 隧道协议', f: 'VXLAN / 二层隧道' },
+    'luci-proto-vti': { d: 'VTI 隧道协议', f: 'VTI / IPSec 隧道' },
+    'luci-proto-xfrm': { d: 'XFRM 隧道协议', f: 'XFRM / IPSec' },
+    'luci-proto-ipv6': { d: 'IPv6 协议支持', f: 'IPv6' },
+    'luci-proto-3g': { d: '3G/LTE 移动网络拨号', f: '3G/4G 拨号' },
+    'luci-proto-ncm': { d: 'NCM 移动网络拨号', f: 'NCM / 4G' },
+    'luci-proto-qmi': { d: 'QMI 移动网络拨号', f: 'QMI / 4G' },
+    'luci-proto-mbim': { d: 'MBIM 移动网络拨号', f: 'MBIM / 4G' },
+    'luci-proto-modemmanager': { d: 'ModemManager 调制解调器管理', f: 'ModemManager' },
+    'luci-proto-quectel': { d: '移远模组拨号', f: '移远模组 / 4G/5G' },
+    'luci-proto-ppp': { d: 'PPPoE/PPPoA 拨号协议', f: 'PPPoE / PPPoA' },
+    'luci-proto-relay': { d: '中继协议', f: '中继' },
+    'luci-proto-autoip': { d: 'AutoIP 自动地址', f: 'AutoIP' },
+    'luci-proto-hnet': { d: 'HNCP 自动组网协议', f: 'HNCP / 自动组网' },
+    'luci-proto-external': { d: '外部协议扩展', f: '外部协议' },
+    'luci-app-openlist': { d: 'OpenList 节点管理', f: '节点管理' },
+    'luci-app-rp-pppoe-server': { d: 'Roaring Penguin PPPoE 服务端', f: 'PPPoE 服务端' },
+  },
+  '🎨 主题 / 外观': {
+    'luci-theme-argon': { d: 'Argon 主题，现代感强，支持动态壁纸和模糊效果 (推荐)', f: 'Argon / 推荐主题' },
+    'luci-theme-bootstrap': { d: 'Bootstrap 经典主题，LuCI 默认主题', f: 'Bootstrap / 默认主题' },
+    'luci-theme-material': { d: 'Material Design 主题', f: 'Material / MD 设计' },
+    'luci-theme-openwrt': { d: 'OpenWrt 经典主题', f: 'OpenWrt 经典' },
+    'luci-theme-openwrt-2020': { d: 'OpenWrt 2020 主题', f: 'OpenWrt 2020' },
+    'luci-app-argon-config': { d: 'Argon 主题配置，壁纸/模糊/颜色自定义', f: 'Argon 配置 / 自定义' },
+    'luci-compat': { d: 'LuCI 兼容层，支持旧版 LuCI 插件', f: 'LuCI 兼容' },
   },
 };
 
@@ -1326,9 +1341,11 @@ function initPlugins() {
     // 搜索所有分类
     const all = {};
     for (const [cat, plugs] of Object.entries(PLUGIN_CATS)) {
-      for (const [name, desc] of Object.entries(plugs)) {
-        if (name.includes(q) || desc.toLowerCase().includes(q) || cat.toLowerCase().includes(q)) {
-          all[name] = desc;
+      for (const [name, info] of Object.entries(plugs)) {
+        const desc = typeof info === 'string' ? info : info.d;
+        const features = typeof info === 'string' ? '' : (info.f || '');
+        if (name.includes(q) || desc.toLowerCase().includes(q) || cat.toLowerCase().includes(q) || features.toLowerCase().includes(q)) {
+          all[name] = info;
         }
       }
     }
@@ -1349,16 +1366,41 @@ function renderPlugins(cat) {
 
 function renderGrid(plugs) {
   const grid = document.getElementById('plug-grid');
-  grid.innerHTML = Object.entries(plugs).map(([name, desc]) => `
-    <div class="pc ${state.plugins.has(name)?'on':''}" onclick="togglePlug(this,'${name}')">
-      <div class="tp">
-        <div class="pn">${name.replace('luci-app-','')}</div>
+  grid.innerHTML = Object.entries(plugs).map(([name, info]) => {
+    const desc = typeof info === 'string' ? info : info.d;
+    const features = typeof info === 'string' ? '' : (info.f || '');
+    const shortName = name.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '');
+    return `
+    <div class="pc ${state.plugins.has(name)?'on':''}" id="pc-${name}">
+      <div class="tp" onclick="togglePlug(this.parentElement,'${name}')">
+        <div class="pn">${shortName}</div>
         <div class="ck">${state.plugins.has(name)?'✓':''}</div>
       </div>
-      <div class="pd">${desc}</div>
-    </div>
-  `).join('');
+      <div class="pd-wrap" onclick="togglePlugDesc(event,'${name}')">
+        <div class="pd-brief">${desc}</div>
+        <div class="pd-arrow">▼</div>
+      </div>
+      <div class="pd-full" id="pd-${name}">
+        <div class="pd-title">${shortName}</div>
+        ${features ? `<div class="pd-cat">${features.split('/').map(f=>f.trim()).join('</div><div class="pd-cat" style="margin-left:4px">')}</div>` : ''}
+        <div style="margin-top:6px">${desc}</div>
+      </div>
+    </div>`;
+  }).join('');
   updatePlugCount();
+}
+
+function togglePlugDesc(e, name) {
+  e.stopPropagation();
+  const panel = document.getElementById('pd-' + name);
+  const arrow = e.currentTarget.querySelector('.pd-arrow');
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    arrow.textContent = '▼';
+  } else {
+    panel.classList.add('show');
+    arrow.textContent = '▲';
+  }
 }
 
 function togglePlug(el, name) {
@@ -1380,7 +1422,7 @@ function plugInvert() {
 }
 function refreshGrid() {
   document.querySelectorAll('.pc').forEach(el => {
-    const name = el.getAttribute('onclick').match(/'([^']+)'/)[1];
+    const name = el.id.replace('pc-', '');
     el.classList.toggle('on', state.plugins.has(name));
     el.querySelector('.ck').textContent = state.plugins.has(name) ? '✓' : '';
   });
@@ -1407,7 +1449,7 @@ function updateSummary() {
   document.getElementById('s-wifi').textContent = wifiSsid || '默认';
   // 插件列表
   if (state.plugins.size > 0) {
-    const list = [...state.plugins].map(p => p.replace('luci-app-','')).join(', ');
+    const list = [...state.plugins].map(p => p.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '')).join(', ');
     document.getElementById('s-plugin-list').textContent = '已选插件: ' + list;
   } else {
     document.getElementById('s-plugin-list').textContent = '';
