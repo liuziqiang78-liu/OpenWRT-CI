@@ -84,7 +84,7 @@ on:
           - 'false'
 
 env:
-  REPO_URL: https://github.com/liuziqiang78-liu/openwrt-6.x
+  REPO_URL: https://github.com/LiBwrt/openwrt-6.x
   TZ: Asia/Shanghai
 
 jobs:
