@@ -287,10 +287,15 @@ textarea{min-height:80px;resize:vertical}
 <div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
 <div class="sg" id="summary-grid">
   <div class="si"><div class="sl">源码分支</div><div class="sv" id="s-source-branch">main-nss</div></div>
-  <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
+  <div class="si"><div class="sl">目标平台</div><div class="sv" id="s-target">qualcommax</div></div>
+  <div class="si"><div class="sl">设备</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
-  <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
   <div class="si"><div class="sl">防火墙</div><div class="sv" id="s-firewall">iptables</div></div>
+  <div class="si"><div class="sl">Root 密码</div><div class="sv" id="s-rootpw">无</div></div>
+  <div class="si"><div class="sl">LAN IP</div><div class="sv" id="s-lanip">192.168.1.1</div></div>
+  <div class="si"><div class="sl">WiFi</div><div class="sv" id="s-wifi">默认</div></div>
+  <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
+  <div class="si"><div class="sl">上传固件</div><div class="sv" id="s-upload">开</div></div>
   <div class="si"><div class="sl">自定义</div><div class="sv" id="s-custom">0</div></div>
 </div>
 <div style="margin-top:8px;font-size:.7em;color:var(--t3)" id="s-plugin-list"></div>
@@ -1385,11 +1390,22 @@ function updatePlugCount() { document.getElementById('plug-count').textContent =
 // Summary
 function updateSummary() {
   document.getElementById('s-source-branch').textContent = state.sourceBranch;
+  document.getElementById('s-target').textContent = state.target + '/' + state.subtarget;
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
-  document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
   document.getElementById('s-firewall').textContent = state.firewall;
+  document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
+  document.getElementById('s-upload').textContent = document.getElementById('opt-upload').checked ? '开' : '关';
   document.getElementById('s-custom').textContent = state.customOpts.length || '0';
+  // Root 密码
+  const rootPw = document.getElementById('root-pw').value.trim();
+  document.getElementById('s-rootpw').textContent = rootPw ? '已设置' : '无';
+  // LAN IP
+  document.getElementById('s-lanip').textContent = document.getElementById('lan-ip').value.trim() || '192.168.1.1';
+  // WiFi
+  const wifiSsid = document.getElementById('wifi-ssid').value.trim();
+  document.getElementById('s-wifi').textContent = wifiSsid || '默认';
+  // 插件列表
   if (state.plugins.size > 0) {
     const list = [...state.plugins].map(p => p.replace('luci-app-','')).join(', ');
     document.getElementById('s-plugin-list').textContent = '已选插件: ' + list;
