@@ -58,8 +58,10 @@ textarea{min-height:80px;resize:vertical}
   .dg{grid-template-columns:1fr;max-height:400px}
   .pg{grid-template-columns:1fr}
   .pc,.dc{padding:12px 10px;word-break:break-word}
-  .pc .pd-brief{white-space:normal;word-break:break-word}
-  .pc .pd-full{padding:8px 10px}
+  .pc .pd-brief{word-break:break-word}
+  .pc .pd-full{padding:10px;margin-top:6px}
+  .pc .pd-full .pd-tags{gap:3px}
+  .pc .pd-full .pd-tag{font-size:.8em;padding:2px 6px}
   .shell{padding:0 12px 60px}
   .card{padding:18px}
   .sg{grid-template-columns:repeat(2,1fr)}
@@ -128,10 +130,15 @@ textarea{min-height:80px;resize:vertical}
 .pc.on .pd-brief{color:rgba(232,236,244,.65)}
 .pc .pd-arrow{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:8px;color:var(--t3);background:rgba(6,10,22,.5);border:1px solid var(--brd);transition:all .25s var(--ease);flex-shrink:0;cursor:pointer}
 .pc .pd-arrow:active{transform:scale(.9)}.pc .pd-arrow:hover{border-color:var(--cyan);color:var(--cyan)}
-.pc .pd-full{display:none;margin-top:8px;padding:10px 12px;border-radius:8px;background:rgba(6,10,22,.6);border:1px solid rgba(90,130,255,.1);font-size:.72em;color:var(--t2);line-height:1.6}
-.pc .pd-full.show{display:block}
-.pc .pd-full .pd-title{font-weight:700;color:var(--cyan);font-size:.85em;margin-bottom:4px}
-.pc .pd-full .pd-cat{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.8em;font-weight:600;background:var(--v-d);color:var(--vio);margin-bottom:6px}
+.pc .pd-full{display:none;margin-top:8px;padding:12px;border-radius:10px;background:rgba(6,10,22,.7);border:1px solid rgba(90,130,255,.12);font-size:.72em;line-height:1.6}
+.pc .pd-full.show{display:block;animation:pd-in .2s var(--ease)}
+@keyframes pd-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pc .pd-full .pd-title{font-weight:800;color:var(--cyan);font-size:.9em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
+.pc .pd-full .pd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.pc .pd-full .pd-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.85em;font-weight:600;background:var(--v-d);color:var(--vio)}
+.pc .pd-full .pd-desc{color:var(--t2);line-height:1.65}
+.pc .pd-full .pd-pkg{margin-top:8px;padding-top:6px;border-top:1px solid var(--brd);font-size:.9em;color:var(--t3);word-break:break-all}
+.pc .pd-full .pd-pkg code{color:var(--cyan);background:rgba(56,189,248,.08);padding:1px 5px;border-radius:4px}
 
 /* Toggle Buttons (unified selection style) */
 .tog-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd);cursor:pointer;transition:all .25s var(--ease);user-select:none}
@@ -1451,6 +1458,7 @@ function renderGrid(plugs) {
     const desc = typeof info === 'string' ? info : info.d;
     const features = typeof info === 'string' ? '' : (info.f || '');
     const shortName = name.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '');
+    const tags = features ? features.split('/').map(f => `<span class="pd-tag">${f.trim()}</span>`).join('') : '';
     return `
     <div class="pc ${state.plugins.has(name)?'on':''}" id="pc-${name}">
       <div class="tp" onclick="togglePlug(this.parentElement,'${name}')">
@@ -1462,26 +1470,38 @@ function renderGrid(plugs) {
       </div>
       <div class="pd-full" id="pd-${name}">
         <div class="pd-title">${shortName}</div>
-        ${features ? `<div class="pd-cat">${features.split('/').map(f=>f.trim()).join('</div><div class="pd-cat" style="margin-left:4px">')}</div>` : ''}
-        <div style="margin-top:6px">${desc}</div>
+        ${tags ? `<div class="pd-tags">${tags}</div>` : ''}
+        <div class="pd-desc">${desc}</div>
+        <div class="pd-pkg">包名: <code>${name}</code></div>
       </div>
     </div>`;
   }).join('');
   updatePlugCount();
 }
 
+function closeAllPlugDesc() {
+  document.querySelectorAll('.pd-full.show').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.pd-arrow').forEach(a => a.textContent = '▼');
+}
+
 function togglePlugDesc(e, name) {
   e.stopPropagation();
+  e.preventDefault();
   const panel = document.getElementById('pd-' + name);
   const arrow = e.currentTarget.querySelector('.pd-arrow');
-  if (panel.classList.contains('show')) {
-    panel.classList.remove('show');
-    arrow.textContent = '▼';
-  } else {
+  const wasOpen = panel.classList.contains('show');
+  // Close all first
+  closeAllPlugDesc();
+  // Toggle current
+  if (!wasOpen) {
     panel.classList.add('show');
     arrow.textContent = '▲';
   }
 }
+
+// Auto-collapse dropdowns on scroll
+document.addEventListener('scroll', closeAllPlugDesc, { passive: true });
+document.addEventListener('touchmove', closeAllPlugDesc, { passive: true });
 
 function togglePlug(el, name) {
   if (state.plugins.has(name)) { state.plugins.delete(name); el.classList.remove('on'); }
