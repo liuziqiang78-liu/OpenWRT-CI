@@ -1444,12 +1444,25 @@ function updateSummary() {
   // WiFi
   const wifiSsid = document.getElementById('wifi-ssid').value.trim();
   document.getElementById('s-wifi').textContent = wifiSsid || '默认';
-  // 插件列表
+  // 插件列表 (按分类分组)
   if (state.plugins.size > 0) {
-    const list = [...state.plugins].map(p => p.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '')).join(', ');
-    document.getElementById('s-plugin-list').textContent = '已选插件: ' + list;
+    // 反查每个插件所属分类
+    const catMap = {};
+    for (const [cat, plugs] of Object.entries(PLUGIN_CATS)) {
+      for (const name of Object.keys(plugs)) {
+        if (state.plugins.has(name)) {
+          const shortName = name.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '');
+          if (!catMap[cat]) catMap[cat] = [];
+          catMap[cat].push(shortName);
+        }
+      }
+    }
+    const html = Object.entries(catMap).map(([cat, names]) =>
+      `<div style="margin-bottom:6px"><span style="color:var(--cyan);font-weight:700">${cat}</span> (${names.length})<br/><span style="color:var(--t2)">${names.join('、')}</span></div>`
+    ).join('');
+    document.getElementById('s-plugin-list').innerHTML = '已选插件:' + html;
   } else {
-    document.getElementById('s-plugin-list').textContent = '';
+    document.getElementById('s-plugin-list').innerHTML = '';
   }
 }
 
