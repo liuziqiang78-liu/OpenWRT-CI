@@ -283,7 +283,19 @@ textarea{min-height:80px;resize:vertical}
 </div>
 </div>
 
-<!-- ═══════ 6. 编译概览 ═══════ -->
+<!-- ═══════ 6. 自定义选项 ═══════ -->
+<div class="card" id="card-custom">
+<div class="ch"><div class="ch-i a">✏️</div><div class="ch-t">自定义选项</div><span class="ch-b" id="custom-count">0 项</span></div>
+<div class="hint w" style="margin-bottom:14px">添加自定义编译参数，每行一个，格式: <code>KEY=VALUE</code>。例如 <code>ENABLE_SFE=1</code>、<code>DNS_SERVER=8.8.8.8</code></div>
+<div id="custom-opts-list"></div>
+<div style="margin-top:10px;display:flex;gap:8px">
+  <input type="text" class="inp" id="custom-key" placeholder="参数名" style="flex:1">
+  <input type="text" class="inp" id="custom-val" placeholder="值 (可选)" style="flex:1">
+  <button class="tab on" style="flex-shrink:0;cursor:pointer;border:none" onclick="addCustomOpt()">+ 添加</button>
+</div>
+</div>
+
+<!-- ═══════ 7. 编译概览 ═══════ -->
 <div class="card" id="card-summary">
 <div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
 <div class="sg" id="summary-grid">
@@ -293,6 +305,7 @@ textarea{min-height:80px;resize:vertical}
   <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
   <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
+  <div class="si"><div class="sl">自定义</div><div class="sv" id="s-custom">0</div></div>
 </div>
 <div style="margin-top:8px;font-size:.7em;color:var(--t3)" id="s-plugin-list"></div>
 </div>
@@ -1046,6 +1059,7 @@ let state = {
   subtarget: 'ipq807x',
   devices: new Set(),
   plugins: new Set(),
+  customOpts: [],
 };
 
 // ═══════════════════════════════════════
@@ -1056,6 +1070,7 @@ function init() {
   initPlatformTabs();
   initDevices();
   initPlugins();
+  renderCustomOpts();
   updateSummary();
 }
 
@@ -1296,12 +1311,56 @@ function updateSummary() {
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
   document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
+  document.getElementById('s-custom').textContent = state.customOpts.length || '0';
   if (state.plugins.size > 0) {
     const list = [...state.plugins].map(p => p.replace('luci-app-','')).join(', ');
     document.getElementById('s-plugin-list').textContent = '已选插件: ' + list;
   } else {
     document.getElementById('s-plugin-list').textContent = '';
   }
+}
+
+// ═══════════════════════════════════════
+//  自定义选项
+// ═══════════════════════════════════════
+function addCustomOpt() {
+  const keyEl = document.getElementById('custom-key');
+  const valEl = document.getElementById('custom-val');
+  const key = keyEl.value.trim();
+  const val = valEl.value.trim();
+  if (!key) { toast('提示', '请输入参数名', true); return; }
+  if (state.customOpts.some(o => o.key === key)) { toast('提示', `参数 ${key} 已存在`, true); return; }
+  state.customOpts.push({ key, val });
+  keyEl.value = '';
+  valEl.value = '';
+  renderCustomOpts();
+  updateSummary();
+}
+
+function removeCustomOpt(idx) {
+  state.customOpts.splice(idx, 1);
+  renderCustomOpts();
+  updateSummary();
+}
+
+function renderCustomOpts() {
+  const list = document.getElementById('custom-opts-list');
+  const count = document.getElementById('custom-count');
+  count.textContent = `${state.customOpts.length} 项`;
+  if (!state.customOpts.length) {
+    list.innerHTML = '<div style="font-size:.78em;color:var(--t3);padding:8px 0">暂无自定义选项</div>';
+    return;
+  }
+  list.innerHTML = state.customOpts.map((o, i) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:rgba(6,10,22,.5);border:1px solid var(--brd);border-radius:var(--r2);font-size:.82em">
+      <code style="flex:1;color:var(--cyan);word-break:break-all">${o.key}${o.val ? '=' + o.val : ''}</code>
+      <span style="cursor:pointer;color:var(--red);font-size:1.1em;flex-shrink:0" onclick="removeCustomOpt(${i})">✕</span>
+    </div>
+  `).join('');
+}
+
+function getCustomOptsString() {
+  return state.customOpts.map(o => o.key + (o.val ? '=' + o.val : '')).join(' ');
 }
 
 // ═══════════════════════════════════════
@@ -1334,6 +1393,7 @@ async function startBuild() {
     root_password: document.getElementById('root-pw').value.trim(),
     lan_ip: document.getElementById('lan-ip').value.trim(),
     custom_config: customB64,
+    custom_options: getCustomOptsString(),
     enable_ccache: document.getElementById('opt-ccache').checked ? 'true' : 'false',
     upload_artifacts: document.getElementById('opt-upload').checked ? 'true' : 'false',
   };
@@ -1349,6 +1409,7 @@ async function startBuild() {
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
+  if (inputs.custom_options) log('info', `✏️ 自定义: ${inputs.custom_options}`);
 
   try {
     // 先检查 workflow 文件是否存在
