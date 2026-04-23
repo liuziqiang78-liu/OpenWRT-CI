@@ -254,8 +254,12 @@ textarea{min-height:80px;resize:vertical}
   <input type="text" class="inp" id="lan-ip" value="192.168.1.1" placeholder="192.168.1.1">
 </div>
 <div class="f">
-  <label class="lb">WiFi 配置 (格式: SSID|密码|频段)</label>
-  <textarea id="wifi-cfg" placeholder="例:&#10;MyWiFi_2G|password123|2.4g&#10;MyWiFi_5G|password123|5g"></textarea>
+  <label class="lb">WiFi 名称 (SSID)</label>
+  <input type="text" class="inp" id="wifi-ssid" placeholder="留空则不配置WiFi">
+</div>
+<div class="f">
+  <label class="lb">WiFi 密码</label>
+  <input type="password" class="inp" id="wifi-password" placeholder="留空则不设密码" autocomplete="off">
 </div>
 <div class="f">
   <label class="lb">自定义 .config (base64 编码，可选)</label>
@@ -1056,7 +1060,8 @@ function saveState() {
     ghRepo: document.getElementById('gh-repo').value,
     rootPw: document.getElementById('root-pw').value,
     lanIp: document.getElementById('lan-ip').value,
-    wifiCfg: document.getElementById('wifi-cfg').value,
+    wifiSsid: document.getElementById('wifi-ssid').value,
+    wifiPassword: document.getElementById('wifi-password').value,
     customConfig: document.getElementById('custom-config').value,
     optCcache: document.getElementById('opt-ccache').checked,
     optUpload: document.getElementById('opt-upload').checked,
@@ -1085,7 +1090,8 @@ function loadState() {
     if (data.ghRepo) document.getElementById('gh-repo').value = data.ghRepo;
     if (data.rootPw !== undefined) document.getElementById('root-pw').value = data.rootPw;
     if (data.lanIp) document.getElementById('lan-ip').value = data.lanIp;
-    if (data.wifiCfg) document.getElementById('wifi-cfg').value = data.wifiCfg;
+    if (data.wifiSsid) document.getElementById('wifi-ssid').value = data.wifiSsid;
+    if (data.wifiPassword) document.getElementById('wifi-password').value = data.wifiPassword;
     if (data.customConfig) document.getElementById('custom-config').value = data.customConfig;
     if (data.optCcache !== undefined) document.getElementById('opt-ccache').checked = data.optCcache;
     if (data.optUpload !== undefined) document.getElementById('opt-upload').checked = data.optUpload;
@@ -1121,7 +1127,7 @@ function init() {
 
 function bindAutoSave() {
   // 输入框
-  ['gh-token','gh-repo','root-pw','lan-ip','wifi-cfg','custom-config','custom-key','custom-val'].forEach(id => {
+  ['gh-token','gh-repo','root-pw','lan-ip','wifi-ssid','wifi-password','custom-config','custom-key','custom-val'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', saveState);
   });
@@ -1458,6 +1464,8 @@ async function startBuild() {
     plugins: plugins,
     root_password: document.getElementById('root-pw').value.trim(),
     lan_ip: document.getElementById('lan-ip').value.trim(),
+    wifi_ssid: document.getElementById('wifi-ssid').value.trim(),
+    wifi_password: document.getElementById('wifi-password').value.trim(),
     custom_config: customB64,
     enable_ccache: document.getElementById('opt-ccache').checked ? 'true' : 'false',
     upload_artifacts: document.getElementById('opt-upload').checked ? 'true' : 'false',
@@ -1474,6 +1482,7 @@ async function startBuild() {
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
+  if (inputs.wifi_ssid) log('info', `📶 WiFi: ${inputs.wifi_ssid}`);
 
   try {
     // 先检查 workflow 文件是否存在，并获取默认分支

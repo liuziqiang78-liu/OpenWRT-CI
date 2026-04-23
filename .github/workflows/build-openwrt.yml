@@ -53,6 +53,16 @@ on:
         required: false
         default: '192.168.1.1'
         type: string
+      wifi_ssid:
+        description: 'WiFi 名称 (SSID)'
+        required: false
+        default: ''
+        type: string
+      wifi_password:
+        description: 'WiFi 密码'
+        required: false
+        default: ''
+        type: string
       custom_config:
         description: '自定义 .config (base64编码)'
         required: false
@@ -173,6 +183,22 @@ jobs:
           # ── 生成完整配置 ──
           make defconfig
 
+      - name: 📶 WiFi 配置
+        if: inputs.wifi_ssid != ''
+        run: |
+          cd openwrt
+          mkdir -p files/etc/uci-defaults
+          cat > files/etc/uci-defaults/99-wifi-setup << 'WIFIEOF'
+          #!/bin/sh
+          # Auto-generated WiFi configuration
+          uci set wireless.@wifi-iface[0].ssid='${{ inputs.wifi_ssid }}'
+          uci set wireless.@wifi-iface[0].encryption='psk2'
+          uci set wireless.@wifi-iface[0].key='${{ inputs.wifi_password }}'
+          uci commit wireless
+          WIFIEOF
+          chmod 755 files/etc/uci-defaults/99-wifi-setup
+          echo "✅ WiFi SSID: ${{ inputs.wifi_ssid }}"
+
       - name: 📋 Config Summary
         if: always()
         run: |
@@ -187,6 +213,7 @@ jobs:
           echo "| 设备 | \`${{ inputs.profile }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 插件数 | \`${PLUGIN_COUNT}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| ccache | \`${{ inputs.enable_ccache }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| WiFi | \`${{ inputs.wifi_ssid }}\` |" >> $GITHUB_STEP_SUMMARY
 
       - name: 🔨 Download Sources
         run: |
