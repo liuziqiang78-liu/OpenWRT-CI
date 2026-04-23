@@ -169,15 +169,6 @@ textarea{min-height:80px;resize:vertical}
   <input type="password" class="inp" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
   <div class="hint">需要 <code>repo</code> 和 <code>workflow</code> 权限。<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--cyan)">创建 Token →</a></div>
 </div>
-<div class="r2">
-  <div class="f">
-    <label class="lb">仓库 Owner</label>
-    <input type="text" class="inp" id="gh-owner" value="liuziqiang78-liu" placeholder="liuziqiang78-liu">
-  </div>
-  <div class="f">
-    <label class="lb">仓库名</label>
-    <input type="text" class="inp" id="gh-repo" value="openwrt-6.x" placeholder="openwrt-6.x">
-  </div>
 </div>
 </div>
 
@@ -185,6 +176,13 @@ textarea{min-height:80px;resize:vertical}
 <div class="card" id="card-build">
 <div class="ch"><div class="ch-i v">⚙️</div><div class="ch-t">编译设置</div></div>
 
+<div class="f">
+  <label class="lb">源码分支 <span class="req">*</span></label>
+  <div class="tabs" id="source-branch-tabs">
+    <div class="tab on" data-val="main-nss">🌿 main-nss</div>
+    <div class="tab" data-val="25.12-nss">🌿 25.12-nss</div>
+  </div>
+</div>
 <div class="f">
   <label class="lb">内核版本 <span class="req">*</span></label>
   <div class="tabs" id="branch-tabs">
@@ -279,6 +277,7 @@ textarea{min-height:80px;resize:vertical}
 <div class="card" id="card-summary">
 <div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
 <div class="sg" id="summary-grid">
+  <div class="si"><div class="sl">源码分支</div><div class="sv" id="s-source-branch">main-nss</div></div>
   <div class="si"><div class="sl">内核版本</div><div class="sv" id="s-branch">main-nss</div></div>
   <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
@@ -1032,6 +1031,7 @@ const NSS_MODULES = [
 //  状态
 // ═══════════════════════════════════════
 let state = {
+  sourceBranch: 'main-nss',
   branch: 'main-nss',
   target: 'qualcommax',
   subtarget: 'ipq807x',
@@ -1054,6 +1054,15 @@ function init() {
 
 // Tab 切换
 function initTabs() {
+  document.querySelectorAll('#source-branch-tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#source-branch-tabs .tab').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+      state.sourceBranch = t.dataset.val;
+      updateSummary();
+    });
+  });
+
   document.querySelectorAll('#branch-tabs .tab').forEach(t => {
     t.addEventListener('click', () => {
       document.querySelectorAll('#branch-tabs .tab').forEach(x => x.classList.remove('on'));
@@ -1254,6 +1263,7 @@ function updatePlugCount() { document.getElementById('plug-count').textContent =
 
 // Summary
 function updateSummary() {
+  document.getElementById('s-source-branch').textContent = state.sourceBranch;
   document.getElementById('s-branch').textContent = state.branch;
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
@@ -1315,13 +1325,12 @@ function getCustomOptsString() {
 // ═══════════════════════════════════════
 async function startBuild() {
   const token = document.getElementById('gh-token').value.trim();
-  const owner = document.getElementById('gh-owner').value.trim();
-  const repo = document.getElementById('gh-repo').value.trim();
+  const owner = 'LiBwrt';
+  const repo = 'openwrt-6.x';
   const btn = document.getElementById('btn-build');
   const logPanel = document.getElementById('log-panel');
 
   if (!token) { toast('错误', '请输入 GitHub Token', true); return; }
-  if (!owner || !repo) { toast('错误', '请填写仓库信息', true); return; }
 
   // 组装 plugins
   const plugins = [...state.plugins].join(' ');
@@ -1330,7 +1339,8 @@ async function startBuild() {
 
   // 组装 inputs
   const inputs = {
-    branch: state.branch,
+    branch: state.sourceBranch,
+    kernel: state.branch,
     target: state.target,
     subtarget: state.subtarget,
     profile: [...state.devices].join(' '),
@@ -1352,7 +1362,8 @@ async function startBuild() {
 
   log('info', '📡 正在连接 GitHub API...');
   log('info', `📦 仓库: ${owner}/${repo}`);
-  log('info', `🌿 分支: ${inputs.branch}`);
+  log('info', `🌿 源码分支: ${inputs.branch}`);
+  log('info', `⚡ 内核版本: ${inputs.kernel}`);
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);
