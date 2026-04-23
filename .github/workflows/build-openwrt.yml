@@ -84,6 +84,14 @@ on:
         options:
           - 'true'
           - 'false'
+      template:
+        description: '固件模板'
+        required: true
+        default: 'base'
+        type: choice
+        options:
+          - base
+          - full
       upload_artifacts:
         description: '上传固件'
         required: true
@@ -125,6 +133,7 @@ jobs:
           wifi_password: ${{ inputs.wifi_password }}
           custom_config: ${{ inputs.custom_config }}
           enable_ccache: ${{ inputs.enable_ccache }}
+          template: ${{ inputs.template }}
 
       # ── L4: 配置摘要 ──
       - name: 📋 Config Summary

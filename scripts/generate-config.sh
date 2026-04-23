@@ -11,6 +11,7 @@
 #    --plugins LIST         额外插件 (空格分隔)
 #    --custom-config B64    自定义配置 (base64)
 #    --enable-ccache        启用 ccache
+#    --template LEVEL       模板级别: base(默认) / full
 #    --config-dir DIR       配置目录 (默认: config)
 #    --output FILE          输出文件 (默认: .config)
 # ═══════════════════════════════════════════════════════
@@ -24,6 +25,7 @@ FIREWALL="iptables"
 PLUGINS=""
 CUSTOM_CONFIG=""
 ENABLE_CCACHE="false"
+TEMPLATE="base"
 CONFIG_DIR="config"
 OUTPUT=".config"
 
@@ -36,6 +38,7 @@ while [[ $# -gt 0 ]]; do
     --plugins)      PLUGINS="$2"; shift 2 ;;
     --custom-config) CUSTOM_CONFIG="$2"; shift 2 ;;
     --enable-ccache) ENABLE_CCACHE="true"; shift ;;
+    --template)     TEMPLATE="$2"; shift 2 ;;
     --config-dir)   CONFIG_DIR="$2"; shift 2 ;;
     --output)       OUTPUT="$2"; shift 2 ;;
     *) echo "未知参数: $1"; exit 1 ;;
@@ -128,11 +131,23 @@ else
 fi
 
 # ═══════════════════════════════════════
-#  Step 3: 基础模板
+#  Step 3: 固件模板 (base / full)
 # ═══════════════════════════════════════
-if [ -f "${CONFIG_DIR}/templates/base.config" ]; then
-  echo "📋 应用基础模板"
-  cat "${CONFIG_DIR}/templates/base.config" >> "$OUTPUT"
+echo "📋 模板级别: ${TEMPLATE}"
+
+# 基础模板 (必须)
+if [ -f "${CONFIG_DIR}/templates/base-firmware.config" ]; then
+  echo "  → 应用 base-firmware.config"
+  cat "${CONFIG_DIR}/templates/base-firmware.config" >> "$OUTPUT"
+else
+  echo "错误: 基础模板不存在: ${CONFIG_DIR}/templates/base-firmware.config"
+  exit 1
+fi
+
+# 增强模板 (可选)
+if [ "$TEMPLATE" = "full" ] && [ -f "${CONFIG_DIR}/templates/full-firmware.config" ]; then
+  echo "  → 叠加 full-firmware.config"
+  cat "${CONFIG_DIR}/templates/full-firmware.config" >> "$OUTPUT"
 fi
 
 # ═══════════════════════════════════════

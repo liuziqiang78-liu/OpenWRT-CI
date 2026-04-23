@@ -44,6 +44,10 @@ inputs:
     description: '启用 ccache'
     required: false
     default: 'false'
+  template:
+    description: '模板级别 (base/full)'
+    required: false
+    default: 'base'
   working_dir:
     description: 'OpenWrt 源码目录'
     required: false
@@ -62,6 +66,7 @@ runs:
         [ -n "${{ inputs.profile }}" ]   && ARGS+=(--profile "${{ inputs.profile }}")
         [ -n "${{ inputs.plugins }}" ]   && ARGS+=(--plugins "${{ inputs.plugins }}")
         [ "${{ inputs.enable_ccache }}" = "true" ] && ARGS+=(--enable-ccache)
+        [ -n "${{ inputs.template }}" ]      && ARGS+=(--template "${{ inputs.template }}")
         [ -n "${{ inputs.custom_config }}" ] && ARGS+=(--custom-config "${{ inputs.custom_config }}")
         bash "${REPO_ROOT}/scripts/generate-config.sh" "${ARGS[@]}"
 
