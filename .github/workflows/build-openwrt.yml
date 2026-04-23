@@ -170,12 +170,18 @@ jobs:
           # Firewall4 (nftables)
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
+          # UPnP (nftables 适配)
+          CONFIG_PACKAGE_luci-app-upnp=y
+          CONFIG_PACKAGE_miniupnpd-nftables=y
           EOF
           else
             cat >> .config <<'EOF'
           # Firewall (iptables)
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_iptables=y
+          # UPnP (iptables 适配)
+          CONFIG_PACKAGE_luci-app-upnp=y
+          CONFIG_PACKAGE_miniupnpd-iptables=y
           EOF
           fi
 
