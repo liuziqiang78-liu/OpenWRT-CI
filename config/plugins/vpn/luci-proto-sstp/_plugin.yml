@@ -1,0 +1,8 @@
+name: luci-proto-sstp
+display: SSTP
+desc: "SSTP SSL VPN 协议"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

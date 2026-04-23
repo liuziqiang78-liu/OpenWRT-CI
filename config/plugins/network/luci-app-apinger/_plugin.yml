@@ -1,0 +1,8 @@
+name: luci-app-apinger
+display: Apinger
+desc: "网关 Ping 监控，检测网关可用性"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

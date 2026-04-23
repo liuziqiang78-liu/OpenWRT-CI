@@ -1,0 +1,8 @@
+name: luci-app-p910nd
+display: P910Nd
+desc: "P910ND 打印服务，轻量级网络打印"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

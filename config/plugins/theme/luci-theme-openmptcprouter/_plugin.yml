@@ -1,0 +1,8 @@
+name: luci-theme-openmptcprouter
+display: Openmptcprouter
+desc: "OpenMPTCProuter 主题"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

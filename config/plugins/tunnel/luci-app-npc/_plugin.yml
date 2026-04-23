@@ -1,0 +1,8 @@
+name: luci-app-npc
+display: Npc
+desc: "NPS 内网穿透客户端 (NPC)，轻量级内网穿透"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

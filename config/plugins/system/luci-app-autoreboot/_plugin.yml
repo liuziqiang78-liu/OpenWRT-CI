@@ -1,0 +1,8 @@
+name: luci-app-autoreboot
+display: Autoreboot
+desc: "定时重启，按计划自动重启设备"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

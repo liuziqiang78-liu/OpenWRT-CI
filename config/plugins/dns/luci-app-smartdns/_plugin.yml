@@ -1,0 +1,8 @@
+name: luci-app-smartdns
+display: Smartdns
+desc: "SmartDNS 智能 DNS，支持多上游并发查询、测速优选、缓存加速"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

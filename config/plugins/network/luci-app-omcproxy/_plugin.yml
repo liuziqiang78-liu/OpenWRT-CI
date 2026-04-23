@@ -1,0 +1,8 @@
+name: luci-app-omcproxy
+display: Omcproxy
+desc: "MCAST 代理，组播流量转发"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

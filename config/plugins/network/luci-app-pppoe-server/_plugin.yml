@@ -1,0 +1,8 @@
+name: luci-app-pppoe-server
+display: Pppoe Server
+desc: "PPPoE 服务端，提供 PPPoE 拨号服务"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

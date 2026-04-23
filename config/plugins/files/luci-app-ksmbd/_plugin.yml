@@ -1,0 +1,8 @@
+name: luci-app-ksmbd
+display: Ksmbd
+desc: "KSMBD 内核态 SMB 文件共享，性能优于 Samba"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

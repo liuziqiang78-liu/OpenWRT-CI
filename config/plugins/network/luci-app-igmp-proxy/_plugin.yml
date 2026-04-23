@@ -1,0 +1,8 @@
+name: luci-app-igmp-proxy
+display: Igmp Proxy
+desc: "IGMP 代理，用于 IPTV 组播转发"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-fastnet
+display: Fastnet
+desc: "网络体检/测速，检测网络质量"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

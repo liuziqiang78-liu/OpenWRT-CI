@@ -1,0 +1,8 @@
+name: luci-app-xfrpc
+display: Xfrpc
+desc: "轻量级 FRP 客户端实现，资源占用更少"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

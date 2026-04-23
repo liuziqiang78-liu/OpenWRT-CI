@@ -1,0 +1,8 @@
+name: luci-app-music-remote-center
+display: Music Remote Center
+desc: "音乐远程控制中心"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

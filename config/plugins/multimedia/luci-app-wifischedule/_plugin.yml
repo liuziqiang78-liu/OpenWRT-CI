@@ -1,0 +1,8 @@
+name: luci-app-wifischedule
+display: Wifischedule
+desc: "WiFi 定时开关，按时间计划开启/关闭 WiFi"
+firewall: 1
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

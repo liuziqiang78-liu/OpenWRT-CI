@@ -1,0 +1,8 @@
+name: luci-app-iptvhelper
+display: Iptvhelper
+desc: "IPTV 助手，简化 IPTV 配置"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

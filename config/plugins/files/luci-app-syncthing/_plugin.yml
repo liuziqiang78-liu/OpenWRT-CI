@@ -1,0 +1,8 @@
+name: luci-app-syncthing
+display: Syncthing
+desc: "Syncthing 去中心化文件同步，P2P 实时同步"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

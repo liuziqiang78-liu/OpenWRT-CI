@@ -1,0 +1,8 @@
+name: luci-proto-ipv6
+display: IPV6
+desc: "IPv6 协议支持"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

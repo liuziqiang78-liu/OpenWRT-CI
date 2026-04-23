@@ -1,9 +1,0 @@
-name: luci-app-upnp
-display: UPnP
-desc: "通用即插即用端口映射"
-firewall: 0
-category: network
-source: openwrt
-deps_source: []
-deps:
-  - miniupnpd

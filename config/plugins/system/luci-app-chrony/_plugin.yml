@@ -1,0 +1,8 @@
+name: luci-app-chrony
+display: Chrony
+desc: "Chrony NTP 时间同步，高精度时钟同步"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

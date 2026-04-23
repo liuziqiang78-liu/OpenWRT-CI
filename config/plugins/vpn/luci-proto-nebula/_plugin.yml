@@ -1,0 +1,8 @@
+name: luci-proto-nebula
+display: NEBULA
+desc: "Nebula overlay 网络，基于 Noise 协议的加密组网"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

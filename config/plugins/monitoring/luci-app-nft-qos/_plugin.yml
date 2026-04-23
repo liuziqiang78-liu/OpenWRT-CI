@@ -1,9 +1,0 @@
-name: luci-app-nft-qos
-display: 流量控制 (nft)
-desc: "nftables 流量控制"
-firewall: 2
-category: monitoring
-source: openwrt
-deps_source: []
-deps:
-  - nftables

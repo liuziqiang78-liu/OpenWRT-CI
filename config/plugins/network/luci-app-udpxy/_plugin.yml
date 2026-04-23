@@ -1,0 +1,8 @@
+name: luci-app-udpxy
+display: Udpxy
+desc: "UDP 转 HTTP 代理，将组播流转为 HTTP 单播"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

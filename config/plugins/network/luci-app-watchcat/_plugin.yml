@@ -1,0 +1,8 @@
+name: luci-app-watchcat
+display: Watchcat
+desc: "网络看门狗，检测网络异常自动重启接口或设备"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

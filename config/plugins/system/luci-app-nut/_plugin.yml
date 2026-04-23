@@ -1,0 +1,8 @@
+name: luci-app-nut
+display: Nut
+desc: "UPS 电源管理，断电自动关机保护"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-xinetd
+display: Xinetd
+desc: "xinetd 超级服务管理"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

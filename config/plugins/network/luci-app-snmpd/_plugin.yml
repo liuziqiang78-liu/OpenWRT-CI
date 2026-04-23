@@ -1,0 +1,8 @@
+name: luci-app-snmpd
+display: Snmpd
+desc: "SNMP 网管协议代理，支持网络监控和管理"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

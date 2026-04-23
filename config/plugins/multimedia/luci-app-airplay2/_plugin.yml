@@ -1,0 +1,8 @@
+name: luci-app-airplay2
+display: Airplay2
+desc: "AirPlay 2 音频推送，支持 Apple 设备投送音频"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

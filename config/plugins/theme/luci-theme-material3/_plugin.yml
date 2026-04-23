@@ -1,0 +1,8 @@
+name: luci-theme-material3
+display: Material3
+desc: "Material Design 3 主题"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

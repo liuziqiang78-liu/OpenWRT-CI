@@ -1,0 +1,8 @@
+name: luci-app-uugamebooster
+display: Uugamebooster
+desc: "UU 加速器，游戏加速降低延迟"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

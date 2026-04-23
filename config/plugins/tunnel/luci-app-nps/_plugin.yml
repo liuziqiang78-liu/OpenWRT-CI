@@ -1,0 +1,8 @@
+name: luci-app-nps
+display: Nps
+desc: "NPS 内网穿透，支持 TCP/UDP/HTTP/HTTPS/SOCKS5，带 Web 管理"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

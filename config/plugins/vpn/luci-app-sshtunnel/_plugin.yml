@@ -1,0 +1,8 @@
+name: luci-app-sshtunnel
+display: Sshtunnel
+desc: "SSH 隧道转发管理，通过 SSH 建立加密隧道"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

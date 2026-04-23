@@ -1,0 +1,8 @@
+name: luci-mod-dsl
+display: Dsl
+desc: "DSL 状态监控"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

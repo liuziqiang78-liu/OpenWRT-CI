@@ -1,0 +1,8 @@
+name: luci-app-3cat
+display: 3Cat
+desc: "3Cat 网络工具集合"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-bandix
+display: Bandix
+desc: "流量监控限速，实时查看设备流量"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

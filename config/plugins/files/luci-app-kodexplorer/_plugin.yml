@@ -1,0 +1,8 @@
+name: luci-app-kodexplorer
+display: Kodexplorer
+desc: "可道云网盘，私有云文档管理"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

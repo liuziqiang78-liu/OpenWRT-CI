@@ -1,0 +1,8 @@
+name: luci-app-package-manager
+display: Package Manager
+desc: "软件包管理器，图形化安装/卸载软件包"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

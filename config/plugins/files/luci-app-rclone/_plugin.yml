@@ -1,0 +1,8 @@
+name: luci-app-rclone
+display: Rclone
+desc: "Rclone 云存储同步，支持 40+ 云盘/对象存储"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-vsftpd
+display: Vsftpd
+desc: "vsftpd FTP 服务端，安全高效的 FTP"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

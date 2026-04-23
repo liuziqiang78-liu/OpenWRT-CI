@@ -1,0 +1,8 @@
+name: luci-app-natmap
+display: Natmap
+desc: "NAT 映射/打洞，自动获取公网端口映射"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

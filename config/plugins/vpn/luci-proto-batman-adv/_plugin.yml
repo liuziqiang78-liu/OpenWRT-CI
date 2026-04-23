@@ -1,0 +1,8 @@
+name: luci-proto-batman-adv
+display: BATMAN ADV
+desc: "B.A.T.M.A.N. 网状网络协议，适合 Mesh 组网"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

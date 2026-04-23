@@ -1,0 +1,8 @@
+name: luci-app-unbound
+display: Unbound
+desc: "Unbound DNS 解析器，支持 DNSSEC 验证"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

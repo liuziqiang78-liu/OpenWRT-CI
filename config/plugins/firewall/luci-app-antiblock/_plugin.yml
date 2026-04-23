@@ -1,0 +1,8 @@
+name: luci-app-antiblock
+display: Antiblock
+desc: "AntiBlock 解锁，绕过特定网络封锁"
+firewall: 1
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

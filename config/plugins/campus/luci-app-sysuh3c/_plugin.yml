@@ -1,0 +1,8 @@
+name: luci-app-sysuh3c
+display: Sysuh3C
+desc: "华三 802.1x 认证"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

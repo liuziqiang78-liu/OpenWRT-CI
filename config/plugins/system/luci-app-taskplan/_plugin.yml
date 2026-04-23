@@ -1,0 +1,8 @@
+name: luci-app-taskplan
+display: Taskplan
+desc: "定时任务/开机任务，可视化管理计划任务"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-ipsec-server
+display: Ipsec Server
+desc: "IPSec VPN 服务端，企业级 VPN 接入"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

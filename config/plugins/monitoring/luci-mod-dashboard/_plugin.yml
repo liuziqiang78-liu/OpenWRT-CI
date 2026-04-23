@@ -1,0 +1,8 @@
+name: luci-mod-dashboard
+display: Dashboard
+desc: "Dashboard 仪表盘，系统概览界面"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

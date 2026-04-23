@@ -1,0 +1,8 @@
+name: luci-theme-alpha
+display: Alpha
+desc: "Alpha 主题，简洁现代"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

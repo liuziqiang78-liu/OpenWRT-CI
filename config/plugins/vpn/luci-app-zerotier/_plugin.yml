@@ -1,0 +1,8 @@
+name: luci-app-zerotier
+display: Zerotier
+desc: "ZeroTier 虚拟局域网，跨网络组建 P2P 局域网，支持打洞穿透"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

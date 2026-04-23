@@ -1,0 +1,8 @@
+name: luci-app-cd8021x
+display: Cd8021X
+desc: "802.1x 认证客户端"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

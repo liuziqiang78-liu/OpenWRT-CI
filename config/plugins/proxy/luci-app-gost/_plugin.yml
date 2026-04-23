@@ -1,0 +1,8 @@
+name: luci-app-gost
+display: Gost
+desc: "GOST 多协议隧道工具，支持 SOCKS5/HTTP/端口转发/中继等"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-homeproxy
+display: Homeproxy
+desc: "基于 Sing-box 的代理前端，支持多种协议，配置灵活"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

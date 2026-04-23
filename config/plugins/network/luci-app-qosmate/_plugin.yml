@@ -1,0 +1,8 @@
+name: luci-app-qosmate
+display: Qosmate
+desc: "QoS 流量控制，智能带宽分配"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

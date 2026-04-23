@@ -1,0 +1,8 @@
+name: luci-app-ddns-go
+display: Ddns Go
+desc: "DDNS-Go 动态域名，支持阿里云/腾讯云/Cloudflare 等国内服务商"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

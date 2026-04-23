@@ -1,0 +1,8 @@
+name: luci-app-rp-pppoe-server
+display: Rp Pppoe Server
+desc: "Roaring Penguin PPPoE 服务端"
+firewall: 1
+category: protocol
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-spotifyd
+display: Spotifyd
+desc: "Spotify Connect 设备，将路由器变为 Spotify 播放终端"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

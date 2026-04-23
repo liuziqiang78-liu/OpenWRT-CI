@@ -1,0 +1,8 @@
+name: luci-app-timewol
+display: Timewol
+desc: "定时网络唤醒，按计划自动开机"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

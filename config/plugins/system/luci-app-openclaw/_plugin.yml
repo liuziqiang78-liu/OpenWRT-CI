@@ -1,0 +1,8 @@
+name: luci-app-openclaw
+display: Openclaw
+desc: "OpenClaw AI 智能助手"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

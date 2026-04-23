@@ -1,0 +1,8 @@
+name: luci-app-rustdesk-server
+display: Rustdesk Server
+desc: "RustDesk 远程桌面服务端，自建中继服务器"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

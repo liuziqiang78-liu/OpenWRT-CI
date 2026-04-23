@@ -1,0 +1,8 @@
+name: luci-app-ddnsto
+display: Ddnsto
+desc: "DDNSTO 内网穿透，远程访问路由器和内网设备，支持远程唤醒"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-n2n
+display: N2N
+desc: "N2N P2P VPN，去中心化穿透组网"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

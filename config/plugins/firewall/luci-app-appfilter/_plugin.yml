@@ -1,0 +1,8 @@
+name: luci-app-appfilter
+display: Appfilter
+desc: "应用过滤/上网行为管理，按应用类型控制网络访问"
+firewall: 1
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-bmx7
+display: Bmx7
+desc: "BMX7 网状网络路由协议"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

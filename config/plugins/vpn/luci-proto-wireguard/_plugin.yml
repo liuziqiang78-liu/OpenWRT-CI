@@ -1,0 +1,8 @@
+name: luci-proto-wireguard
+display: WIREGUARD
+desc: "WireGuard 协议支持，新一代轻量高速 VPN 协议"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

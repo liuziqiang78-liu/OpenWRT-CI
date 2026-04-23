@@ -1,0 +1,8 @@
+name: luci-proto-openfortivpn
+display: OPENFORTIVPN
+desc: "Fortinet FortiGate VPN 客户端"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

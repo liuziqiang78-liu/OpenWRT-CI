@@ -1,0 +1,8 @@
+name: luci-app-usteer
+display: Usteer
+desc: "多 AP 漫游引导，802.11k/v/r 快速漫游"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

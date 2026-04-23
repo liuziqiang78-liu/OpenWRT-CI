@@ -1,0 +1,8 @@
+name: luci-proto-ppp
+display: PPP
+desc: "PPPoE/PPPoA 拨号协议"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-vnstat2
+display: Vnstat2
+desc: "vnStat 网络流量统计，记录历史流量数据"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

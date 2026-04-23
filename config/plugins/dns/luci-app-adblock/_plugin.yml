@@ -1,0 +1,8 @@
+name: luci-app-adblock
+display: Adblock
+desc: "基于 dnsmasq 的 DNS 广告拦截，轻量高效"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

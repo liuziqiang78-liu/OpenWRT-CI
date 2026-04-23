@@ -1,0 +1,8 @@
+name: luci-app-uhttpd
+display: Uhttpd
+desc: "uhttpd Web 服务器配置"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

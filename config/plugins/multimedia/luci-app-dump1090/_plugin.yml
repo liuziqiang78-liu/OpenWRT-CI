@@ -1,0 +1,8 @@
+name: luci-app-dump1090
+display: Dump1090
+desc: "航空 ADS-B 接收器，接收飞机应答信号"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

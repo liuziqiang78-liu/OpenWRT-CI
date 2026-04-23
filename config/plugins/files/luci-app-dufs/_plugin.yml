@@ -1,0 +1,8 @@
+name: luci-app-dufs
+display: Dufs
+desc: "DUFS 文件服务，支持 WebDAV/上传/下载"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

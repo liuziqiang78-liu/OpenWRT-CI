@@ -1,0 +1,8 @@
+name: luci-app-modemband
+display: Modemband
+desc: "模组频段锁定，手动选择 4G/5G 频段"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

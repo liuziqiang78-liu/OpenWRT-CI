@@ -1,0 +1,8 @@
+name: luci-app-ps3netsrv
+display: Ps3Netsrv
+desc: "PS3 网络存储服务"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

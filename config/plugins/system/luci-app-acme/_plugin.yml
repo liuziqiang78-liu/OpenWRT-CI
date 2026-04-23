@@ -1,0 +1,8 @@
+name: luci-app-acme
+display: Acme
+desc: "ACME SSL 证书自动申请 (Let\"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

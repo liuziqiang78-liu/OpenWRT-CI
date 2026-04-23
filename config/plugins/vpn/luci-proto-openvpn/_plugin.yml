@@ -1,0 +1,8 @@
+name: luci-proto-openvpn
+display: OPENVPN
+desc: "OpenVPN 协议支持"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-lxc
+display: Lxc
+desc: "LXC 容器管理，Linux 系统级容器"
+firewall: 0
+category: docker
+source: kiddin4
+deps_source: []
+deps: []

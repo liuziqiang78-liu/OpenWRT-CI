@@ -1,0 +1,8 @@
+name: luci-app-csshnpd
+display: Csshnpd
+desc: "Cloudflare SSH 隧道，通过 Cloudflare 网络访问 SSH"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

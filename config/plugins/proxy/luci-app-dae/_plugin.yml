@@ -1,0 +1,8 @@
+name: luci-app-dae
+display: Dae
+desc: "基于 eBPF 的高性能透明代理，内核级流量处理，零拷贝转发，性能极佳"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

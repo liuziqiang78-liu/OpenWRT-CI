@@ -1,0 +1,8 @@
+name: luci-app-syncdial
+display: Syncdial
+desc: "多拨/叠加，多条 PPPoE 拨号带宽叠加"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

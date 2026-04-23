@@ -1,0 +1,8 @@
+name: luci-app-aria2
+display: Aria2
+desc: "Aria2 多协议下载器，支持 HTTP/FTP/BT/磁力/磁力链"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

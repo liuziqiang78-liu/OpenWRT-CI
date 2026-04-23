@@ -1,0 +1,8 @@
+name: luci-proto-openconnect
+display: OPENCONNECT
+desc: "OpenConnect VPN 协议"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

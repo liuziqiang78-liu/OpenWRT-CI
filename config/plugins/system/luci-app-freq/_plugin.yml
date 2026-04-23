@@ -1,0 +1,8 @@
+name: luci-app-freq
+display: Freq
+desc: "频段管理/切换"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

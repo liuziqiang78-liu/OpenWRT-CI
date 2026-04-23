@@ -1,0 +1,8 @@
+name: luci-app-oscam
+display: Oscam
+desc: "OSCam 智能卡读卡器"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-dcwapd
+display: Dcwapd
+desc: "双频并发无线桥接"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

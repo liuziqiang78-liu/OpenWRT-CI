@@ -1,0 +1,8 @@
+name: luci-app-clamav
+display: Clamav
+desc: "ClamAV 杀毒引擎，文件病毒扫描"
+firewall: 0
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-proto-modemmanager
+display: MODEMMANAGER
+desc: "ModemManager 调制解调器管理"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

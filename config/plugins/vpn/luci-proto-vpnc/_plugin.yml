@@ -1,0 +1,8 @@
+name: luci-proto-vpnc
+display: VPNC
+desc: "Cisco VPN 客户端协议"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

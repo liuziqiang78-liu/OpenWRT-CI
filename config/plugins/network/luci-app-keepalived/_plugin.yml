@@ -1,0 +1,8 @@
+name: luci-app-keepalived
+display: Keepalived
+desc: "Keepalived 高可用，VRRP 虚拟路由冗余"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

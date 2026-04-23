@@ -1,0 +1,8 @@
+name: luci-app-arpbind
+display: Arpbind
+desc: "ARP 绑定，静态 ARP 映射防止 ARP 欺骗"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

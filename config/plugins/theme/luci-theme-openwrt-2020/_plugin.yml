@@ -1,0 +1,8 @@
+name: luci-theme-openwrt-2020
+display: Openwrt 2020
+desc: "OpenWrt 2020 主题"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

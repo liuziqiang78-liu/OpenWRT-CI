@@ -1,0 +1,8 @@
+name: luci-app-homeassistant
+display: Homeassistant
+desc: "HomeAssistant 智能家居平台集成"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

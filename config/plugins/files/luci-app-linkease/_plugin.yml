@@ -1,0 +1,8 @@
+name: luci-app-linkease
+display: Linkease
+desc: "易有云文件管理，远程访问 NAS 文件"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

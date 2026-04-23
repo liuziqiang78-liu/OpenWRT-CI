@@ -1,0 +1,8 @@
+name: luci-app-ipsec-vpnd
+display: Ipsec Vpnd
+desc: "IPSec VPN 服务端，支持站点到站点和远程访问 VPN"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

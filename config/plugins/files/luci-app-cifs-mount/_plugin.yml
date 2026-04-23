@@ -1,0 +1,8 @@
+name: luci-app-cifs-mount
+display: Cifs Mount
+desc: "CIFS 远程挂载，挂载 Windows/SMB 共享目录"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

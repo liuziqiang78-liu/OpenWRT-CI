@@ -1,0 +1,8 @@
+name: luci-app-pagekitec
+display: Pagekitec
+desc: "PageKite 隧道，将本地服务暴露到公网"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

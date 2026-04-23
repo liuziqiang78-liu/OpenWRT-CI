@@ -1,0 +1,8 @@
+name: luci-app-parentcontrol
+display: Parentcontrol
+desc: "家长控制，限制儿童设备上网时间和内容"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

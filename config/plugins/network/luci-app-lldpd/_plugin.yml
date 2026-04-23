@@ -1,0 +1,8 @@
+name: luci-app-lldpd
+display: Lldpd
+desc: "LLDP 链路层发现协议，网络设备自动发现"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

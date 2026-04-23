@@ -1,0 +1,8 @@
+name: luci-app-filebrowser
+display: Filebrowser
+desc: "Web 文件管理器，浏览器中管理文件"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

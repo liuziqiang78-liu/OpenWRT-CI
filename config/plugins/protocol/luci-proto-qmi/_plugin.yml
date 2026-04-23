@@ -1,0 +1,8 @@
+name: luci-proto-qmi
+display: QMI
+desc: "QMI 移动网络拨号"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

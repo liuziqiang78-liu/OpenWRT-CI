@@ -1,8 +1,0 @@
-name: luci-app-arpbind
-display: ARP 绑定
-desc: "IP/MAC 绑定"
-firewall: 1
-category: firewall
-source: openwrt
-deps_source: []
-deps: []

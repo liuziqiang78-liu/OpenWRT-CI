@@ -1,0 +1,8 @@
+name: luci-app-coovachilli
+display: Coovachilli
+desc: "CoovaChilli 门户认证 (Captive Portal)"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

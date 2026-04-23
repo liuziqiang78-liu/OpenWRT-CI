@@ -1,0 +1,8 @@
+name: luci-app-ser2net
+display: Ser2Net
+desc: "串口转网络，将串口设备暴露到网络"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

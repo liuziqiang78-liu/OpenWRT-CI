@@ -1,0 +1,8 @@
+name: luci-app-libreswan
+display: Libreswan
+desc: "LibreSwan IPSec VPN 实现，企业级站点到站点 VPN"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []
