@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-# OpenWrt 云编译工作流
+# OpenWrt 云编译工作流 (分层架构 v2)
 # 仓库: LiBwrt/openwrt-6.x
 # ──────────────────────────────────────────────
 name: 🚀 Build OpenWrt Firmware
@@ -102,179 +102,84 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 720
     steps:
+      # ── Layer 2.1: 检出 (含平台配置 + 脚本) ──
       - name: 🛎️ Checkout workflow repo
         uses: actions/checkout@v4
 
+      # ── Layer 2.2: 克隆源码 ──
       - name: 📦 Clone OpenWrt Source
         run: |
           git clone --depth 1 --single-branch \
             -b ${{ inputs.source_branch }} \
             ${{ env.REPO_URL }} openwrt
 
+      # ── Layer 2.3: 安装 Feeds ──
       - name: 📥 Update & Install Feeds
         run: |
           cd openwrt
-          # 添加外来源插件
           echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.default
           echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: ⚙️ Generate Config
-        run: |
-          cd openwrt
+      # ── Layer 3+4: 配置生成 + 验证 (composite action) ──
+      - name: ⚙️ Generate & Validate Config
+        uses: ./.github/actions/generate-config
+        with:
+          target: ${{ inputs.target }}
+          subtarget: ${{ inputs.subtarget }}
+          profile: ${{ inputs.profile }}
+          firewall: ${{ inputs.firewall }}
+          plugins: ${{ inputs.plugins }}
+          root_password: ${{ inputs.root_password }}
+          lan_ip: ${{ inputs.lan_ip }}
+          wifi_ssid: ${{ inputs.wifi_ssid }}
+          wifi_password: ${{ inputs.wifi_password }}
+          custom_config: ${{ inputs.custom_config }}
+          enable_ccache: ${{ inputs.enable_ccache }}
 
-          # ── Target 配置 ──
-          if [ "${{ inputs.target }}" = "qualcommax" ]; then
-            cat > .config <<EOF
-          CONFIG_TARGET_qualcommax=y
-          CONFIG_TARGET_qualcommax_${{ inputs.subtarget }}=y
-          EOF
-          else
-            cat > .config <<EOF
-          CONFIG_TARGET_${{ inputs.target }}=y
-          EOF
-          fi
-
-          # ── 设备 Profile ──
-          if [ -n "${{ inputs.profile }}" ]; then
-            for dev in ${{ inputs.profile }}; do
-              if [ "${{ inputs.target }}" = "qualcommax" ]; then
-                echo "CONFIG_TARGET_DEVICE_qualcommax_${{ inputs.subtarget }}_DEVICE_${dev}=y" >> .config
-              else
-                echo "CONFIG_TARGET_DEVICE_${{ inputs.target }}_DEVICE_${dev}=y" >> .config
-              fi
-            done
-          fi
-
-          # ── NSS 支持 (仅 qualcommax) ──
-          if [ "${{ inputs.target }}" = "qualcommax" ]; then
-            cat >> .config <<'EOF'
-          # NSS Support (qualcommax)
-          CONFIG_PACKAGE_kmod-qca-nss-drv=y
-          CONFIG_PACKAGE_kmod-qca-nss-ecm=y
-          CONFIG_PACKAGE_kmod-qca-nss-dp=y
-          CONFIG_PACKAGE_kmod-nss-ifb=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-vlan-mgr=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-gre=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-l2tpv2=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-vxlanmgr=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-mirror=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-tunipip6=y
-          CONFIG_PACKAGE_kmod-qca-nss-drv-wifi-meshmgr=y
-          EOF
-          fi
-
-          # ── 防火墙选择 ──
-          if [ "${{ inputs.firewall }}" = "nftables" ]; then
-            cat >> .config <<'EOF'
-          # Firewall4 (nftables)
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_nftables=y
-          # UPnP (nftables 适配)
-          CONFIG_PACKAGE_luci-app-upnp=y
-          CONFIG_PACKAGE_miniupnpd-nftables=y
-          EOF
-          else
-            cat >> .config <<'EOF'
-          # Firewall (iptables)
-          CONFIG_PACKAGE_firewall=y
-          CONFIG_PACKAGE_iptables=y
-          # UPnP (iptables 适配)
-          CONFIG_PACKAGE_luci-app-upnp=y
-          CONFIG_PACKAGE_miniupnpd-iptables=y
-          EOF
-          fi
-
-          # ── LuCI 中文 ──
-          cat >> .config <<'EOF'
-          # LuCI
-          CONFIG_LUCI_LANG_zh_Hans=y
-          EOF
-
-          # ── 基础插件 (WebUI 基础功能，随固件内置) ──
-          cat >> .config <<'EOF'
-          # 基础插件
-          CONFIG_PACKAGE_luci-app-sqm=y
-          CONFIG_PACKAGE_luci-app-diskman=y
-          CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
-          CONFIG_PACKAGE_luci-app-ledtrig-switch=y
-          CONFIG_PACKAGE_luci-app-ledtrig-usbport=y
-          EOF
-
-          # ── 用户插件 ──
-          if [ -n "${{ inputs.plugins }}" ]; then
-            echo "# Custom Plugins" >> .config
-            for pkg in ${{ inputs.plugins }}; do
-              echo "CONFIG_PACKAGE_${pkg}=y" >> .config
-            done
-          fi
-
-          # ── ccache ──
-          if [ "${{ inputs.enable_ccache }}" = "true" ]; then
-            echo "CONFIG_CCACHE=y" >> .config
-          fi
-
-          # ── 自定义 config (base64) ──
-          if [ -n "${{ inputs.custom_config }}" ]; then
-            echo "${{ inputs.custom_config }}" | base64 -d >> .config
-          fi
-
-          # ── 生成完整配置 ──
-          make defconfig
-
-      - name: 📶 WiFi 配置
-        if: inputs.wifi_ssid != ''
-        run: |
-          cd openwrt
-          mkdir -p files/etc/uci-defaults
-          cat > files/etc/uci-defaults/99-wifi-setup << 'WIFIEOF'
-          #!/bin/sh
-          # Auto-generated WiFi configuration
-          uci set wireless.@wifi-iface[0].ssid='${{ inputs.wifi_ssid }}'
-          uci set wireless.@wifi-iface[0].encryption='psk2'
-          uci set wireless.@wifi-iface[0].key='${{ inputs.wifi_password }}'
-          uci commit wireless
-          WIFIEOF
-          chmod 755 files/etc/uci-defaults/99-wifi-setup
-          echo "✅ WiFi SSID: ${{ inputs.wifi_ssid }}"
-
+      # ── Layer 2.4: 编译配置摘要 ──
       - name: 📋 Config Summary
         if: always()
         run: |
           cd openwrt
-          PLUGIN_COUNT=$(grep -c '=y' .config | head -1 || echo 0)
+          ACTUAL_TARGET=$(grep -oP 'CONFIG_TARGET_\K[a-z0-9]+(?==y)' .config | head -1)
+          ACTUAL_SUBTARGET=$(grep -oP "CONFIG_TARGET_${ACTUAL_TARGET}_\\K[a-z0-9]+(?==y)" .config | head -1)
+          ACTUAL_DEVICE=$(grep -oP 'CONFIG_TARGET.*DEVICE_\K[^=]+(?==y)' .config | head -1)
+          FW_TYPE=$(grep -q 'CONFIG_PACKAGE_firewall4=y' .config && echo 'nftables' || echo 'iptables')
+          PLUGIN_COUNT=$(grep -c '=y' .config || echo 0)
+
           echo "### 📋 编译配置" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
           echo "| 源码分支 | \`${{ inputs.source_branch }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target | \`${{ inputs.target }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Subtarget | \`${{ inputs.subtarget }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 设备 | \`${{ inputs.profile }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | \`${ACTUAL_TARGET}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Subtarget | \`${ACTUAL_SUBTARGET}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 设备 | \`${ACTUAL_DEVICE:-'(全部)'}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 防火墙 | \`${FW_TYPE}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 插件数 | \`${PLUGIN_COUNT}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| ccache | \`${{ inputs.enable_ccache }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| WiFi | \`${{ inputs.wifi_ssid }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 防火墙 | \`${{ inputs.firewall }}\` |" >> $GITHUB_STEP_SUMMARY
 
+      # ── Layer 5: 下载源码 ──
       - name: 🔨 Download Sources
         run: |
           cd openwrt
           make download -j$(nproc) || make download -j1 V=s
 
+      # ── Layer 6: 编译工具链 ──
       - name: 🔧 Build Toolchain
         run: |
           cd openwrt
           make tools/install -j$(nproc)
           make toolchain/install -j$(nproc)
 
+      # ── Layer 7: 编译固件 ──
       - name: 🏗️ Build Firmware
         run: |
           cd openwrt
           BUILD_JOBS=$(($(nproc) + 1))
           make -j${BUILD_JOBS} 2>&1 | tee build.log
 
+      # ── Layer 8: 打包上传 ──
       - name: 📤 Upload Firmware
         if: inputs.upload_artifacts == 'true'
         uses: actions/upload-artifact@v4
@@ -289,6 +194,7 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+      # ── Layer 9: 构建报告 ──
       - name: 📊 Build Summary
         if: always()
         run: |
