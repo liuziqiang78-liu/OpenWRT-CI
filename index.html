@@ -228,10 +228,10 @@ textarea{min-height:80px;resize:vertical}
 <div class="ch"><div class="ch-i v">🛠️</div><div class="ch-t">高级选项</div></div>
 <div class="f">
   <label class="lb">防火墙</label>
-  <div class="tabs" id="firewall-tabs">
-    <div class="tab on" data-val="iptables">🧱 iptables (默认)</div>
-    <div class="tab" data-val="nftables">🧱 nftables</div>
-  </div>
+  <select class="sel" id="firewall-select">
+    <option value="iptables" selected>iptables (默认)</option>
+    <option value="nftables">nftables</option>
+  </select>
 </div>
 <div class="f">
   <label class="cr">
@@ -1119,9 +1119,7 @@ function restoreTabStates() {
     t.classList.toggle('on', t.dataset.val === state.sourceBranch);
   });
   // 防火墙
-  document.querySelectorAll('#firewall-tabs .tab').forEach(t => {
-    t.classList.toggle('on', t.dataset.val === state.firewall);
-  });
+  document.getElementById('firewall-select').value = state.firewall;
 }
 
 // ═══════════════════════════════════════
@@ -1178,13 +1176,9 @@ function initTabs() {
     });
   });
 
-  document.querySelectorAll('#firewall-tabs .tab').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('#firewall-tabs .tab').forEach(x => x.classList.remove('on'));
-      t.classList.add('on');
-      state.firewall = t.dataset.val;
-      updateSummary(); saveState();
-    });
+  document.getElementById('firewall-select').addEventListener('change', function() {
+    state.firewall = this.value;
+    updateSummary(); saveState();
   });
 
   // Platform selection now managed entirely by platform tabs
