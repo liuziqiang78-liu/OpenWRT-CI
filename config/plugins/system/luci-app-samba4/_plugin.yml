@@ -1,0 +1,8 @@
+name: luci-app-samba4
+display: 网络共享 (Samba4)
+desc: "SMB/CIFS 文件共享"
+firewall: 0
+category: system
+deps:
+  - samba4-server
+  - samba4-libs

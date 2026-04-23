@@ -1,0 +1,19 @@
+name: luci-app-openclash
+display: OpenClash
+desc: "Clash 客户端 (Meta 内核)"
+firewall: 1
+category: network
+deps:
+  - coreutils-nohup
+  - bash
+  - curl
+  - jsonfilter
+  - ca-certificates
+  - ipset
+  - ip-full
+  - libcap
+  - libcap-bin
+  - ruby
+  - ruby-yaml
+  - kmod-tun
+  - kmod-inet-diag

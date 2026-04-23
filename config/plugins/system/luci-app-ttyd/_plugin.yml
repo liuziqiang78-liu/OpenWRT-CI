@@ -1,0 +1,7 @@
+name: luci-app-ttyd
+display: Web 终端
+desc: "Web 终端 (ttyd)"
+firewall: 0
+category: system
+deps:
+  - ttyd

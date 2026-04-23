@@ -1,0 +1,7 @@
+name: luci-app-attendedsysupgrade
+display: 在线升级
+desc: "Attended Sysupgrade"
+firewall: 0
+category: system
+deps:
+  - attendedsysupgrade-common

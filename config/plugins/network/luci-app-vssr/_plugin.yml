@@ -1,0 +1,13 @@
+name: luci-app-vssr
+display: HelloWorld (VSSR)
+desc: "多协议代理客户端"
+firewall: 1
+category: network
+deps:
+  - shadowsocks-libev
+  - shadowsocksr-libev
+  - dns2socks
+  - ipt2socks
+  - microsocks
+  - simple-obfs
+  - tcping

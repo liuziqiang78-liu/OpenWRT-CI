@@ -1,0 +1,8 @@
+name: luci-app-turboacc
+display: Turbo ACC
+desc: "网络加速 (SFE/Flow Offload)"
+firewall: 1
+category: network
+deps:
+  - kmod-fast-classifier
+  - kmod-shortcut-fe

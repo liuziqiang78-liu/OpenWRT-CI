@@ -1,0 +1,9 @@
+name: luci-app-diskman
+display: 磁盘管理
+desc: "磁盘分区/格式化/挂载"
+firewall: 0
+category: system
+deps:
+  - parted
+  - e2fsprogs
+  - f2fs-tools

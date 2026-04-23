@@ -1,0 +1,6 @@
+name: luci-theme-design
+display: Design 主题
+desc: "现代设计主题"
+firewall: 0
+category: interface
+deps: []

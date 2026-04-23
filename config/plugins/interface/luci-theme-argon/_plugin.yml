@@ -1,0 +1,6 @@
+name: luci-theme-argon
+display: Argon 主题
+desc: "Material Design 风格主题"
+firewall: 0
+category: interface
+deps: []

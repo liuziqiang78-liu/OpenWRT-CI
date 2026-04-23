@@ -1,0 +1,16 @@
+name: luci-app-ssr-plus
+display: SSR Plus+
+desc: "Shadowsocks/V2Ray/Trojan 客户端"
+firewall: 1
+category: network
+deps:
+  - shadowsocks-libev-ss-local
+  - shadowsocks-libev-ss-redir
+  - shadowsocksr-libev-ssr-local
+  - shadowsocksr-libev-ssr-redir
+  - dns2socks
+  - ipt2socks
+  - microsocks
+  - simple-obfs
+  - tcping
+  - kmod-ipt-nat-extra

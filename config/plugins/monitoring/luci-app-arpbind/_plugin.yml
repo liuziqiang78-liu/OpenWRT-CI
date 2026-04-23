@@ -1,0 +1,6 @@
+name: luci-app-arpbind
+display: ARP 绑定
+desc: "IP/MAC 绑定"
+firewall: 1
+category: monitoring
+deps: []

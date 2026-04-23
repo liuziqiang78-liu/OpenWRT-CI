@@ -1,0 +1,9 @@
+name: luci-app-ddns
+display: 动态 DNS
+desc: "DDNS 动态域名解析"
+firewall: 0
+category: network
+deps:
+  - ddns-scripts
+  - ddns-scripts-cloudflare
+  - ddns-scripts-dnspod
