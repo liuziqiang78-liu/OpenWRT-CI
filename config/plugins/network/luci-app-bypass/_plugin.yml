@@ -3,6 +3,9 @@ display: Bypass
 desc: "简易透明代理"
 firewall: 1
 category: network
+source: kenzo
+deps_source:
+  - small
 deps:
   - dns2socks
   - ipt2socks

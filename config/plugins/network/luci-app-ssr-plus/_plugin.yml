@@ -3,6 +3,9 @@ display: SSR Plus+
 desc: "Shadowsocks/V2Ray/Trojan 客户端"
 firewall: 1
 category: network
+source: kenzo
+deps_source:
+  - small
 deps:
   - shadowsocks-libev-ss-local
   - shadowsocks-libev-ss-redir

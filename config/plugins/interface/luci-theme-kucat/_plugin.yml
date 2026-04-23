@@ -3,4 +3,6 @@ display: Kucat 主题
 desc: "简洁猫猫主题"
 firewall: 0
 category: interface
+source: kiddin4
+deps_source: []
 deps: []

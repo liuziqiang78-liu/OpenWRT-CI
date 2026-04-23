@@ -3,6 +3,8 @@ display: Docker 管理
 desc: "Docker 容器管理界面"
 firewall: 1
 category: system
+source: kenzo
+deps_source: []
 deps:
   - docker
   - dockerd

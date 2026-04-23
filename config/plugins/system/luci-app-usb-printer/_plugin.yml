@@ -3,5 +3,7 @@ display: USB 打印机
 desc: "USB 打印服务器"
 firewall: 1
 category: system
+source: openwrt
+deps_source: []
 deps:
   - p910nd

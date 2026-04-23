@@ -3,6 +3,8 @@ display: 动态 DNS
 desc: "DDNS 动态域名解析"
 firewall: 0
 category: network
+source: openwrt
+deps_source: []
 deps:
   - ddns-scripts
   - ddns-scripts-cloudflare

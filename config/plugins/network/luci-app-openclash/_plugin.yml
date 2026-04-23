@@ -3,6 +3,9 @@ display: OpenClash
 desc: "Clash 客户端 (Meta 内核)"
 firewall: 1
 category: network
+source: kiddin4
+deps_source:
+  - small
 deps:
   - coreutils-nohup
   - bash
@@ -13,7 +16,5 @@ deps:
   - ip-full
   - libcap
   - libcap-bin
-  - ruby
-  - ruby-yaml
   - kmod-tun
   - kmod-inet-diag

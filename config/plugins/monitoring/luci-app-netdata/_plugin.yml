@@ -3,5 +3,7 @@ display: Netdata
 desc: "实时系统监控仪表盘"
 firewall: 0
 category: monitoring
+source: openwrt
+deps_source: []
 deps:
   - netdata

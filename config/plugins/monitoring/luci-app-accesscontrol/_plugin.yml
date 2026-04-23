@@ -3,4 +3,6 @@ display: 上网控制
 desc: "设备上网时间控制"
 firewall: 0
 category: monitoring
+source: openwrt
+deps_source: []
 deps: []

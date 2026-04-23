@@ -3,4 +3,6 @@ display: ARP 绑定
 desc: "IP/MAC 绑定"
 firewall: 1
 category: monitoring
+source: openwrt
+deps_source: []
 deps: []

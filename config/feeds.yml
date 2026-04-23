@@ -1,0 +1,48 @@
+# ═══════════════════════════════════════════
+#  外部 Feeds 注册表
+#  所有外来源统一管理，setup-source.sh 读取
+# ═══════════════════════════════════════════
+
+feeds:
+  # ── 官方源 ──
+  openwrt:
+    url: https://git.openwrt.org/feed/packages.git
+    branch: main
+    desc: "OpenWrt 官方 packages feed"
+
+  luci:
+    url: https://git.openwrt.org/project/luci.git
+    branch: main
+    desc: "OpenWrt 官方 LuCI feed"
+
+  routing:
+    url: https://git.openwrt.org/feed/routing.git
+    branch: main
+    desc: "OpenWrt 官方 routing feed"
+
+  telephony:
+    url: https://git.openwrt.org/feed/telephony.git
+    branch: main
+    desc: "OpenWrt 官方 telephony feed"
+
+  # ── 第三方源 ──
+  kenzo:
+    url: https://github.com/kenzok8/openwrt-packages
+    branch: master
+    desc: "kenzok8 大杂烩源 (passwall/ssr-plus/openclash 等)"
+
+  small:
+    url: https://github.com/kenzok8/small
+    branch: master
+    desc: "kenzok8 精简依赖源 (xray-core/sing-box 等)"
+
+  kiddin4:
+    url: https://github.com/kiddin9/openwrt-packages
+    branch: master
+    desc: "kiddin9 第三方源 (部分插件)"
+
+  # ── 按需添加 ──
+  # custom-repo:
+  #   url: https://github.com/<owner>/<repo>
+  #   branch: main
+  #   desc: "自定义源描述"

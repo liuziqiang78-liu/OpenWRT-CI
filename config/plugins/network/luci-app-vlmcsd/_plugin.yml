@@ -3,5 +3,7 @@ display: KMS 服务
 desc: "KMS 激活服务器"
 firewall: 0
 category: network
+source: openwrt
+deps_source: []
 deps:
   - vlmcsd

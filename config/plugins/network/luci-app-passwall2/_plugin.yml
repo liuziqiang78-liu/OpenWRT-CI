@@ -3,6 +3,9 @@ display: PassWall 2
 desc: "PassWall 精简版"
 firewall: 1
 category: network
+source: kenzo
+deps_source:
+  - small
 deps:
   - chinadns-ng
   - dns2socks

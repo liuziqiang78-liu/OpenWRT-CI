@@ -3,4 +3,6 @@ display: 快速开始
 desc: "新手引导"
 firewall: 0
 category: interface
+source: kiddin4
+deps_source: []
 deps: []

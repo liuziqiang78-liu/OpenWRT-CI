@@ -3,4 +3,6 @@ display: 定时任务
 desc: "Cron 定时任务管理"
 firewall: 0
 category: system
+source: openwrt
+deps_source: []
 deps: []

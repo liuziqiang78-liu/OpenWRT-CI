@@ -3,5 +3,7 @@ display: 在线升级
 desc: "Attended Sysupgrade"
 firewall: 0
 category: system
+source: openwrt
+deps_source: []
 deps:
   - attendedsysupgrade-common

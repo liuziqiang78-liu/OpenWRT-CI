@@ -3,5 +3,7 @@ display: AdGuard Home
 desc: "全网广告拦截 DNS"
 firewall: 0
 category: network
+source: openwrt
+deps_source: []
 deps:
   - AdGuardHome

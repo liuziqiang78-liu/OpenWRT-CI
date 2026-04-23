@@ -3,5 +3,7 @@ display: 宽带监控
 desc: "Netlink 带宽监控"
 firewall: 0
 category: monitoring
+source: openwrt
+deps_source: []
 deps:
   - nlbwmon

@@ -3,6 +3,8 @@ display: 磁盘管理
 desc: "磁盘分区/格式化/挂载"
 firewall: 0
 category: system
+source: openwrt
+deps_source: []
 deps:
   - parted
   - e2fsprogs

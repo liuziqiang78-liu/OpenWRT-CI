@@ -3,5 +3,7 @@ display: Web 终端
 desc: "Web 终端 (ttyd)"
 firewall: 0
 category: system
+source: openwrt
+deps_source: []
 deps:
   - ttyd

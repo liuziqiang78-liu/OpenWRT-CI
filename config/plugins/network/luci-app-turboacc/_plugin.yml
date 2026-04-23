@@ -3,6 +3,8 @@ display: Turbo ACC
 desc: "网络加速 (SFE/Flow Offload)"
 firewall: 1
 category: network
+source: openwrt
+deps_source: []
 deps:
   - kmod-fast-classifier
   - kmod-shortcut-fe
