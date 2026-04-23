@@ -193,26 +193,6 @@ textarea{min-height:80px;resize:vertical}
   </div>
 </div>
 
-<div class="r2">
-  <div class="f">
-    <label class="lb">Target 平台 <span class="req">*</span></label>
-    <select class="sel" id="sel-target">
-      <option value="qualcommax">qualcommax (IPQ807x/60xx/50xx)</option>
-      <option value="ipq40xx">ipq40xx</option>
-      <option value="ipq806x">ipq806x</option>
-    </select>
-  </div>
-  <div class="f">
-    <label class="lb">Subtarget</label>
-    <select class="sel" id="sel-subtarget">
-      <option value="ipq807x">ipq807x</option>
-      <option value="ipq60xx">ipq60xx</option>
-      <option value="ipq50xx">ipq50xx</option>
-    </select>
-  </div>
-</div>
-
-<div class="hint w">⚠️ 选择 qualcommax 平台时才需要选择 Subtarget。ipq40xx / ipq806x 无子目标。</div>
 </div>
 
 <!-- ═══════ 3. 设备平台 ═══════ -->
@@ -300,8 +280,6 @@ textarea{min-height:80px;resize:vertical}
 <div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
 <div class="sg" id="summary-grid">
   <div class="si"><div class="sl">内核版本</div><div class="sv" id="s-branch">main-nss</div></div>
-  <div class="si"><div class="sl">平台</div><div class="sv" id="s-target">qualcommax</div></div>
-  <div class="si"><div class="sl">子目标</div><div class="sv" id="s-subtarget">ipq807x</div></div>
   <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
   <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
@@ -1085,31 +1063,7 @@ function initTabs() {
     });
   });
 
-  // Target tabs now managed by initPlatformTabs/switchSubTab
-
-  document.getElementById('sel-target').addEventListener('change', e => {
-    state.target = e.target.value;
-    state.subtarget = state.target === 'qualcommax' ? document.getElementById('sel-subtarget').value : '';
-    // sync platform tabs
-    const key = state.subtarget ? `${state.target}-${state.subtarget}` : state.target;
-    currentSubKey = key;
-    const group = PLATFORM_GROUPS.find(g => g.subs.some(s=>s.k===key));
-    if (group) { currentPlatformGroup = group.id; initPlatformTabs(); }
-    state.devices.clear();
-    initDevices();
-    updateSummary();
-  });
-
-  document.getElementById('sel-subtarget').addEventListener('change', e => {
-    state.subtarget = e.target.value;
-    const key = `${state.target}-${state.subtarget}`;
-    currentSubKey = key;
-    const group = PLATFORM_GROUPS.find(g => g.subs.some(s=>s.k===key));
-    if (group) { currentPlatformGroup = group.id; initPlatformTabs(); }
-    state.devices.clear();
-    initDevices();
-    updateSummary();
-  });
+  // Platform selection now managed entirely by platform tabs
 }
 
 // 设备
@@ -1163,14 +1117,9 @@ function renderSubTabs() {
 function switchSubTab(key) {
   currentSubKey = key;
   const group = PLATFORM_GROUPS.find(g=>g.id===currentPlatformGroup);
-  // Also update the target/subtarget selects
   const parts = key.split('-');
-  const target = parts[0];
-  const subtarget = parts.slice(1).join('-') || '';
-  document.getElementById('sel-target').value = target === 'qualcommax' ? 'qualcommax' : target;
-  if (target === 'qualcommax') document.getElementById('sel-subtarget').value = subtarget;
-  state.target = target;
-  state.subtarget = subtarget;
+  state.target = parts[0];
+  state.subtarget = parts.slice(1).join('-') || '';
   document.querySelectorAll('#target-tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.k===key));
   state.devices.clear();
   initDevices();
@@ -1306,8 +1255,6 @@ function updatePlugCount() { document.getElementById('plug-count').textContent =
 // Summary
 function updateSummary() {
   document.getElementById('s-branch').textContent = state.branch;
-  document.getElementById('s-target').textContent = state.target;
-  document.getElementById('s-subtarget').textContent = state.subtarget || '—';
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
   document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
