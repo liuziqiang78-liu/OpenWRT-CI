@@ -186,13 +186,7 @@ textarea{min-height:80px;resize:vertical}
     <div class="tab on" data-val="main-nss">🌿 main-nss</div>
     <div class="tab" data-val="25.12-nss">🌿 25.12-nss</div>
   </div>
-</div>
-<div class="f">
-  <label class="lb">内核版本 <span class="req">*</span></label>
-  <div class="tabs" id="branch-tabs">
-    <div class="tab on" data-val="main-nss">🌿 main-nss (6.12内核)</div>
-    <div class="tab" data-val="kernel-6.6">🌿 kernel-6.6 (6.6内核)</div>
-  </div>
+  <div class="hint" style="margin-top:10px">内核版本由源码分支决定：main-nss = 6.12 内核，25.12-nss = 6.12 内核 (NSS 增强)</div>
 </div>
 
 </div>
@@ -282,7 +276,6 @@ textarea{min-height:80px;resize:vertical}
 <div class="ch"><div class="ch-i c">📊</div><div class="ch-t">编译概览</div></div>
 <div class="sg" id="summary-grid">
   <div class="si"><div class="sl">源码分支</div><div class="sv" id="s-source-branch">main-nss</div></div>
-  <div class="si"><div class="sl">内核版本</div><div class="sv" id="s-branch">main-nss</div></div>
   <div class="si"><div class="sl">设备平台</div><div class="sv" id="s-devices">0</div></div>
   <div class="si"><div class="sl">插件</div><div class="sv" id="s-plugins">0</div></div>
   <div class="si"><div class="sl">ccache</div><div class="sv" id="s-ccache">开</div></div>
@@ -1038,7 +1031,6 @@ const STORAGE_KEY = 'openwrt-ci-state';
 
 let state = {
   sourceBranch: 'main-nss',
-  branch: 'main-nss',
   target: 'qualcommax',
   subtarget: 'ipq807x',
   devices: new Set(),
@@ -1052,7 +1044,6 @@ let state = {
 function saveState() {
   const data = {
     sourceBranch: state.sourceBranch,
-    branch: state.branch,
     target: state.target,
     subtarget: state.subtarget,
     devices: [...state.devices],
@@ -1082,7 +1073,6 @@ function loadState() {
     if (!raw) return;
     const data = JSON.parse(raw);
     state.sourceBranch = data.sourceBranch || 'main-nss';
-    state.branch = data.branch || 'main-nss';
     state.target = data.target || 'qualcommax';
     state.subtarget = data.subtarget || 'ipq807x';
     state.devices = new Set(data.devices || []);
@@ -1110,10 +1100,6 @@ function restoreTabStates() {
   // 源码分支
   document.querySelectorAll('#source-branch-tabs .tab').forEach(t => {
     t.classList.toggle('on', t.dataset.val === state.sourceBranch);
-  });
-  // 内核版本
-  document.querySelectorAll('#branch-tabs .tab').forEach(t => {
-    t.classList.toggle('on', t.dataset.val === state.branch);
   });
 }
 
@@ -1171,15 +1157,6 @@ function initTabs() {
     });
   });
 
-  document.querySelectorAll('#branch-tabs .tab').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('#branch-tabs .tab').forEach(x => x.classList.remove('on'));
-      t.classList.add('on');
-      state.branch = t.dataset.val;
-      updateSummary(); saveState();
-    });
-  });
-
   // Platform selection now managed entirely by platform tabs
 }
 
@@ -1188,14 +1165,6 @@ const PLATFORM_GROUPS = [
   {id:'qualcommax',name:'Qualcomm IPQ',icon:'🔵',subs:[{k:'qualcommax-ipq807x',n:'IPQ807x'},{k:'qualcommax-ipq60xx',n:'IPQ60xx'},{k:'qualcommax-ipq50xx',n:'IPQ50xx'}]},
   {id:'ipq40xx',name:'IPQ40xx',icon:'🔵',subs:[{k:'ipq40xx',n:'IPQ40xx'}]},
   {id:'ipq806x',name:'IPQ806x',icon:'🔵',subs:[{k:'ipq806x',n:'IPQ806x'}]},
-  {id:'qualcommbe',name:'Qualcomm BE',icon:'🟣',subs:[{k:'qualcommbe-ipq95xx',n:'IPQ95xx'}]},
-  {id:'mediatek',name:'MediaTek',icon:'🟢',subs:[{k:'mediatek-filogic',n:'Filogic'},{k:'mediatek-mt7622',n:'MT7622'},{k:'mediatek-mt7623',n:'MT7623'},{k:'mediatek-mt7629',n:'MT7629'}]},
-  {id:'ramips',name:'MTK MIPS',icon:'🟡',subs:[{k:'ramips-mt7621',n:'MT7621'},{k:'ramips-mt7620',n:'MT7620'},{k:'ramips-mt76x8',n:'MT76x8'}]},
-  {id:'ath79',name:'Atheros MIPS',icon:'🟠',subs:[{k:'ath79-generic',n:'Generic'},{k:'ath79-tiny',n:'Tiny'},{k:'ath79-nand',n:'NAND'},{k:'ath79-mikrotik',n:'MikroTik'}]},
-  {id:'broadcom',name:'Broadcom',icon:'🔴',subs:[{k:'bcm53xx',n:'BCM53xx'},{k:'bcm4908',n:'BCM4908'}]},
-  {id:'mvebu',name:'Marvell',icon:'⚪',subs:[{k:'mvebu-cortexa9',n:'Cortex-A9'},{k:'mvebu-cortexa72',n:'Cortex-A72'},{k:'mvebu-cortexa53',n:'Cortex-A53'}]},
-  {id:'lantiq',name:'Lantiq',icon:'🟤',subs:[{k:'lantiq-vr9',n:'VR9'},{k:'lantiq-xway_legacy',n:'XWAY'},{k:'lantiq-falcon',n:'Falcon'},{k:'lantiq-danube',n:'Danube'}]},
-  {id:'airoha',name:'Airoha',icon:'⚪',subs:[{k:'airoha-en7523',n:'EN7523'},{k:'airoha-an7581',n:'AN7581'},{k:'airoha-an7583',n:'AN7583'}]},
 ];
 
 let currentPlatformGroup = 'qualcommax';
@@ -1206,8 +1175,7 @@ function initPlatformTabs() {
   const container = document.getElementById('platform-tabs');
   container.innerHTML = PLATFORM_GROUPS.map(g => {
     const total = g.subs.reduce((a,s) => a + (DEVICES[s.k]||[]).length, 0);
-    const supported = g.subs.some(s => ['qualcommax','ipq40xx','ipq806x'].includes(s.k.split('-')[0]));
-    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')" style="${supported?'':'opacity:.45;pointer-events:none'}">${g.icon} ${g.name}<span class="cnt">${total}</span>${supported?'':' 🚫'}</div>`;
+    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')">${g.icon} ${g.name}<span class="cnt">${total}</span></div>`;
   }).join('');
   renderSubTabs();
 }
@@ -1393,7 +1361,6 @@ function updatePlugCount() { document.getElementById('plug-count').textContent =
 // Summary
 function updateSummary() {
   document.getElementById('s-source-branch').textContent = state.sourceBranch;
-  document.getElementById('s-branch').textContent = state.branch;
   document.getElementById('s-devices').textContent = state.devices.size || '全部';
   document.getElementById('s-plugins').textContent = state.plugins.size;
   document.getElementById('s-ccache').textContent = document.getElementById('opt-ccache').checked ? '开' : '关';
@@ -1462,14 +1429,6 @@ async function startBuild() {
 
   if (!token) { toast('错误', '请输入 GitHub Token', true); return; }
 
-  // 校验 workflow 支持的 target
-  const supportedTargets = ['qualcommax', 'ipq40xx', 'ipq806x'];
-  if (!supportedTargets.includes(state.target)) {
-    toast('错误', `当前 workflow 不支持 ${state.target} 平台，仅支持: ${supportedTargets.join(', ')}`, true);
-    log('err', `❌ 不支持的平台: ${state.target}，当前 workflow 仅支持 ${supportedTargets.join(', ')}`);
-    return;
-  }
-
   // 解析 owner/repo：优先用输入框，否则从当前页面 URL 自动检测
   let owner, repo;
   if (repoInput && repoInput.includes('/')) {
@@ -1493,7 +1452,6 @@ async function startBuild() {
   // 组装 inputs (只传 workflow 定义了的字段)
   const inputs = {
     source_branch: state.sourceBranch,
-    branch: state.branch,
     target: state.target,
     subtarget: state.subtarget,
     profile: [...state.devices].join(' '),
@@ -1513,7 +1471,6 @@ async function startBuild() {
   log('info', '📡 正在连接 GitHub API...');
   log('info', `📦 仓库: ${owner}/${repo}`);
   log('info', `🌿 源码分支: ${inputs.source_branch}`);
-  log('info', `🔧 内核版本: ${inputs.branch}`);
   log('info', `🎯 目标: ${inputs.target}/${inputs.subtarget}`);
   log('info', `🧩 插件: ${plugins || '(仅默认)'}`);
   log('info', `📱 设备: ${inputs.profile || '(全部)'}`);

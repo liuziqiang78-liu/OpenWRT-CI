@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
 # OpenWrt 云编译工作流
-# 仓库: liuziqiang78-liu/openwrt-6.x
+# 仓库: LiBwrt/openwrt-6.x
 # ──────────────────────────────────────────────
 name: 🚀 Build OpenWrt Firmware
 
@@ -15,14 +15,6 @@ on:
         options:
           - main-nss
           - 25.12-nss
-      branch:
-        description: '内核版本'
-        required: true
-        default: 'main-nss'
-        type: choice
-        options:
-          - main-nss
-          - kernel-6.6
       target:
         description: 'Target 平台'
         required: true
@@ -134,9 +126,10 @@ jobs:
             done
           fi
 
-          # ── NSS 支持 (默认开启) ──
-          cat >> .config <<'EOF'
-          # NSS Support
+          # ── NSS 支持 (仅 qualcommax) ──
+          if [ "${{ inputs.target }}" = "qualcommax" ]; then
+            cat >> .config <<'EOF'
+          # NSS Support (qualcommax)
           CONFIG_PACKAGE_kmod-qca-nss-drv=y
           CONFIG_PACKAGE_kmod-qca-nss-ecm=y
           CONFIG_PACKAGE_kmod-qca-nss-dp=y
@@ -151,6 +144,7 @@ jobs:
           CONFIG_PACKAGE_kmod-qca-nss-drv-tunipip6=y
           CONFIG_PACKAGE_kmod-qca-nss-drv-wifi-meshmgr=y
           EOF
+          fi
 
           # ── LuCI 中文 ──
           cat >> .config <<'EOF'
@@ -188,7 +182,6 @@ jobs:
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
           echo "| 源码分支 | \`${{ inputs.source_branch }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 内核版本 | \`${{ inputs.branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Target | \`${{ inputs.target }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Subtarget | \`${{ inputs.subtarget }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| 设备 | \`${{ inputs.profile }}\` |" >> $GITHUB_STEP_SUMMARY
