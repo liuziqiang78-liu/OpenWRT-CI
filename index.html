@@ -53,7 +53,7 @@
 
 <div class="f">
   <label class="lb">源码分支 <span class="req">*</span></label>
-  <div class="tabs" id="source-branch-tabs">
+  <div class="tabs" id="source-branch-tabs" role="tablist">
     <div class="tab on" data-val="main-nss">🌿 main-nss</div>
     <div class="tab" data-val="25.12-nss">🌿 25.12-nss</div>
   </div>
@@ -67,7 +67,7 @@
 <div class="ch"><div class="ch-i g">📱</div><div class="ch-t">设备平台</div><span class="ch-b" id="dev-count">0 已选</span></div>
 <div class="sbar" style="margin-bottom:14px"><input type="text" id="dev-search" placeholder="搜索设备平台/品牌..." oninput="searchDevices(this.value)"></div>
 <div class="ptabs" id="platform-tabs" style="margin-bottom:10px"></div>
-<div class="tabs" id="target-tabs" style="margin-bottom:14px"></div>
+<div class="tabs" id="target-tabs" role="tablist" style="margin-bottom:14px"></div>
 <div class="dg" id="device-grid"></div>
 <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
   <div class="tog-row on" id="tog-dev-all" onclick="toggleAllDevices()" role="switch" tabindex="0" aria-checked="true" style="flex:1;min-width:200px">
@@ -112,7 +112,7 @@
   </div>
 </div>
 <div class="f">
-  <div class="tog-row on" id="tog-upload" onclick="toggleOpt(this)">
+  <div class="tog-row on" id="tog-upload" onclick="toggleOpt(this)" role="switch" tabindex="0" aria-checked="true">
     <span class="ct">编译完成后上传固件</span>
     <span class="ci">保留 7 天</span>
     <span class="tog-pill">开</span>
@@ -120,7 +120,7 @@
 </div>
 <div class="f">
   <label class="lb">固件模板</label>
-  <div class="tabs" id="template-tabs">
+  <div class="tabs" id="template-tabs" role="tablist">
     <div class="tab on" data-val="base">📦 基础版</div>
     <div class="tab" data-val="full">🧰 增强版</div>
   </div>

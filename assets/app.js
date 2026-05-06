@@ -150,8 +150,10 @@ function loadState() {
     state.customOpts = data.customOpts || [];
     currentPlatformGroup = data.currentPlatformGroup || 'qualcommax';
     currentSubKey = data.currentSubKey || 'qualcommax-ipq807x';
-    if (data.ghToken) document.getElementById('gh-token').value = data.ghToken;
     if (data.ghRepo) document.getElementById('gh-repo').value = data.ghRepo;
+    // Token 从 sessionStorage 读取（更安全）
+    const savedToken = sessionStorage.getItem('openwrt-ci-token');
+    if (savedToken) document.getElementById('gh-token').value = savedToken;
     if (data.rootPw !== undefined) document.getElementById('root-pw').value = data.rootPw;
     if (data.lanIp) document.getElementById('lan-ip').value = data.lanIp;
     if (data.wifiSsid) document.getElementById('wifi-ssid').value = data.wifiSsid;
@@ -179,16 +181,21 @@ function restoreTabStates() {
 //  初始化
 // ═══════════════════════════════════════
 function init() {
-  loadState();
-  initTabs();
-  initPlatformTabs();
-  initDevices();
-  initPlugins();
-  renderCustomOpts();
-  updateSummary();
-  initRepoInput();
-  bindAutoSave();
-  document.body.classList.add('loaded');
+  try {
+    loadState();
+    initTabs();
+    initPlatformTabs();
+    initDevices();
+    initPlugins();
+    renderCustomOpts();
+    updateSummary();
+    initRepoInput();
+    bindAutoSave();
+  } catch(e) {
+    console.error('Init error:', e);
+  } finally {
+    document.body.classList.add('loaded');
+  }
 }
 
 function bindAutoSave() {
@@ -441,8 +448,8 @@ function switchSubTab(key) {
   saveState();
 }
 
-/* 搜索设备 - 带自动切换平台提示 */
-function searchDevices(q) {
+/* 搜索设备 - 带自动切换平台提示 (防抖包装) */
+const _searchDevicesRaw = function(q) {
   searchQuery = q.toLowerCase().trim();
   if (!searchQuery) { initDevices(); return; }
   for (const group of PLATFORM_GROUPS) {
@@ -469,7 +476,8 @@ function searchDevices(q) {
     }
   }
   initDevices();
-}
+};
+const searchDevices = debounce(_searchDevicesRaw, 250);
 
 /* 搜索自动切换提示 */
 function showSearchSwitchHint(groupName, subName) {
@@ -486,6 +494,7 @@ function showSearchSwitchHint(groupName, subName) {
 
 /* 设备列表渲染 - 带懒加载 (初始 50 个) */
 function initDevices() {
+  if (deviceObserver) { deviceObserver.disconnect(); deviceObserver = null; }
   deviceLoadOffset = 0;
   let devs = DEVICES[currentSubKey] || [];
   if (searchQuery) {
@@ -520,7 +529,7 @@ function renderDeviceGroupHTML(devs) {
   cpuOrder.forEach(cpu => {
     const items = groups[cpu];
     html += `<div class="cpu-group" style="grid-column:1/-1;margin-top:8px">
-      <div style="font-size:.72em;font-weight:800;color:var(--vio);padding:6px 0;border-bottom:1px solid var(--brd);margin-bottom:6px;letter-spacing:.04em">${cpu} <span style="color:var(--t3);font-weight:600">(${items.length})</span></div>
+      <div style="font-size:.72em;font-weight:800;color:var(--vio);padding:6px 0;border-bottom:1px solid var(--brd);margin-bottom:6px;letter-spacing:.04em">${escapeHtml(cpu)} <span style="color:var(--t3);font-weight:600">(${items.length})</span></div>
     </div>`;
     html += items.map(d => `
       <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${escapeHtml(d.id)}" onclick="toggleDevice(this,'${escapeHtml(d.id)}')">
@@ -552,15 +561,18 @@ function loadMoreDevices() {
   }
 }
 
+let deviceObserver = null;
+
 function setupDeviceLazyLoad(allDevs) {
+  if (deviceObserver) { deviceObserver.disconnect(); deviceObserver = null; }
   const sentinel = document.getElementById('load-more-devices');
   if (!sentinel) return;
-  const observer = new IntersectionObserver((entries) => {
+  deviceObserver = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
       loadMoreDevices();
     }
   }, { threshold: 0.1 });
-  observer.observe(sentinel);
+  deviceObserver.observe(sentinel);
 }
 
 function toggleDevice(el, id) {
@@ -572,7 +584,7 @@ function toggleDevice(el, id) {
 /* 全选逻辑修复 - 根据当前是否全部选中决定操作 */
 function toggleAllDevices() {
   let devs = DEVICES[currentSubKey] || [];
-  if (searchQuery) devs = devs.filter(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery));
+  if (searchQuery) devs = devs.filter(d => d.n.toLowerCase().includes(searchQuery) || d.id.toLowerCase().includes(searchQuery) || d.c.toLowerCase().includes(searchQuery));
   const el = document.getElementById('tog-dev-all');
   const allSelected = devs.length > 0 && devs.every(d => state.devices.has(d.id));
   if (allSelected) {
@@ -624,7 +636,7 @@ function initPlugins() {
   document.getElementById('plug-total').textContent = '共 ' + Object.values(PLUGIN_CATS).reduce((a,c) => a + Object.keys(c).length, 0) + ' 个插件';
   renderPlugins(cats[0]);
 
-  document.getElementById('plug-search').addEventListener('input', e => {
+  document.getElementById('plug-search').addEventListener('input', debounce(e => {
     const q = e.target.value.toLowerCase();
     if (!q) { const active = document.querySelector('.pt.on'); renderPlugins(active?.dataset.cat || cats[0]); return; }
     for (const cat of cats) {
@@ -659,7 +671,7 @@ function initPlugins() {
       }
     }
     renderGrid(all);
-  });
+  }, 250));
 }
 
 function switchPlugCat(cat, el) {
@@ -1139,7 +1151,10 @@ function startWorkflowCheck(token, owner, repo) {
 function log(type, msg) {
   const logPanel = document.getElementById('log-panel');
   const cls = { info: 'log-info', ok: 'log-ok', err: 'log-err', warn: 'log-warn' }[type] || '';
-  logPanel.innerHTML += `<div class="log-line ${cls}">${new Date().toLocaleTimeString()} ${escapeHtml(msg)}</div>`;
+  const div = document.createElement('div');
+  div.className = `log-line ${cls}`;
+  div.textContent = `${new Date().toLocaleTimeString()} ${msg}`;
+  logPanel.appendChild(div);
   logPanel.scrollTop = logPanel.scrollHeight;
 }
 
