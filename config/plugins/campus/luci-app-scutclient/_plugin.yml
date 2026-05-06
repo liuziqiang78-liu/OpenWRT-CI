@@ -1,0 +1,8 @@
+name: luci-app-scutclient
+display: Scutclient
+desc: "华工校园网客户端认证"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

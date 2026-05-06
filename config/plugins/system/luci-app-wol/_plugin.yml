@@ -1,0 +1,8 @@
+name: luci-app-wol
+display: Wol
+desc: "Wake-on-LAN 网络唤醒，远程开机"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

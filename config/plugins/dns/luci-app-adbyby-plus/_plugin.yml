@@ -1,0 +1,8 @@
+name: luci-app-adbyby-plus
+display: Adbyby Plus
+desc: "Adbyby Plus 去广告，视频/网页广告过滤"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

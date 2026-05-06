@@ -1,0 +1,8 @@
+name: luci-proto-autoip
+display: AUTOIP
+desc: "AutoIP 自动地址"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

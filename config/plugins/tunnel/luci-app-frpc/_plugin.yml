@@ -1,0 +1,8 @@
+name: luci-app-frpc
+display: Frpc
+desc: "FRP 内网穿透客户端，将内网服务暴露到公网，支持 TCP/UDP/HTTP/HTTPS/STCP"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

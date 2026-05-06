@@ -1,0 +1,8 @@
+name: luci-theme-spectra
+display: Spectra
+desc: "Spectra 主题，光谱风格"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

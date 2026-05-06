@@ -1,0 +1,8 @@
+name: luci-app-subconverter
+display: Subconverter
+desc: "订阅转换，将各种代理订阅链接统一转换"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

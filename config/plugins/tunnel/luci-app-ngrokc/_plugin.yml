@@ -1,0 +1,8 @@
+name: luci-app-ngrokc
+display: Ngrokc
+desc: "Ngrok 内网穿透客户端，通过 Ngrok 隧道暴露服务"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

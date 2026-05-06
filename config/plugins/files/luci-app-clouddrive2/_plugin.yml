@@ -1,0 +1,8 @@
+name: luci-app-clouddrive2
+display: Clouddrive2
+desc: "CloudDrive2 多云盘管理，挂载阿里云盘/115/OneDrive 等到本地"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

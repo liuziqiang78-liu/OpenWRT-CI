@@ -1,0 +1,8 @@
+name: luci-app-daed
+display: Daed
+desc: "dae 的 Web 管理面板，提供可视化配置和节点管理"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

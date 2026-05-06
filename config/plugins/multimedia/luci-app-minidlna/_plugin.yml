@@ -1,0 +1,8 @@
+name: luci-app-minidlna
+display: Minidlna
+desc: "MiniDLNA 媒体服务器，向局域网设备推送视频/音乐/图片"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

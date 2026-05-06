@@ -1,0 +1,8 @@
+name: luci-app-wrtbwmon
+display: Wrtbwmon
+desc: "流量监控，按设备统计上下行流量"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

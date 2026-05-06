@@ -1,0 +1,8 @@
+name: luci-app-qbittorrent
+display: Qbittorrent
+desc: "qBittorrent BT 下载器，功能强大的 BT/磁力下载"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

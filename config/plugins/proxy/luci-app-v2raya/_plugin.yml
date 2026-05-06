@@ -1,0 +1,8 @@
+name: luci-app-v2raya
+display: V2Raya
+desc: "V2Ray/Xray 的 Web 管理界面，支持多种协议和路由规则，界面简洁易用"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

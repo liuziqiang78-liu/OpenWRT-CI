@@ -1,0 +1,8 @@
+name: luci-app-hd-idle
+display: Hd Idle
+desc: "硬盘休眠，空闲时让硬盘停转省电"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

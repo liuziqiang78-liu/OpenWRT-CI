@@ -1,0 +1,8 @@
+name: luci-app-thunder
+display: Thunder
+desc: "迅雷下载，支持高速下载"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-microsocks
+display: Microsocks
+desc: "轻量级 SOCKS5 代理服务器，资源占用极低"
+firewall: 0
+category: proxy
+source: kiddin4
+deps_source: []
+deps: []

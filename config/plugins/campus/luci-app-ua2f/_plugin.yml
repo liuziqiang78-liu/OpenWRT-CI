@@ -1,0 +1,8 @@
+name: luci-app-ua2f
+display: Ua2F
+desc: "UA 伪装，修改 User-Agent 防检测"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

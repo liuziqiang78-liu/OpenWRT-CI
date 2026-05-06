@@ -1,0 +1,8 @@
+name: luci-app-filebrowser-go
+display: Filebrowser Go
+desc: "Go 版文件管理器，更轻量"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

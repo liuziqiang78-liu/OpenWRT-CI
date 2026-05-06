@@ -1,0 +1,8 @@
+name: luci-app-cpufreq
+display: Cpufreq
+desc: "CPU 调频策略管理，调节 CPU 频率和调度器"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

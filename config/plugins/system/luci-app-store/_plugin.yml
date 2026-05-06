@@ -1,0 +1,8 @@
+name: luci-app-store
+display: Store
+desc: "iStore 应用商店，图形化安装管理插件"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

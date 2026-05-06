@@ -1,0 +1,8 @@
+name: luci-app-tor
+display: Tor
+desc: "Tor 匿名网络接入，实现洋葱路由匿名上网"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-njitclient
+display: Njitclient
+desc: "南理工校园网客户端"
+firewall: 1
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

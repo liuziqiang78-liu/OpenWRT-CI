@@ -1,0 +1,8 @@
+name: luci-app-cpulimit
+display: Cpulimit
+desc: "CPU 限速工具，限制进程 CPU 占用"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

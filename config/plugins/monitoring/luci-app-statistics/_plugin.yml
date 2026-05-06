@@ -1,0 +1,8 @@
+name: luci-app-statistics
+display: Statistics
+desc: "Collectd 系统监控，CPU/内存/网络/温度等全面统计"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

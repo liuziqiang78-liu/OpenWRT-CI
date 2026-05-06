@@ -1,0 +1,8 @@
+name: luci-app-softether
+display: Softether
+desc: "SoftEther VPN 客户端"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-theme-material
+display: Material
+desc: "Material Design 主题"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

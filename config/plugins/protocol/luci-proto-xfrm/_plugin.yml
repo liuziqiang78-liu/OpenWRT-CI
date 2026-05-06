@@ -1,0 +1,8 @@
+name: luci-proto-xfrm
+display: XFRM
+desc: "XFRM 隧道协议"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

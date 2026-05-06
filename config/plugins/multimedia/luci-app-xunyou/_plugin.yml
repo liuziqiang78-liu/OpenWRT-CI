@@ -1,0 +1,8 @@
+name: luci-app-xunyou
+display: Xunyou
+desc: "迅游加速器，游戏网络加速"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

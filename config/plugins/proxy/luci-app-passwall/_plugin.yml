@@ -1,0 +1,32 @@
+name: luci-app-passwall
+display: PassWall
+desc: "多协议透明代理客户端"
+firewall: 1
+category: proxy
+source: kenzo
+deps_source:
+  - small
+  - kenzo
+deps:
+  - chinadns-ng
+  - dns2socks
+  - dns2tcp
+  - hysteria
+  - ipt2socks
+  - iptables
+  - lua-neturl
+  - microsocks
+  - naive-proxy
+  - redsocks2
+  - shadowsocks-libev-ss-local
+  - shadowsocks-libev-ss-redir
+  - shadowsocks-rust-sslocal
+  - simple-obfs
+  - sing-box
+  - tcping
+  - trojan
+  - trojan-go
+  - tuic-client
+  - v2ray-core
+  - v2ray-plugin
+  - xray-core

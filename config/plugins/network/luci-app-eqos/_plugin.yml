@@ -1,0 +1,8 @@
+name: luci-app-eqos
+display: Eqos
+desc: "简单设备限速，按 IP/MAC 控制上下行带宽"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

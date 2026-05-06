@@ -1,0 +1,23 @@
+platform: ipq806x
+vendor: qualcomm
+description: "Qualcomm Atheros IPQ806x (WiFi 5)"
+kernel_patchver: "6.12"
+source_branch: "main-nss"
+
+subtargets:
+  generic:
+    soc: ipq8064
+    chips: [ipq8064, ipq8065, ipq8068]
+    default_device: arris_tr4400-v2
+    features: [squashfs, ext4, nand, ramdisk, fpu]
+    nss: false
+
+packages:
+  default:
+    - ath10k-firmware-qca99x0
+    - kmod-ath10k-ct
+
+constraints:
+  firewall: [iptables, nftables]
+  rootfs: [squashfs, ext4]
+  wifi: true

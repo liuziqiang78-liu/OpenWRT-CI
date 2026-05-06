@@ -1,0 +1,8 @@
+name: luci-app-oled
+display: Oled
+desc: "OLED 屏幕显示，显示系统状态信息"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

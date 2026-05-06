@@ -1,0 +1,8 @@
+name: luci-app-eoip
+display: Eoip
+desc: "EoIP 隧道，MikroTik 以太网 over IP"
+firewall: 1
+category: network
+source: kiddin4
+deps_source: []
+deps: []

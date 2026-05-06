@@ -1,0 +1,94 @@
+name: 'Generate & Validate Config'
+description: '调用 scripts/ 生成 .config 并验证，零 inline 逻辑'
+inputs:
+  target:
+    description: 'Target 平台'
+    required: true
+  subtarget:
+    description: 'Subtarget (留空=使用默认)'
+    required: false
+    default: ''
+  profile:
+    description: '设备型号 (空格分隔)'
+    required: false
+    default: ''
+  firewall:
+    description: '防火墙 (iptables/nftables)'
+    required: true
+    default: 'iptables'
+  plugins:
+    description: '额外插件 (空格分隔)'
+    required: false
+    default: ''
+  root_password:
+    description: 'Root 密码'
+    required: false
+    default: ''
+  lan_ip:
+    description: 'LAN IP 地址'
+    required: false
+    default: ''
+  wifi_ssid:
+    description: 'WiFi SSID'
+    required: false
+    default: ''
+  wifi_password:
+    description: 'WiFi 密码'
+    required: false
+    default: ''
+  custom_config:
+    description: '自定义 .config (base64)'
+    required: false
+    default: ''
+  enable_ccache:
+    description: '启用 ccache'
+    required: false
+    default: 'false'
+  template:
+    description: '模板级别 (base/full)'
+    required: false
+    default: 'base'
+  working_dir:
+    description: 'OpenWrt 源码目录'
+    required: false
+    default: 'openwrt'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: ⚙️ Generate .config
+      shell: bash
+      run: |
+        REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
+        cd "${{ inputs.working_dir }}"
+        ARGS=(--target "${{ inputs.target }}" --firewall "${{ inputs.firewall }}" --config-dir "${REPO_ROOT}/config")
+        [ -n "${{ inputs.subtarget }}" ] && ARGS+=(--subtarget "${{ inputs.subtarget }}")
+        [ -n "${{ inputs.profile }}" ]   && ARGS+=(--profile "${{ inputs.profile }}")
+        [ -n "${{ inputs.plugins }}" ]   && ARGS+=(--plugins "${{ inputs.plugins }}")
+        [ "${{ inputs.enable_ccache }}" = "true" ] && ARGS+=(--enable-ccache)
+        [ -n "${{ inputs.template }}" ]      && ARGS+=(--template "${{ inputs.template }}")
+        [ -n "${{ inputs.custom_config }}" ] && ARGS+=(--custom-config "${{ inputs.custom_config }}")
+        bash "${REPO_ROOT}/scripts/generate-config.sh" "${ARGS[@]}"
+
+    - name: 🔧 Apply System Config
+      shell: bash
+      run: |
+        REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
+        cd "${{ inputs.working_dir }}"
+        ARGS=(--work-dir .)
+        [ -n "${{ inputs.root_password }}" ] && ARGS+=(--root-password "${{ inputs.root_password }}")
+        [ -n "${{ inputs.lan_ip }}" ]        && ARGS+=(--lan-ip "${{ inputs.lan_ip }}")
+        [ -n "${{ inputs.wifi_ssid }}" ]     && ARGS+=(--wifi-ssid "${{ inputs.wifi_ssid }}")
+        [ -n "${{ inputs.wifi_password }}" ] && ARGS+=(--wifi-password "${{ inputs.wifi_password }}")
+        bash "${REPO_ROOT}/scripts/apply-system-config.sh" "${ARGS[@]}"
+
+    - name: 🔍 Validate .config
+      shell: bash
+      run: |
+        REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
+        cd "${{ inputs.working_dir }}"
+        FIRST_DEVICE=$(echo "${{ inputs.profile }}" | awk '{print $1}')
+        bash "${REPO_ROOT}/scripts/validate-config.sh" \
+          --config .config \
+          --expected-device "${FIRST_DEVICE}" \
+          --expected-fw "${{ inputs.firewall }}"

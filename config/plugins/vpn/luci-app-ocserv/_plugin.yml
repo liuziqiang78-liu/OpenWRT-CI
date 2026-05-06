@@ -1,0 +1,8 @@
+name: luci-app-ocserv
+display: Ocserv
+desc: "OpenConnect VPN 服务端，兼容 Cisco AnyConnect 客户端"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-docker
+display: Docker
+desc: "Docker 容器管理，图形化管理容器/镜像/网络/卷"
+firewall: 0
+category: docker
+source: kiddin4
+deps_source: []
+deps: []

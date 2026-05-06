@@ -1,0 +1,33 @@
+chip_group: ipq50xx
+platform: qualcommax
+vendor: qualcomm
+
+devices:
+  - id: cmcc_mr3000d-ci
+    name: Cmcc Mr3000D-Ci
+  - id: cmcc_pz-l8
+    name: Cmcc Pz-L8
+  - id: elecom_wrc-x3000gs2
+    name: Elecom Wrc-X3000Gs2
+  - id: glinet_gl-b3000
+    name: Glinet Gl-B3000
+  - id: iodata_wn-dax3000gr
+    name: Iodata Wn-Dax3000Gr
+  - id: linksys_mr5500
+    name: Linksys Mr5500
+  - id: linksys_mx2000
+    name: Linksys Mx2000
+  - id: linksys_mx5500
+    name: Linksys Mx5500
+  - id: linksys_mx6200
+    name: Linksys Mx6200
+  - id: linksys_spnmx56
+    name: Linksys Spnmx56
+  - id: xiaomi_ax6000
+    name: Xiaomi Ax6000
+  - id: yuncore_ax830
+    name: Yuncore Ax830
+  - id: yuncore_ax850
+    name: Yuncore Ax850
+  - id: zyxel_scr50axe
+    name: Zyxel Scr50Axe

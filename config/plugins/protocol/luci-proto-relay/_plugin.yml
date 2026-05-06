@@ -1,0 +1,8 @@
+name: luci-proto-relay
+display: RELAY
+desc: "中继协议"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

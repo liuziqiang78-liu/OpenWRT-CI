@@ -1,0 +1,8 @@
+name: luci-app-pppoe-relay
+display: Pppoe Relay
+desc: "PPPoE 中继代理"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

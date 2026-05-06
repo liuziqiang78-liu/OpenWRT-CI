@@ -1,0 +1,8 @@
+name: luci-app-xlnetacc
+display: Xlnetacc
+desc: "迅雷快鸟加速，提升宽带速度"
+firewall: 0
+category: campus
+source: kiddin4
+deps_source: []
+deps: []

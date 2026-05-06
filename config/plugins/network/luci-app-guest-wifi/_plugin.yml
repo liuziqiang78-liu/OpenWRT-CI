@@ -1,0 +1,8 @@
+name: luci-app-guest-wifi
+display: Guest Wifi
+desc: "访客 WiFi，隔离访客网络与主网络"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

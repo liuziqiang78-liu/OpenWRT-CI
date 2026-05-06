@@ -1,0 +1,8 @@
+name: luci-app-https-dns-proxy
+display: Https Dns Proxy
+desc: "DNS-over-HTTPS 代理，加密 DNS 查询防止劫持"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

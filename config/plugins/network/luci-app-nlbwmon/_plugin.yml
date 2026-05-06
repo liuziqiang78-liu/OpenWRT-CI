@@ -1,0 +1,8 @@
+name: luci-app-nlbwmon
+display: Nlbwmon
+desc: "带宽监控统计，按设备/接口统计流量"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-sqm-autorate
+display: Sqm Autorate
+desc: "SQM 自适应 QoS，根据延迟自动调整带宽"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

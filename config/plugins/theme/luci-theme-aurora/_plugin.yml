@@ -1,0 +1,8 @@
+name: luci-theme-aurora
+display: Aurora
+desc: "Aurora 主题，极光风格"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

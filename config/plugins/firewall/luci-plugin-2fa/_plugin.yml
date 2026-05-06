@@ -1,0 +1,8 @@
+name: luci-plugin-2fa
+display: 2Fa
+desc: "双因素认证 (2FA)，增强 LuCI 登录安全"
+firewall: 0
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

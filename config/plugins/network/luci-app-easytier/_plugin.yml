@@ -1,0 +1,8 @@
+name: luci-app-easytier
+display: Easytier
+desc: "EasyTier 异地组网，去中心化虚拟局域网"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

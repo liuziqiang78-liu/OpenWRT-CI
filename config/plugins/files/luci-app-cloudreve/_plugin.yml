@@ -1,0 +1,8 @@
+name: luci-app-cloudreve
+display: Cloudreve
+desc: "Cloudreve 多存储网盘，支持本地/阿里云/OSS 等后端"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

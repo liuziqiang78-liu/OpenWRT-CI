@@ -1,0 +1,8 @@
+name: luci-app-email
+display: Email
+desc: "邮件通知服务，支持 SMTP 发送告警邮件"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

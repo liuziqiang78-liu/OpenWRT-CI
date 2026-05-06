@@ -1,0 +1,8 @@
+name: luci-app-lorawan-basicstation
+display: Lorawan Basicstation
+desc: "LoRaWAN 基站服务"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

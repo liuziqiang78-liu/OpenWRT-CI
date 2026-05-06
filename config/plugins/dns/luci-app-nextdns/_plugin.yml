@@ -1,0 +1,8 @@
+name: luci-app-nextdns
+display: Nextdns
+desc: "NextDNS 客户端，云端 DNS 过滤和分析"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-wechatpush
+display: Wechatpush
+desc: "微信推送通知，通过 Server酱/PushPlus 推送到微信"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

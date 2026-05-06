@@ -1,0 +1,8 @@
+name: luci-app-privoxy
+display: Privoxy
+desc: "Privoxy HTTP 代理过滤，可过滤广告和追踪脚本"
+firewall: 1
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-commands
+display: Commands
+desc: "自定义命令面板，一键执行常用命令"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

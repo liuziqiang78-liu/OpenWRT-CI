@@ -1,0 +1,8 @@
+name: luci-app-wifihistory
+display: Wifihistory
+desc: "WiFi 连接历史记录"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-unishare
+display: Unishare
+desc: "多种文件共享方式整合"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

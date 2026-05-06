@@ -1,0 +1,8 @@
+name: luci-app-pbr
+display: Pbr
+desc: "策略路由，按源 IP/目标 IP/端口等条件分流到不同网关"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

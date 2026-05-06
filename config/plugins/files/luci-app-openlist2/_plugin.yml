@@ -1,0 +1,8 @@
+name: luci-app-openlist2
+display: Openlist2
+desc: "OpenList (原 alist) 多存储文件列表，支持 30+ 网盘"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

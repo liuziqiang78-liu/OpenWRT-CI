@@ -1,0 +1,8 @@
+name: luci-app-openvpn-server
+display: Openvpn Server
+desc: "OpenVPN 服务端，支持 TCP/UDP、多种认证方式，广泛兼容"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

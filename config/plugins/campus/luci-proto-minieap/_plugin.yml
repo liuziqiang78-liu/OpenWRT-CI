@@ -1,0 +1,8 @@
+name: luci-proto-minieap
+display: MINIEAP
+desc: "MinieAP 认证协议，锐捷等校园网"
+firewall: 0
+category: campus
+source: openwrt
+deps_source: []
+deps: []

@@ -1,0 +1,27 @@
+platform: ipq40xx
+vendor: qualcomm
+description: "Qualcomm Atheros IPQ40xx (WiFi 5 Wave 2)"
+kernel_patchver: "6.12"
+source_branch: "main-nss"
+
+subtargets:
+  generic:
+    soc: ipq4018
+    chips: [ipq4018, ipq4019, ipq4028, ipq4029]
+    default_device: 8dev_habanero-dvk
+    features: [squashfs, ext4, nand, ramdisk]
+    nss: true
+
+packages:
+  default:
+    - ath10k-firmware-qca9984
+    - ath10k-firmware-qca99x0
+    - kmod-ath10k-ct
+  nss:
+    - kmod-qca-nss-drv
+    - kmod-qca-nss-ecm
+
+constraints:
+  firewall: [iptables, nftables]
+  rootfs: [squashfs, ext4]
+  wifi: true

@@ -1,0 +1,8 @@
+name: luci-app-banip
+display: Banip
+desc: "IP 黑名单封锁，基于 IPSet 高效拦截恶意 IP"
+firewall: 1
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

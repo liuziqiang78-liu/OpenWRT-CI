@@ -1,0 +1,8 @@
+name: luci-app-accesscontrol-plus
+display: Accesscontrol Plus
+desc: "访问控制，按设备/时间段限制网络访问"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

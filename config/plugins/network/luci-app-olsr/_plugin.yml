@@ -1,0 +1,8 @@
+name: luci-app-olsr
+display: Olsr
+desc: "OLSR 网状网络路由协议"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

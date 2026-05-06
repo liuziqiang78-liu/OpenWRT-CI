@@ -1,0 +1,8 @@
+name: luci-app-advanced-reboot
+display: Advanced Reboot
+desc: "高级重启，切换固件分区/重启到恢复模式"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

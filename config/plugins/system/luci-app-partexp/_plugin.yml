@@ -1,0 +1,8 @@
+name: luci-app-partexp
+display: Partexp
+desc: "分区扩容，扩展 Overlay 分区容量"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

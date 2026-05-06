@@ -1,0 +1,8 @@
+name: luci-proto-pppossh
+display: PPPOSSH
+desc: "通过 SSH 建立 PPPoE 隧道"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-3ginfo-lite
+display: 3Ginfo Lite
+desc: "3G/LTE 信号信息显示"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

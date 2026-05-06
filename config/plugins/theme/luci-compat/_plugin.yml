@@ -1,0 +1,8 @@
+name: luci-compat
+display: Luci Compat
+desc: "LuCI 兼容层，支持旧版 LuCI 插件"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-dawn
+display: Dawn
+desc: "DAWN 802.11k/v 漫游辅助，智能 AP 切换"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

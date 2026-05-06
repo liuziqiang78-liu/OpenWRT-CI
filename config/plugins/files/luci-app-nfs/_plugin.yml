@@ -1,0 +1,8 @@
+name: luci-app-nfs
+display: Nfs
+desc: "NFS 网络文件系统，Unix/Linux 标准共享"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

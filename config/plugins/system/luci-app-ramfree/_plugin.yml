@@ -1,0 +1,8 @@
+name: luci-app-ramfree
+display: Ramfree
+desc: "释放内存，清理系统缓存"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

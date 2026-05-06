@@ -1,0 +1,8 @@
+name: luci-app-oaf
+display: Oaf
+desc: "应用过滤，按应用类型控制网络访问"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

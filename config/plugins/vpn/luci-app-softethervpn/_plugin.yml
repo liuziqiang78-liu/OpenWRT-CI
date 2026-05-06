@@ -1,0 +1,8 @@
+name: luci-app-softethervpn
+display: Softethervpn
+desc: "SoftEther VPN，支持 L2TP/OpenVPN/SSL-VPN 多协议，穿透性强"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

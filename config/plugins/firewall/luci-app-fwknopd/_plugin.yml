@@ -1,0 +1,8 @@
+name: luci-app-fwknopd
+display: Fwknopd
+desc: "单包授权 (SPA) 隐形端口，通过加密包授权访问端口"
+firewall: 1
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

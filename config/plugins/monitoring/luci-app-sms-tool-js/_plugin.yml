@@ -1,0 +1,8 @@
+name: luci-app-sms-tool-js
+display: Sms Tool Js
+desc: "短信工具，收发短信管理"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

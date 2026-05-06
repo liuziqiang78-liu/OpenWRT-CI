@@ -1,0 +1,8 @@
+name: luci-app-frps
+display: Frps
+desc: "FRP 内网穿透服务端，部署在公网服务器上"
+firewall: 0
+category: tunnel
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,9 @@
+name: luci-app-adguardhome
+display: AdGuard Home
+desc: "全网广告拦截 DNS"
+firewall: 0
+category: dns
+source: openwrt
+deps_source: []
+deps:
+  - AdGuardHome

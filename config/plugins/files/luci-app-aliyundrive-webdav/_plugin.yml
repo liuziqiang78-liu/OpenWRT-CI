@@ -1,0 +1,8 @@
+name: luci-app-aliyundrive-webdav
+display: Aliyundrive Webdav
+desc: "阿里云盘 WebDAV，将阿里云盘挂载为 WebDAV"
+firewall: 0
+category: files
+source: kiddin4
+deps_source: []
+deps: []

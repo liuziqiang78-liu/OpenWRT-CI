@@ -1,0 +1,8 @@
+name: luci-app-irqbalance
+display: Irqbalance
+desc: "IRQ 负载均衡，多核 CPU 中断分配优化"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

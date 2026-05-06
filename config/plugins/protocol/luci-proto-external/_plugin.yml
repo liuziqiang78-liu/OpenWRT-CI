@@ -1,0 +1,8 @@
+name: luci-proto-external
+display: EXTERNAL
+desc: "外部协议扩展"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

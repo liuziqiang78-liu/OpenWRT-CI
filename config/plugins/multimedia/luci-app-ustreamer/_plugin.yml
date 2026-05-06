@@ -1,0 +1,8 @@
+name: luci-app-ustreamer
+display: Ustreamer
+desc: "USB 摄像头 MJPEG 推流"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

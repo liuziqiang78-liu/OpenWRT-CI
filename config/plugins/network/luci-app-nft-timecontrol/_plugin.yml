@@ -1,0 +1,8 @@
+name: luci-app-nft-timecontrol
+display: Nft Timecontrol
+desc: "上网时间控制，按时间段限制网络访问"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

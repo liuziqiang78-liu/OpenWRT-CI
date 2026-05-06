@@ -1,0 +1,8 @@
+name: luci-mod-battstatus
+display: Battstatus
+desc: "电池状态显示"
+firewall: 0
+category: monitoring
+source: kiddin4
+deps_source: []
+deps: []

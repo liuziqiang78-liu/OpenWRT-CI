@@ -1,0 +1,8 @@
+name: luci-app-strongswan-swanctl
+display: Strongswan Swanctl
+desc: "StrongSwan IPSec 实现，支持 IKEv1/IKEv2，功能完整的 VPN 方案"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

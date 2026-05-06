@@ -1,0 +1,8 @@
+name: luci-app-mwan3
+display: Mwan3
+desc: "多 WAN 负载均衡和故障转移，支持按比例分配流量"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

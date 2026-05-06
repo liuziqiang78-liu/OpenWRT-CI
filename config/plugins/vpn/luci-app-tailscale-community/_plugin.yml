@@ -1,0 +1,8 @@
+name: luci-app-tailscale-community
+display: Tailscale Community
+desc: "基于 WireGuard 的 Mesh VPN 组网，无需公网 IP，自动 NAT 穿透"
+firewall: 0
+category: vpn
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-app-adblock-fast
+display: Adblock Fast
+desc: "快速 DNS 广告拦截，优化的列表加载和匹配"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

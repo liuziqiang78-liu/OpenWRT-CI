@@ -1,0 +1,67 @@
+# ═══════════════════════════════════════════════════════
+#  OpenWRT-CI 配置 Schema v2 (分层)
+# ═══════════════════════════════════════════════════════
+#
+#  目录结构:
+#    config/
+#    ├── schema.yml                        ← 本文件
+#    ├── platforms/                        ← 按厂商 → 平台 → 芯片组
+#    │   └── <vendor>/
+#    │       ├── _vendor.yml              ← 厂商元数据
+#    │       └── <platform>/
+#    │           ├── _platform.yml        ← 平台配置 (subtargets/包/约束)
+#    │           └── <chip_group>/
+#    │               └── _devices.yml     ← 设备列表
+#    ├── plugins/                          ← 按分类
+#    │   └── <category>/
+#    │       └── _category.yml            ← 分类 + 插件列表
+#    └── templates/                        ← .config 模板
+#        ├── base.config
+#        ├── nss.config
+#        └── firewall-*.config
+#
+# ═══════════════════════════════════════════════════════
+
+# ── _vendor.yml 结构 ──
+# vendor: string            # 厂商标识 (qualcomm/mediatek/lantiq/...)
+# name: string              # 显示名称
+# description: string       # 厂商描述
+
+# ── _platform.yml 结构 ──
+# platform: string          # 平台标识 (ipq60xx/mt7981/...)
+# vendor: string            # 所属厂商
+# description: string       # 平台描述
+# kernel_patchver: string   # 内核版本
+# source_branch: string     # 默认源码分支
+# subtargets:               # 子目标列表
+#   <id>:
+#     soc: string           # SoC 型号
+#     chips: [string]       # 包含的芯片组
+#     default_device: string
+#     features: [string]
+#     nss: bool
+# packages:
+#   default: [string]
+#   nss: [string]
+#   base: [string]
+# constraints:
+#   firewall: [string]
+#   rootfs: [string]
+#   wifi: bool
+
+# ── _devices.yml 结构 ──
+# chip_group: string        # 芯片组名 (ipq6010/mt7981/...)
+# platform: string          # 所属平台
+# devices:
+#   - id: string            # OpenWrt 设备 ID
+#     name: string          # 显示名称
+
+# ── _category.yml 结构 ──
+# category: string          # 分类标识
+# name: string              # 显示名称
+# plugins:
+#   <plugin_name>:
+#     name: string          # 显示名称
+#     desc: string          # 描述
+#     firewall: int         # 0=双兼容, 1=仅iptables, 2=仅nftables
+#     deps: [string]        # 依赖

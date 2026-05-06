@@ -1,0 +1,8 @@
+name: luci-app-crowdsec-firewall-bouncer
+display: Crowdsec Firewall Bouncer
+desc: "CrowdSec 协作式防火墙，社区共享威胁情报自动封禁"
+firewall: 0
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

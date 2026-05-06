@@ -1,0 +1,8 @@
+name: luci-app-tinyproxy
+display: Tinyproxy
+desc: "轻量 HTTP 代理服务器"
+firewall: 1
+category: firewall
+source: kiddin4
+deps_source: []
+deps: []

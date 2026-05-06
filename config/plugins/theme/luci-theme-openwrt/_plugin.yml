@@ -1,0 +1,8 @@
+name: luci-theme-openwrt
+display: Openwrt
+desc: "OpenWrt 经典主题"
+firewall: 0
+category: theme
+source: kiddin4
+deps_source: []
+deps: []

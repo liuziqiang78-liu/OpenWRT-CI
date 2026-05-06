@@ -1,0 +1,8 @@
+name: luci-app-k3screenctrl
+display: K3Screenctrl
+desc: "K3 路由器屏幕控制"
+firewall: 0
+category: system
+source: kiddin4
+deps_source: []
+deps: []

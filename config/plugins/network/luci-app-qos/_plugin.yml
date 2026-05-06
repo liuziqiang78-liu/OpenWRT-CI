@@ -1,0 +1,8 @@
+name: luci-app-qos
+display: Qos
+desc: "QoS 服务质量管理，流量优先级控制"
+firewall: 0
+category: network
+source: kiddin4
+deps_source: []
+deps: []

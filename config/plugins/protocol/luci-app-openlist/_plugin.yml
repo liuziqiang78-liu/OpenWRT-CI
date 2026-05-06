@@ -1,0 +1,8 @@
+name: luci-app-openlist
+display: Openlist
+desc: "OpenList 节点管理"
+firewall: 0
+category: protocol
+source: kiddin4
+deps_source: []
+deps: []

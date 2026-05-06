@@ -1,0 +1,8 @@
+name: luci-app-my-dnsfilter
+display: My Dnsfilter
+desc: "DNS 去广告，基于 DNS 的广告过滤"
+firewall: 0
+category: dns
+source: kiddin4
+deps_source: []
+deps: []

@@ -1,0 +1,8 @@
+name: luci-proto-hnet
+display: HNET
+desc: "HNCP 自动组网协议"
+firewall: 0
+category: protocol
+source: openwrt
+deps_source: []
+deps: []

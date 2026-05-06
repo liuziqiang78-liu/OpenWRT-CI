@@ -1,0 +1,8 @@
+name: luci-app-radicale3
+display: Radicale3
+desc: "Radicale CalDAV/CardDAV 服务器，日历和联系人同步"
+firewall: 0
+category: multimedia
+source: kiddin4
+deps_source: []
+deps: []

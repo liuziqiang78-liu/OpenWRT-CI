@@ -1,0 +1,179 @@
+# ──────────────────────────────────────────────
+# OpenWrt 云编译工作流 (分层架构 v3)
+# 所有逻辑下沉到 scripts/，workflow 纯编排
+# ──────────────────────────────────────────────
+name: 🚀 Build OpenWrt Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: '源码分支'
+        required: true
+        default: 'main-nss'
+        type: choice
+        options:
+          - main-nss
+          - 25.12-nss
+      target:
+        description: 'Target 平台'
+        required: true
+        default: 'qualcommax'
+        type: choice
+        options:
+          - qualcommax
+          - ipq40xx
+          - ipq806x
+      subtarget:
+        description: 'Subtarget (qualcommax 专用)'
+        required: false
+        default: 'ipq807x'
+        type: choice
+        options:
+          - ipq807x
+          - ipq60xx
+          - ipq50xx
+      firewall:
+        description: '防火墙'
+        required: true
+        default: 'iptables'
+        type: choice
+        options:
+          - iptables
+          - nftables
+      profile:
+        description: '设备型号 (空格分隔, 留空=全部)'
+        required: false
+        default: ''
+        type: string
+      plugins:
+        description: '额外插件 (空格分隔, 如 luci-app-passwall luci-app-adguardhome)'
+        required: false
+        default: ''
+        type: string
+      root_password:
+        description: 'Root 密码 (留空=无密码)'
+        required: false
+        default: ''
+        type: string
+      lan_ip:
+        description: 'LAN IP 地址'
+        required: false
+        default: '192.168.1.1'
+        type: string
+      wifi_ssid:
+        description: 'WiFi 名称 (SSID)'
+        required: false
+        default: ''
+        type: string
+      wifi_password:
+        description: 'WiFi 密码'
+        required: false
+        default: ''
+        type: string
+      custom_config:
+        description: '自定义 .config (base64编码)'
+        required: false
+        default: ''
+        type: string
+      enable_ccache:
+        description: '启用 ccache'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      template:
+        description: '固件模板'
+        required: true
+        default: 'base'
+        type: choice
+        options:
+          - base
+          - full
+      upload_artifacts:
+        description: '上传固件'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  REPO_URL: https://github.com/LiBwrt/openwrt-6.x
+  TZ: Asia/Shanghai
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    steps:
+      # ── L1: 检出 (含 scripts/ + config/) ──
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      # ── L2: 源码准备 ──
+      - name: 📦 Setup Source
+        run: bash scripts/setup-source.sh "${{ env.REPO_URL }}" "${{ inputs.source_branch }}" openwrt
+
+      # ── L3: 配置生成 + 验证 ──
+      - name: ⚙️ Generate Config
+        uses: ./.github/actions/generate-config
+        with:
+          target: ${{ inputs.target }}
+          subtarget: ${{ inputs.subtarget }}
+          profile: ${{ inputs.profile }}
+          firewall: ${{ inputs.firewall }}
+          plugins: ${{ inputs.plugins }}
+          root_password: ${{ inputs.root_password }}
+          lan_ip: ${{ inputs.lan_ip }}
+          wifi_ssid: ${{ inputs.wifi_ssid }}
+          wifi_password: ${{ inputs.wifi_password }}
+          custom_config: ${{ inputs.custom_config }}
+          enable_ccache: ${{ inputs.enable_ccache }}
+          template: ${{ inputs.template }}
+
+      # ── L4: 配置摘要 ──
+      - name: 📋 Config Summary
+        if: always()
+        run: bash scripts/config-summary.sh openwrt/.config "${{ inputs.source_branch }}"
+
+      # ── L5: 编译 ──
+      - name: 🏗️ Build
+        run: |
+          date +%s > openwrt/.build_start_time
+          bash scripts/build.sh openwrt
+
+      # ── L6: 编译后检查 ──
+      - name: 🔍 Post-Build Check
+        if: always()
+        run: bash scripts/post-build-check.sh openwrt "${{ inputs.target }}" "${{ inputs.subtarget }}"
+
+      # ── L7: 构建摘要 ──
+      - name: 📊 Build Summary
+        if: always()
+        run: bash scripts/build-summary.sh openwrt
+
+      # ── L8: 清单生成 ──
+      - name: 📄 Generate Manifest
+        if: always()
+        run: bash scripts/generate-manifest.sh openwrt manifest.json
+
+      # ── L9: 上传 ──
+      - name: 📤 Upload Firmware
+        if: inputs.upload_artifacts == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-${{ inputs.target }}-${{ inputs.subtarget }}-run${{ github.run_number }}
+          path: |
+            openwrt/bin/targets/**/*.bin
+            openwrt/bin/targets/**/*.itb
+            openwrt/bin/targets/**/*.img
+            openwrt/bin/targets/**/*.ubi
+            openwrt/bin/targets/**/*.tar
+            openwrt/manifest.json
+          retention-days: 7
+          if-no-files-found: warn

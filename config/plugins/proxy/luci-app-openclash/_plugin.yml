@@ -1,0 +1,20 @@
+name: luci-app-openclash
+display: OpenClash
+desc: "Clash 客户端 (Meta 内核)"
+firewall: 1
+category: proxy
+source: kiddin4
+deps_source:
+  - small
+deps:
+  - coreutils-nohup
+  - bash
+  - curl
+  - jsonfilter
+  - ca-certificates
+  - ipset
+  - ip-full
+  - libcap
+  - libcap-bin
+  - kmod-tun
+  - kmod-inet-diag

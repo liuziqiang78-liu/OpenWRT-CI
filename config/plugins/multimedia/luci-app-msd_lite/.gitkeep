@@ -1,0 +1,4 @@
+# luci-app-msd_lite
+# 组播转单播 (IPTV)，将 IPTV 组播转为 HTTP 单播流
+# 分类: multimedia
+# 防火墙兼容: iptables + nftables (fw:1)

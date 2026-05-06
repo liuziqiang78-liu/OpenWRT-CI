@@ -1,0 +1,8 @@
+name: luci-proto-yggdrasil
+display: YGGDRASIL
+desc: "Yggdrasil IPv6 overlay 网络，去中心化加密路由"
+firewall: 0
+category: vpn
+source: openwrt
+deps_source: []
+deps: []
