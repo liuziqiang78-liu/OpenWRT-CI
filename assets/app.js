@@ -22,12 +22,36 @@ let state = {
 //  全局状态管理
 // ═══════════════════════════════════════
 
-/* 平台分组配置 */
-const PLATFORM_GROUPS = [
-  {id:'qualcommax',name:'Qualcomm IPQ',icon:'🔵',subs:[{k:'qualcommax-ipq807x',n:'IPQ807x'},{k:'qualcommax-ipq60xx',n:'IPQ60xx'},{k:'qualcommax-ipq50xx',n:'IPQ50xx'}]},
-  {id:'ipq40xx',name:'IPQ40xx',icon:'🔵',subs:[{k:'ipq40xx',n:'IPQ40xx'}]},
-  {id:'ipq806x',name:'IPQ806x',icon:'🔵',subs:[{k:'ipq806x',n:'IPQ806x'}]},
-];
+/* 平台分组配置 - 从 DEVICES 动态生成 */
+const PLATFORM_GROUPS = (() => {
+  const groupMap = {};
+  const PLATFORM_META = {
+    qualcommax: { name: 'Qualcomm IPQ', icon: '🔵' },
+    qualcommbe: { name: 'Qualcomm BE', icon: '🟢' },
+    ipq40xx: { name: 'IPQ40xx', icon: '🔵' },
+    ipq806x: { name: 'IPQ806x', icon: '🔵' },
+    mediatek: { name: 'MediaTek', icon: '🟣' },
+    ath79: { name: 'Atheros MIPS', icon: '🟠' },
+    ramips: { name: 'Ralink MIPS', icon: '🟡' },
+    bcm53xx: { name: 'Broadcom', icon: '🔴' },
+    bcm4908: { name: 'Broadcom', icon: '🔴' },
+    mvebu: { name: 'Marvell Armada', icon: '⚪' },
+    lantiq: { name: 'Lantiq', icon: '🟤' },
+    airoha: { name: 'Airoha', icon: '🟧' },
+    rockchip: { name: 'Rockchip', icon: '⬜' },
+  };
+  for (const key of Object.keys(DEVICES)) {
+    const parts = key.split('-');
+    const groupId = parts[0];
+    if (!groupMap[groupId]) groupMap[groupId] = [];
+    const subName = parts.length > 1 ? parts.slice(1).join('-') : groupId;
+    groupMap[groupId].push({ k: key, n: subName });
+  }
+  return Object.keys(groupMap).map(id => {
+    const meta = PLATFORM_META[id] || { name: id, icon: '⬜' };
+    return { id, name: meta.name, icon: meta.icon, subs: groupMap[id] };
+  });
+})();
 
 let currentPlatformGroup = 'qualcommax';
 let currentSubKey = 'qualcommax-ipq807x';
@@ -74,7 +98,7 @@ function isValidToken(token) {
 }
 
 // ═══════════════════════════════════════
-//  持久化 (localStorage)
+//  持久化 (localStorage + sessionStorage for token)
 // ═══════════════════════════════════════
 function saveState() {
   const data = {
@@ -88,7 +112,6 @@ function saveState() {
     customOpts: state.customOpts,
     currentPlatformGroup: currentPlatformGroup,
     currentSubKey: currentSubKey,
-    ghToken: document.getElementById('gh-token').value,
     ghRepo: document.getElementById('gh-repo').value,
     rootPw: document.getElementById('root-pw').value,
     lanIp: document.getElementById('lan-ip').value,
@@ -100,7 +123,16 @@ function saveState() {
     customKey: document.getElementById('custom-key').value,
     customVal: document.getElementById('custom-val').value,
   };
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Token 单独用 sessionStorage 存储，关闭标签页即清除
+    const tokenVal = document.getElementById('gh-token').value;
+    if (tokenVal) {
+      sessionStorage.setItem('openwrt-ci-token', tokenVal);
+    } else {
+      sessionStorage.removeItem('openwrt-ci-token');
+    }
+  } catch(e) {}
 }
 
 function loadState() {
@@ -168,6 +200,112 @@ function bindAutoSave() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('click', saveState);
   });
+  // 表单实时验证
+  initFormValidation();
+  // 键盘支持：toggle 行和平台标签
+  initKeyboardSupport();
+}
+
+/* 表单实时验证 */
+function initFormValidation() {
+  // LAN IP 验证
+  const lanIpInput = document.getElementById('lan-ip');
+  if (lanIpInput) {
+    const wrapper = lanIpInput.parentElement;
+    let errMsg = wrapper.querySelector('.input-error-msg');
+    if (!errMsg) {
+      errMsg = document.createElement('div');
+      errMsg.className = 'input-error-msg';
+      wrapper.appendChild(errMsg);
+    }
+    const validateLanIp = () => {
+      const val = lanIpInput.value.trim();
+      if (val && !isValidLanIP(val)) {
+        lanIpInput.classList.add('input-error');
+        errMsg.textContent = '请输入有效的 IPv4 地址 (如 192.168.1.1)';
+        errMsg.classList.add('show');
+      } else {
+        lanIpInput.classList.remove('input-error');
+        errMsg.classList.remove('show');
+      }
+    };
+    lanIpInput.addEventListener('input', validateLanIp);
+    lanIpInput.addEventListener('blur', validateLanIp);
+  }
+
+  // WiFi 密码验证
+  const wifiPwInput = document.getElementById('wifi-password');
+  if (wifiPwInput) {
+    const wrapper = wifiPwInput.parentElement;
+    let errMsg = wrapper.querySelector('.input-error-msg');
+    if (!errMsg) {
+      errMsg = document.createElement('div');
+      errMsg.className = 'input-error-msg';
+      wrapper.appendChild(errMsg);
+    }
+    const validateWifiPw = () => {
+      const val = wifiPwInput.value;
+      if (val && val.length < 8) {
+        wifiPwInput.classList.add('input-error');
+        errMsg.textContent = 'WiFi 密码长度至少为 8 个字符';
+        errMsg.classList.add('show');
+      } else {
+        wifiPwInput.classList.remove('input-error');
+        errMsg.classList.remove('show');
+      }
+    };
+    wifiPwInput.addEventListener('input', validateWifiPw);
+    wifiPwInput.addEventListener('blur', validateWifiPw);
+  }
+
+  // Root 密码长度提示
+  const rootPwInput = document.getElementById('root-pw');
+  if (rootPwInput) {
+    const wrapper = rootPwInput.parentElement;
+    let errMsg = wrapper.querySelector('.input-error-msg');
+    if (!errMsg) {
+      errMsg = document.createElement('div');
+      errMsg.className = 'input-error-msg';
+      wrapper.appendChild(errMsg);
+    }
+    const validateRootPw = () => {
+      const val = rootPwInput.value;
+      if (val && val.length < 6) {
+        rootPwInput.classList.add('input-error');
+        errMsg.textContent = '密码建议至少 6 个字符以提高安全性';
+        errMsg.classList.add('show');
+      } else {
+        rootPwInput.classList.remove('input-error');
+        errMsg.classList.remove('show');
+      }
+    };
+    rootPwInput.addEventListener('input', validateRootPw);
+    rootPwInput.addEventListener('blur', validateRootPw);
+  }
+}
+
+/* 键盘支持：为交互元素添加 Enter/Space 触发 */
+function initKeyboardSupport() {
+  // toggle 行的键盘支持
+  document.querySelectorAll('.tog-row').forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
+  // 平台分组标签的键盘支持
+  document.querySelectorAll('.pgroup').forEach(el => {
+    el.setAttribute('role', 'tab');
+    el.setAttribute('tabindex', '0');
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
 }
 
 /* 自动填充编译仓库 - 改进版：支持自定义域名 */
@@ -213,19 +351,29 @@ function initRepoInput() {
 // Tab 切换
 function initTabs() {
   document.querySelectorAll('#source-branch-tabs .tab').forEach(t => {
+    t.setAttribute('role', 'tab');
+    t.setAttribute('tabindex', '0');
     t.addEventListener('click', () => {
       document.querySelectorAll('#source-branch-tabs .tab').forEach(x => x.classList.remove('on'));
       t.classList.add('on');
       state.sourceBranch = t.dataset.val;
       updateSummary(); saveState();
     });
+    t.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); }
+    });
   });
   document.querySelectorAll('#template-tabs .tab').forEach(t => {
+    t.setAttribute('role', 'tab');
+    t.setAttribute('tabindex', '0');
     t.addEventListener('click', () => {
       document.querySelectorAll('#template-tabs .tab').forEach(x => x.classList.remove('on'));
       t.classList.add('on');
       state.template = t.dataset.val;
       updateSummary(); saveState();
+    });
+    t.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); }
     });
   });
   document.getElementById('firewall-select').addEventListener('change', function() {
@@ -252,7 +400,7 @@ function initPlatformTabs() {
   const container = document.getElementById('platform-tabs');
   container.innerHTML = PLATFORM_GROUPS.map(g => {
     const total = g.subs.reduce((a,s) => a + (DEVICES[s.k]||[]).length, 0);
-    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')">${g.icon} ${g.name}<span class="cnt">${total}</span></div>`;
+    return `<div class="pgroup ${g.id===currentPlatformGroup?'on':''}" data-g="${g.id}" onclick="switchPlatformGroup('${g.id}')">${escapeHtml(g.icon)} ${escapeHtml(g.name)}<span class="cnt">${total}</span></div>`;
   }).join('');
   renderSubTabs();
 }
@@ -277,7 +425,7 @@ function renderSubTabs() {
   const container = document.getElementById('target-tabs');
   container.innerHTML = group.subs.map(s => {
     const n = (DEVICES[s.k]||[]).length;
-    return `<div class="tab ${s.k===currentSubKey?'on':''}" data-k="${s.k}" onclick="switchSubTab('${s.k}')">${s.n} (${n})</div>`;
+    return `<div class="tab ${s.k===currentSubKey?'on':''}" data-k="${s.k}" onclick="switchSubTab('${s.k}')">${escapeHtml(s.n)} (${n})</div>`;
   }).join('');
 }
 
@@ -375,9 +523,9 @@ function renderDeviceGroupHTML(devs) {
       <div style="font-size:.72em;font-weight:800;color:var(--vio);padding:6px 0;border-bottom:1px solid var(--brd);margin-bottom:6px;letter-spacing:.04em">${cpu} <span style="color:var(--t3);font-weight:600">(${items.length})</span></div>
     </div>`;
     html += items.map(d => `
-      <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${d.id}" onclick="toggleDevice(this,'${d.id}')">
-        <div class="n">${d.n}</div>
-        <div class="c">${d.c}</div>
+      <div class="dc ${state.devices.has(d.id)?'on':''}" data-id="${escapeHtml(d.id)}" onclick="toggleDevice(this,'${escapeHtml(d.id)}')">
+        <div class="n">${escapeHtml(d.n)}</div>
+        <div class="c">${escapeHtml(d.c)}</div>
         <div class="toggle-sw"></div>
       </div>
     `).join('');
@@ -458,6 +606,7 @@ function toggleOpt(el) {
   const isOn = el.classList.toggle('on');
   const pill = el.querySelector('.tog-pill');
   if (pill) pill.textContent = isOn ? '开' : '关';
+  el.setAttribute('aria-checked', isOn ? 'true' : 'false');
   updateSummary(); saveState();
 }
 
@@ -553,15 +702,15 @@ function renderGrid(plugs) {
     const features = typeof info === 'string' ? '' : (info.f || '');
     const fw = typeof info === 'string' ? 0 : (info.fw !== undefined ? info.fw : 0);
     const shortName = name.replace(/^(luci-app-|luci-proto-|luci-theme-|luci-mod-|luci-plugin-)/, '');
-    const tags = features ? features.split('/').map(f => `<span class="pd-tag">${f.trim()}</span>`).join('') : '';
+    const tags = features ? features.split('/').map(f => `<span class="pd-tag">${escapeHtml(f.trim())}</span>`).join('') : '';
     const compatible = isPluginCompatible(fw);
     const selected = state.plugins.has(name);
     const cls = ['pc', selected ? 'on' : '', !compatible ? 'fw-disabled' : ''].filter(Boolean).join(' ');
     return `
-    <div class="${cls}" id="pc-${name}" onclick="togglePlug(this,'${name}')">
-      <div class="pn">${shortName}</div>
-      <div class="pd-brief">${desc}</div>
-      <div class="pd-arrow" onclick="togglePlugDesc(event,'${name}')">▼</div>
+    <div class="${cls}" id="pc-${escapeHtml(name)}" onclick="togglePlug(this,'${escapeHtml(name)}')">
+      <div class="pn">${escapeHtml(shortName)}</div>
+      <div class="pd-brief">${escapeHtml(desc)}</div>
+      <div class="pd-arrow" onclick="togglePlugDesc(event,'${escapeHtml(name)}')">▼</div>
       <div class="toggle-sw"></div>
     </div>`;
   }).join('');
@@ -600,10 +749,10 @@ function togglePlugDesc(e, name) {
   panel.id = 'pd-' + name;
   panel.style.cssText = 'margin:0;padding:12px 16px;border-radius:var(--r2);background:rgba(6,10,22,.45);border:1px solid var(--brd)';
   panel.innerHTML = `
-    <div class="pd-title">${shortName}</div>
+    <div class="pd-title">${escapeHtml(shortName)}</div>
     ${tags ? `<div class="pd-tags">${tags}</div>` : ''}
-    <div class="pd-desc">${desc}</div>
-    <div class="pd-pkg">包名: <code>${name}</code> | 防火墙: <code>${firewallLabel}</code></div>
+    <div class="pd-desc">${escapeHtml(desc)}</div>
+    <div class="pd-pkg">包名: <code>${escapeHtml(name)}</code> | 防火墙: <code>${escapeHtml(firewallLabel)}</code></div>
   `;
   pcEl.insertAdjacentElement('afterend', panel);
   if (arrow) arrow.textContent = '▲';
@@ -614,8 +763,23 @@ function closeAllPlugDesc() {
   document.querySelectorAll('.pc .pd-arrow').forEach(a => a.textContent = '▼');
 }
 
-document.addEventListener('scroll', closeAllPlugDesc, { passive: true });
-document.addEventListener('touchmove', closeAllPlugDesc, { passive: true });
+/* 修复滚动误触：仅在滚动距离 > 10px 时关闭详情面板 */
+let lastScrollY = window.scrollY;
+document.addEventListener('scroll', () => {
+  if (Math.abs(window.scrollY - lastScrollY) > 10) {
+    closeAllPlugDesc();
+    lastScrollY = window.scrollY;
+  }
+}, { passive: true });
+
+let lastTouchY = 0;
+document.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  if (Math.abs(touch.clientY - lastTouchY) > 10) {
+    closeAllPlugDesc();
+  }
+  lastTouchY = touch.clientY;
+}, { passive: true });
 
 function togglePlug(el, name) {
   let fw = 0;
@@ -629,13 +793,24 @@ function togglePlug(el, name) {
 }
 
 function plugAll() {
-  for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) state.plugins.add(name);
+  const fw = getFirewallType();
+  for (const plugs of Object.values(PLUGIN_CATS)) {
+    for (const [name, info] of Object.entries(plugs)) {
+      const pluginFw = typeof info === 'object' ? (info.fw !== undefined ? info.fw : 0) : 0;
+      if (!isPluginCompatible(pluginFw)) continue;
+      state.plugins.add(name);
+    }
+  }
   refreshGrid(); updatePlugCount(); updateSummary(); saveState();
 }
 function plugNone() { state.plugins.clear(); refreshGrid(); updatePlugCount(); updateSummary(); saveState(); }
 function plugInvert() {
-  for (const plugs of Object.values(PLUGIN_CATS)) for (const name of Object.keys(plugs)) {
-    if (state.plugins.has(name)) state.plugins.delete(name); else state.plugins.add(name);
+  for (const plugs of Object.values(PLUGIN_CATS)) {
+    for (const [name, info] of Object.entries(plugs)) {
+      const pluginFw = typeof info === 'object' ? (info.fw !== undefined ? info.fw : 0) : 0;
+      if (!isPluginCompatible(pluginFw)) continue;
+      if (state.plugins.has(name)) state.plugins.delete(name); else state.plugins.add(name);
+    }
   }
   refreshGrid(); updatePlugCount(); updateSummary(); saveState();
 }
@@ -678,7 +853,7 @@ function updateSummary() {
       }
     }
     const html = Object.entries(catMap).map(([cat, names]) =>
-      `<div style="margin-bottom:6px"><span style="color:var(--cyan);font-weight:700">${cat}</span> (${names.length})<br/><span style="color:var(--t2)">${names.join('、')}</span></div>`
+      `<div style="margin-bottom:6px"><span style="color:var(--cyan);font-weight:700">${escapeHtml(cat)}</span> (${names.length})<br/><span style="color:var(--t2)">${names.map(n => escapeHtml(n)).join('、')}</span></div>`
     ).join('');
     document.getElementById('s-plugin-list').innerHTML = '已选插件:' + html;
   } else {
@@ -722,7 +897,7 @@ function renderCustomOpts() {
   }
   list.innerHTML = state.customOpts.map((o, i) => `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:rgba(6,10,22,.5);border:1px solid var(--brd);border-radius:var(--r2);font-size:.82em">
-      <code style="flex:1;color:var(--cyan);word-break:break-all">${o.key}${o.val ? '=' + o.val : ''}</code>
+      <code style="flex:1;color:var(--cyan);word-break:break-all">${escapeHtml(o.key)}${o.val ? '=' + escapeHtml(o.val) : ''}</code>
       <span style="cursor:pointer;color:var(--red);font-size:1.1em;flex-shrink:0" onclick="removeCustomOpt(${i})">✕</span>
     </div>
   `).join('');

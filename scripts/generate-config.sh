@@ -95,6 +95,18 @@ yaml_get_list() {
   fi
 }
 
+# ── 跨平台 subtarget 校验 ──
+# ipq807x/ipq60xx/ipq50xx 仅适用于 qualcommax 平台
+# 其他平台如果收到这些 subtarget，回退到平台默认值
+if [ "$TARGET" != "qualcommax" ]; then
+  case "$SUBTARGET" in
+    ipq807x|ipq60xx|ipq50xx)
+      echo "⚠️ subtarget '${SUBTARGET}' 不适用于 ${TARGET}，重置为平台默认"
+      SUBTARGET=""
+      ;;
+  esac
+fi
+
 # ── 解析默认 subtarget ──
 if [ -z "$SUBTARGET" ]; then
   SUBTARGET=$(grep -oP '^\s+\K[a-z0-9]+(?=:)' "$PLATFORM_FILE" | head -1)
@@ -206,11 +218,18 @@ if [ -n "$PLUGINS" ]; then
   if [ -f "$COMPAT_FILE" ]; then
     # 提取仅 iptables 的插件列表
     IPT_ONLY=$(sed -n '/^  iptables_only:/,/^[a-z]/{ s/^[[:space:]]*- //p; }' "$COMPAT_FILE" 2>/dev/null)
+    # 提取仅 nftables 的插件列表
+    NFT_ONLY=$(sed -n '/^  nftables_only:/,/^[a-z]/{ s/^[[:space:]]*- //p; }' "$COMPAT_FILE" 2>/dev/null)
 
     for pkg in $PLUGINS; do
-      # 检查兼容性
+      # 检查 iptables 兼容性
       if [ "$FIREWALL" = "nftables" ] && echo "$IPT_ONLY" | grep -q "^${pkg}$"; then
         echo "  ⚠️ 跳过 ${pkg} (仅 iptables 兼容)"
+        continue
+      fi
+      # 检查 nftables 兼容性
+      if [ "$FIREWALL" = "iptables" ] && echo "$NFT_ONLY" | grep -q "^${pkg}$"; then
+        echo "  ⚠️ 跳过 ${pkg} (仅 nftables 兼容)"
         continue
       fi
       echo "CONFIG_PACKAGE_${pkg}=y" >> "$OUTPUT"

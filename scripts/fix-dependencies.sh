@@ -22,8 +22,8 @@ fix_dep() {
   local file="$1" old="$2" new="$3"
   if [ -f "$file" ]; then
     if grep -qF "$old" "$file" 2>/dev/null; then
-      # 使用 perl -pi 进行精确替换（转义特殊字符，避免子串误伤）
-      perl -pi -e "s/\Q${old}\E/${new}/g" "$file"
+      # 使用环境变量传递给 perl，避免 shell 插值和正则注入
+      OLD_DEP="$old" NEW_DEP="$new" perl -pi -e 's/\Q$ENV{OLD_DEP}\E/$ENV{NEW_DEP}/g' "$file"
       echo "  ✅ $(basename "$(dirname "$file")"): $old → $new"
       PATCHED=$((PATCHED + 1))
     fi

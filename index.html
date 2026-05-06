@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
 <title>OpenWRT-6.x 云编译平台</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src https://api.github.com https://github.com;">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
 <link rel="stylesheet" href="assets/styles.css">
 </head>
@@ -37,7 +38,7 @@
 <div class="f">
   <label class="lb">Personal Access Token <span class="req">*</span></label>
   <input type="password" class="inp" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-  <div class="hint">需要 <code>repo</code> 和 <code>workflow</code> 权限。<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--cyan)">创建 Token →</a></div>
+  <div class="hint">需要 <code>repo</code> 和 <code>workflow</code> 权限。<a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style="color:var(--cyan)">创建 Token →</a></div>
 </div>
 <div class="f">
   <label class="lb">编译仓库 <span class="req">*</span></label>
@@ -69,7 +70,7 @@
 <div class="tabs" id="target-tabs" style="margin-bottom:14px"></div>
 <div class="dg" id="device-grid"></div>
 <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-  <div class="tog-row on" id="tog-dev-all" onclick="toggleAllDevices()" style="flex:1;min-width:200px">
+  <div class="tog-row on" id="tog-dev-all" onclick="toggleAllDevices()" role="switch" tabindex="0" aria-checked="true" style="flex:1;min-width:200px">
     <span class="ct">全选当前平台设备</span>
     <span class="tog-pill">全选</span>
   </div>
@@ -104,7 +105,7 @@
   </select>
 </div>
 <div class="f">
-  <div class="tog-row on" id="tog-ccache" onclick="toggleOpt(this)">
+  <div class="tog-row on" id="tog-ccache" onclick="toggleOpt(this)" role="switch" tabindex="0" aria-checked="true">
     <span class="ct">启用 ccache 编译加速</span>
     <span class="ci">推荐</span>
     <span class="tog-pill">开</span>

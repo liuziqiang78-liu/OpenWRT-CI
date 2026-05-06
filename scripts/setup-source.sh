@@ -32,9 +32,10 @@ if [ -f "$FEEDS_FILE" ]; then
   # 生成 feeds 列表 (优先 python3+yaml，fallback 纯 bash)
   FEED_LIST=$(mktemp)
   if python3 -c "import yaml" 2>/dev/null; then
-    python3 -c "
-import yaml
-with open('${FEEDS_FILE}') as f:
+    FEEDS_FILE_PATH="$FEEDS_FILE" python3 -c "
+import yaml, os, sys
+feeds_file = os.environ['FEEDS_FILE_PATH']
+with open(feeds_file) as f:
     data = yaml.safe_load(f)
 for name, info in data.get('feeds', {}).items():
     if name not in ('openwrt','luci','routing','telephony'):
@@ -70,8 +71,9 @@ for name, info in data.get('feeds', {}).items():
 else
   echo "📥 feeds.yml 不存在，使用默认外来源"
   cat >> feeds.conf.default <<'EOF'
-src-git kenzo https://github.com/kenzok8/openwrt-packages
-src-git small https://github.com/kenzok8/small
+src-git kenzo https://github.com/kenzok8/openwrt-packages master
+src-git small https://github.com/kenzok8/small master
+src-git kiddin4 https://github.com/kiddin9/op-packages main
 EOF
 fi
 

@@ -68,8 +68,8 @@ else
     [ -z "$f" ] && continue
     SIZE=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo 0)
     SHA256=$(sha256sum "$f" 2>/dev/null | awk '{print $1}')
-    # JSON 转义路径中的特殊字符（包括反斜杠、引号、制表符、换行）
-    SAFE_PATH=$(echo "$f" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/\n/\\n/g; s/\r/\\r/g')
+    # JSON 转义路径中的特殊字符（包括反斜杠、引号、制表符）
+    SAFE_PATH=$(printf '%s' "$f" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g')
     [ "$FIRST" = true ] || echo ',' >> "$OUTPUT"
     FIRST=false
     cat >> "$OUTPUT" <<ENTRY
@@ -77,8 +77,13 @@ else
 ENTRY
   done <<< "$FIRMWARE_LIST"
 
+  # JSON 转义函数（处理路径/变量中的特殊字符）
+  json_escape() {
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g'
+  }
+
   cat >> "$OUTPUT" <<EOF
-],"meta":{"target":"${TARGET}","subtarget":"${SUBTARGET}","device":"${DEVICE:-all}","firewall":"${FIREWALL}","branch":"${BRANCH}","commit":"${COMMIT}","build_date":"${BUILD_DATE}"}}
+],"meta":{"target":"$(json_escape "$TARGET")","subtarget":"$(json_escape "$SUBTARGET")","device":"$(json_escape "${DEVICE:-all}")","firewall":"$(json_escape "$FIREWALL")","branch":"$(json_escape "$BRANCH")","commit":"$(json_escape "$COMMIT")","build_date":"$(json_escape "$BUILD_DATE")"}}
 EOF
 fi
 

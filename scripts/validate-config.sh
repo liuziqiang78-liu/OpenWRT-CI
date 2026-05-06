@@ -47,16 +47,33 @@ else
   error "MULTI_PROFILE 未启用，设备选择可能回退"
 fi
 
-# ── 检查 2: 设备匹配 ──
-ACTUAL_DEVICE=$(grep -oP 'CONFIG_TARGET.*DEVICE_\K[^=]+(?==y)' "$CONFIG_FILE" | head -1)
+# ── 检查 2: 设备匹配 (支持多设备) ──
+# 提取所有已选择的设备
+mapfile -t ACTUAL_DEVICES < <(grep -oP 'CONFIG_TARGET_[^=]*DEVICE_\K[^=]+(?==y)' "$CONFIG_FILE" | sort -u)
+
 if [ -n "$EXPECTED_DEVICE" ]; then
-  if [ "$ACTUAL_DEVICE" = "$EXPECTED_DEVICE" ]; then
-    echo "✅ 设备匹配: ${ACTUAL_DEVICE}"
-  else
-    error "设备不匹配！期望: ${EXPECTED_DEVICE}，实际: ${ACTUAL_DEVICE:-'(未找到)'}"
+  # 支持空格分隔的多设备列表
+  DEVICE_FAIL=0
+  for expected_dev in $EXPECTED_DEVICE; do
+    found=false
+    for actual_dev in "${ACTUAL_DEVICES[@]}"; do
+      if [ "$actual_dev" = "$expected_dev" ]; then
+        found=true
+        break
+      fi
+    done
+    if [ "$found" = true ]; then
+      echo "✅ 设备匹配: ${expected_dev}"
+    else
+      error "设备不匹配！期望: ${expected_dev}，未在 .config 中找到"
+      DEVICE_FAIL=$((DEVICE_FAIL + 1))
+    fi
+  done
+  if [ "$DEVICE_FAIL" -eq 0 ] && [ "${#ACTUAL_DEVICES[@]}" -gt 0 ]; then
+    echo "ℹ️ .config 中所有设备: ${ACTUAL_DEVICES[*]}"
   fi
 else
-  echo "ℹ️ 设备: ${ACTUAL_DEVICE:-'(未指定)'}"
+  echo "ℹ️ 设备: ${ACTUAL_DEVICES[*]:-'(未指定)'}"
 fi
 
 # ── 检查 3: 防火墙冲突 ──

@@ -107,7 +107,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
-  group: build-${{ inputs.target }}-${{ inputs.subtarget }}
+  group: build-${{ inputs.target }}-${{ inputs.subtarget || 'default' }}
   cancel-in-progress: true
 
 jobs:

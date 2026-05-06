@@ -8,7 +8,16 @@ set -euo pipefail
 WORK_DIR="${1:-.}"
 PARALLEL="${2:-0}"
 
-cd "$WORK_DIR"
+cd "$WORK_DIR" || {
+  echo "❌ 工作目录不存在: ${WORK_DIR}"
+  exit 1
+}
+
+# 校验是否为有效数字
+if ! [[ "$PARALLEL" =~ ^[0-9]+$ ]]; then
+  echo "⚠️ 无效的并行数: ${PARALLEL}，使用默认值"
+  PARALLEL=0
+fi
 
 if [ "$PARALLEL" -le 0 ]; then
   PARALLEL=$(($(nproc 2>/dev/null || echo 2) + 1))

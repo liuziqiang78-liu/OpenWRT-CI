@@ -1,0 +1,18 @@
+# ═══════════════════════════════════════════
+#  防火墙兼容性规则
+#  generate-config.sh 读取此文件过滤不兼容的插件
+# ═══════════════════════════════════════════
+
+# 仅兼容 iptables 的插件
+# 当用户选择 nftables 防火墙时，这些插件将被跳过
+iptables_only:
+  - luci-app-ssr-plus
+  - luci-app-passwall
+  - luci-app-vssr
+  - luci-app-bypass
+  - luci-app-kodexplorer
+
+# 仅兼容 nftables 的插件
+# 当用户选择 iptables 防火墙时，这些插件将被跳过
+nftables_only:
+  - luci-app-nft-qos

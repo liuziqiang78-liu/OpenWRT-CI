@@ -58,41 +58,65 @@ runs:
   steps:
     - name: ⚙️ Generate .config
       shell: bash
+      env:
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_SUBTARGET: ${{ inputs.subtarget }}
+        INPUT_PROFILE: ${{ inputs.profile }}
+        INPUT_FIREWALL: ${{ inputs.firewall }}
+        INPUT_PLUGINS: ${{ inputs.plugins }}
+        INPUT_ENABLE_CCACHE: ${{ inputs.enable_ccache }}
+        INPUT_TEMPLATE: ${{ inputs.template }}
+        INPUT_CUSTOM_CONFIG: ${{ inputs.custom_config }}
+        INPUT_ROOT_PASSWORD: ${{ inputs.root_password }}
+        INPUT_WIFI_PASSWORD: ${{ inputs.wifi_password }}
+        REPO_WORKING_DIR: ${{ inputs.working_dir }}
       run: |
-        echo "::add-mask::${{ inputs.root_password }}"
-        echo "::add-mask::${{ inputs.wifi_password }}"
+        # Mask sensitive values to prevent log leakage
+        [ -n "$INPUT_ROOT_PASSWORD" ] && echo "::add-mask::$INPUT_ROOT_PASSWORD"
+        [ -n "$INPUT_WIFI_PASSWORD" ] && echo "::add-mask::$INPUT_WIFI_PASSWORD"
         REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
-        cd "${{ inputs.working_dir }}"
-        ARGS=(--target "${{ inputs.target }}" --firewall "${{ inputs.firewall }}" --config-dir "${REPO_ROOT}/config")
-        [ -n "${{ inputs.subtarget }}" ] && ARGS+=(--subtarget "${{ inputs.subtarget }}")
-        [ -n "${{ inputs.profile }}" ]   && ARGS+=(--profile "${{ inputs.profile }}")
-        [ -n "${{ inputs.plugins }}" ]   && ARGS+=(--plugins "${{ inputs.plugins }}")
-        [ "${{ inputs.enable_ccache }}" = "true" ] && ARGS+=(--enable-ccache)
-        [ -n "${{ inputs.template }}" ]      && ARGS+=(--template "${{ inputs.template }}")
-        [ -n "${{ inputs.custom_config }}" ] && ARGS+=(--custom-config "${{ inputs.custom_config }}")
+        cd "$REPO_WORKING_DIR"
+        ARGS=(--target "$INPUT_TARGET" --firewall "$INPUT_FIREWALL" --config-dir "${REPO_ROOT}/config")
+        [ -n "$INPUT_SUBTARGET" ] && ARGS+=(--subtarget "$INPUT_SUBTARGET")
+        [ -n "$INPUT_PROFILE" ]   && ARGS+=(--profile "$INPUT_PROFILE")
+        [ -n "$INPUT_PLUGINS" ]   && ARGS+=(--plugins "$INPUT_PLUGINS")
+        [ "$INPUT_ENABLE_CCACHE" = "true" ] && ARGS+=(--enable-ccache)
+        [ -n "$INPUT_TEMPLATE" ]      && ARGS+=(--template "$INPUT_TEMPLATE")
+        [ -n "$INPUT_CUSTOM_CONFIG" ] && ARGS+=(--custom-config "$INPUT_CUSTOM_CONFIG")
         bash "${REPO_ROOT}/scripts/generate-config.sh" "${ARGS[@]}"
 
     - name: 🔧 Apply System Config
       shell: bash
+      env:
+        INPUT_ROOT_PASSWORD: ${{ inputs.root_password }}
+        INPUT_LAN_IP: ${{ inputs.lan_ip }}
+        INPUT_WIFI_SSID: ${{ inputs.wifi_ssid }}
+        INPUT_WIFI_PASSWORD: ${{ inputs.wifi_password }}
+        REPO_WORKING_DIR: ${{ inputs.working_dir }}
       run: |
-        echo "::add-mask::${{ inputs.root_password }}"
-        echo "::add-mask::${{ inputs.wifi_password }}"
+        # Mask sensitive values to prevent log leakage
+        [ -n "$INPUT_ROOT_PASSWORD" ] && echo "::add-mask::$INPUT_ROOT_PASSWORD"
+        [ -n "$INPUT_WIFI_PASSWORD" ] && echo "::add-mask::$INPUT_WIFI_PASSWORD"
+        [ -n "$INPUT_WIFI_SSID" ]    && echo "::add-mask::$INPUT_WIFI_SSID"
         REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
-        cd "${{ inputs.working_dir }}"
+        cd "$REPO_WORKING_DIR"
         ARGS=(--work-dir .)
-        [ -n "${{ inputs.root_password }}" ] && ARGS+=(--root-password "${{ inputs.root_password }}")
-        [ -n "${{ inputs.lan_ip }}" ]        && ARGS+=(--lan-ip "${{ inputs.lan_ip }}")
-        [ -n "${{ inputs.wifi_ssid }}" ]     && ARGS+=(--wifi-ssid "${{ inputs.wifi_ssid }}")
-        [ -n "${{ inputs.wifi_password }}" ] && ARGS+=(--wifi-password "${{ inputs.wifi_password }}")
+        [ -n "$INPUT_ROOT_PASSWORD" ] && ARGS+=(--root-password "$INPUT_ROOT_PASSWORD")
+        [ -n "$INPUT_LAN_IP" ]        && ARGS+=(--lan-ip "$INPUT_LAN_IP")
+        [ -n "$INPUT_WIFI_SSID" ]     && ARGS+=(--wifi-ssid "$INPUT_WIFI_SSID")
+        [ -n "$INPUT_WIFI_PASSWORD" ] && ARGS+=(--wifi-password "$INPUT_WIFI_PASSWORD")
         bash "${REPO_ROOT}/scripts/apply-system-config.sh" "${ARGS[@]}"
 
     - name: 🔍 Validate .config
       shell: bash
+      env:
+        INPUT_PROFILE: ${{ inputs.profile }}
+        INPUT_FIREWALL: ${{ inputs.firewall }}
       run: |
         REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
         cd "${{ inputs.working_dir }}"
-        FIRST_DEVICE=$(echo "${{ inputs.profile }}" | awk '{print $1}')
+        # 传入完整的设备列表进行多设备验证
         bash "${REPO_ROOT}/scripts/validate-config.sh" \
           --config .config \
-          --expected-device "${FIRST_DEVICE}" \
-          --expected-fw "${{ inputs.firewall }}"
+          --expected-device "$INPUT_PROFILE" \
+          --expected-fw "$INPUT_FIREWALL"

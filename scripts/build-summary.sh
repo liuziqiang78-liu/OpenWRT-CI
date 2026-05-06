@@ -52,11 +52,12 @@ echo "### 📦 固件文件" >> "$SUMMARY"
 FIRMWARE_FILES=$(find_firmware_files | head -30)
 
 if [ -n "$FIRMWARE_FILES" ]; then
-  echo "$FIRMWARE_FILES" | while read f; do
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
     SIZE=$(du -sh "$f" 2>/dev/null | cut -f1)
     SHA=$(sha256sum "$f" 2>/dev/null | cut -c1-16)
     echo "- \`${f}\` (${SIZE}) [\`${SHA}...\`]" >> "$SUMMARY"
-  done
+  done <<< "$FIRMWARE_FILES"
 else
   echo "⚠️ 未找到固件文件" >> "$SUMMARY"
 fi

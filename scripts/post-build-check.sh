@@ -44,12 +44,12 @@ while IFS= read -r f; do
 
   # 最小 1MB，最大 256MB
   if [ "$SIZE" -lt 1048576 ]; then
-    echo "⚠️ ${BASENAME}: 文件过小 ($(numfmt --to=iec $SIZE))，可能编译不完整"
+    echo "⚠️ ${BASENAME}: 文件过小 ($(numfmt --to=iec "$SIZE"))，可能编译不完整"
     ERRORS=$((ERRORS + 1))
   elif [ "$SIZE" -gt 268435456 ]; then
-    echo "⚠️ ${BASENAME}: 文件过大 ($(numfmt --to=iec $SIZE))，可能包含多余内容"
+    echo "⚠️ ${BASENAME}: 文件过大 ($(numfmt --to=iec "$SIZE"))，可能包含多余内容"
   else
-    echo "✅ ${BASENAME}: $(numfmt --to=iec $SIZE)"
+    echo "✅ ${BASENAME}: $(numfmt --to=iec "$SIZE")"
   fi
 done < <(find_firmware_files)
 
