@@ -8,6 +8,13 @@ set -euo pipefail
 WORK_DIR="${1:-.}"
 SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/null}"
 
+# ── 公共函数：查找固件文件（供 build-summary.sh 和 post-build-check.sh 共用） ──
+find_firmware_files() {
+  find bin/targets/ -type f \( \
+    -name "*.bin" -o -name "*.itb" -o -name "*.img" \
+    -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null
+}
+
 cd "$WORK_DIR"
 
 echo "### 📊 编译结果" >> "$SUMMARY"
@@ -42,9 +49,7 @@ echo "" >> "$SUMMARY"
 # ── 固件文件列表 ──
 echo "### 📦 固件文件" >> "$SUMMARY"
 
-FIRMWARE_FILES=$(find bin/targets/ -type f \( \
-  -name "*.bin" -o -name "*.itb" -o -name "*.img" \
-  -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null | head -30)
+FIRMWARE_FILES=$(find_firmware_files | head -30)
 
 if [ -n "$FIRMWARE_FILES" ]; then
   echo "$FIRMWARE_FILES" | while read f; do
@@ -77,6 +82,12 @@ cat >> "$SUMMARY" <<EOF
 EOF
 
 # ── 终端输出 ──
+# 使用 find_firmware_files 统计固件数量（修复空列表时 wc -l 输出 1 的 bug）
+FIRMWARE_COUNT=$(find_firmware_files | wc -l)
+# find 的输出通过管道到 wc，空输入时 wc -l 正确返回 0
+# 但更保险的做法：如果 find 无输出，强制为 0
+FIRMWARE_COUNT="${FIRMWARE_COUNT:-0}"
+
 echo "═══════════════════════════════════════"
 echo "  编译结果"
 echo "  错误: ${ERRORS:-0}"
@@ -86,5 +97,5 @@ echo "    ├─ 编译器:    ${COMPILER_WARN}"
 echo "    ├─ OpenSSL:   ${OPENSSL_DEPR}"
 echo "    ├─ 下载失败:  ${DOWNLOAD_FAIL}"
 echo "    └─ autoreconf: ${AUTORECONF_ERR}"
-echo "  固件: $(echo "$FIRMWARE_FILES" | wc -l) 个文件"
+echo "  固件: ${FIRMWARE_COUNT} 个文件"
 echo "═══════════════════════════════════════"

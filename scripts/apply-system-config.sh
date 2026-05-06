@@ -29,12 +29,34 @@ done
 
 cd "$WORK_DIR"
 
+# ── IPv4 格式校验 ──
+validate_ipv4() {
+  local ip="$1"
+  if [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    # 校验每个 octet 在 0-255 范围
+    IFS='.' read -r a b c d <<< "$ip"
+    if [ "$a" -le 255 ] && [ "$b" -le 255 ] && [ "$c" -le 255 ] && [ "$d" -le 255 ]; then
+      return 0
+    fi
+  fi
+  return 1
+}
+
 # ── Root 密码 ──
 if [ -n "$ROOT_PW" ]; then
   echo "🔑 设置 Root 密码"
   mkdir -p files/etc
-  HASHED_PW=$(python3 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOT_PW" 2>/dev/null || \
-               openssl passwd -6 "$ROOT_PW" 2>/dev/null || echo "")
+  # 优先使用 openssl passwd -6（SHA-512，所有平台可用）
+  # fallback: python3 crypt（Python < 3.13）
+  # 注意: Python 3.13 已移除 crypt 模块，不再作为首选
+  HASHED_PW=""
+  if command -v openssl &>/dev/null; then
+    HASHED_PW=$(openssl passwd -6 "$ROOT_PW" 2>/dev/null || true)
+  fi
+  if [ -z "$HASHED_PW" ]; then
+    # 仅在 openssl 失败时尝试 python3（兼容旧版本 Python）
+    HASHED_PW=$(python3 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOT_PW" 2>/dev/null || true)
+  fi
   if [ -n "$HASHED_PW" ]; then
     printf "root:%s:19797:0:99999:7:::\n" "$HASHED_PW" > files/etc/shadow
     chmod 600 files/etc/shadow
@@ -46,6 +68,11 @@ fi
 
 # ── LAN IP ──
 if [ -n "$LAN_IP" ] && [ "$LAN_IP" != "192.168.1.1" ]; then
+  # 校验 LAN IP 格式
+  if ! validate_ipv4 "$LAN_IP"; then
+    echo "::error::无效的 LAN IP 地址: ${LAN_IP}（必须是合法的 IPv4 格式）"
+    exit 1
+  fi
   echo "🌐 设置 LAN IP: ${LAN_IP}"
   mkdir -p files/etc/uci-defaults
   printf '#!/bin/sh\nuci set network.lan.ipaddr="%s"\nuci commit network\n' "$LAN_IP" \

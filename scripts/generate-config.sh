@@ -53,14 +53,13 @@ fi
 
 # 查找平台配置 (支持新旧两种路径)
 PLATFORM_FILE=""
-for candidate in \
-  "${CONFIG_DIR}/platforms/"*"/${TARGET}/_platform.yml" \
-  "${CONFIG_DIR}/platforms/${TARGET}.yml"; do
-  if [ -f "$candidate" ]; then
-    PLATFORM_FILE="$candidate"
-    break
-  fi
-done
+# 使用 find 替代 glob，避免 nullglob 问题
+PLATFORM_CANDIDATE=$(find "${CONFIG_DIR}/platforms" -path "*/${TARGET}/_platform.yml" -type f 2>/dev/null | head -1)
+if [ -n "$PLATFORM_CANDIDATE" ]; then
+  PLATFORM_FILE="$PLATFORM_CANDIDATE"
+elif [ -f "${CONFIG_DIR}/platforms/${TARGET}.yml" ]; then
+  PLATFORM_FILE="${CONFIG_DIR}/platforms/${TARGET}.yml"
+fi
 
 if [ -z "$PLATFORM_FILE" ]; then
   echo "错误: 平台配置不存在: ${TARGET}"

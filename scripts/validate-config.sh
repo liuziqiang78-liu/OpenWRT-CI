@@ -60,6 +60,7 @@ else
 fi
 
 # ── 检查 3: 防火墙冲突 ──
+ACTUAL_FW="unknown"
 FW3=$(grep -c 'CONFIG_PACKAGE_firewall=y' "$CONFIG_FILE" || true)
 FW4=$(grep -c 'CONFIG_PACKAGE_firewall4=y' "$CONFIG_FILE" || true)
 if [ "$FW3" -gt 0 ] && [ "$FW4" -gt 0 ]; then

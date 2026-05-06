@@ -14,13 +14,20 @@ cd "$WORK_DIR"
 
 ERRORS=0
 
+# ── 公共函数：查找固件文件（与 build-summary.sh 保持一致） ──
+find_firmware_files() {
+  find bin/targets/ -type f \( \
+    -name "*.bin" -o -name "*.itb" -o -name "*.img" \
+    -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null
+}
+
 echo "═══════════════════════════════════════"
 echo "  编译后健康检查"
 echo "═══════════════════════════════════════"
 
 # ── 检查 1: 固件文件是否存在 ──
-FIRMWARE_COUNT=$(find bin/targets/ -type f \( -name "*.bin" -o -name "*.itb" -o -name "*.img" \
-  -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null | wc -l)
+FIRMWARE_COUNT=$(find_firmware_files | wc -l)
+FIRMWARE_COUNT="${FIRMWARE_COUNT:-0}"
 
 if [ "$FIRMWARE_COUNT" -eq 0 ]; then
   echo "❌ 未找到任何固件文件"
@@ -31,6 +38,7 @@ fi
 
 # ── 检查 2: 固件文件大小合理性 ──
 while IFS= read -r f; do
+  [ -z "$f" ] && continue
   SIZE=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo 0)
   BASENAME=$(basename "$f")
 
@@ -43,8 +51,7 @@ while IFS= read -r f; do
   else
     echo "✅ ${BASENAME}: $(numfmt --to=iec $SIZE)"
   fi
-done < <(find bin/targets/ -type f \( -name "*.bin" -o -name "*.itb" -o -name "*.img" \
-  -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null)
+done < <(find_firmware_files)
 
 # ── 检查 3: build.log 无致命错误 ──
 if [ -f build.log ]; then
