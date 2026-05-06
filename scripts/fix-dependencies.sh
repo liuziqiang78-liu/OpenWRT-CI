@@ -17,12 +17,13 @@ PATCHED=0
 SKIPPED=0
 
 # ── 工具函数 ──
-# 替换 Makefile 中的依赖名称
+# 替换 Makefile 中的依赖名称（使用 perl 避免 sed 特殊字符问题，精确匹配单词边界）
 fix_dep() {
   local file="$1" old="$2" new="$3"
   if [ -f "$file" ]; then
-    if grep -q "$old" "$file" 2>/dev/null; then
-      sed -i "s/$old/$new/g" "$file"
+    if grep -qF "$old" "$file" 2>/dev/null; then
+      # 使用 perl -pi 进行精确替换（转义特殊字符，避免子串误伤）
+      perl -pi -e "s/\Q${old}\E/${new}/g" "$file"
       echo "  ✅ $(basename "$(dirname "$file")"): $old → $new"
       PATCHED=$((PATCHED + 1))
     fi
@@ -33,11 +34,11 @@ fix_dep() {
 remove_dep() {
   local file="$1" dep="$2"
   if [ -f "$file" ]; then
-    if grep -q "$dep" "$file" 2>/dev/null; then
+    if grep -qF "$dep" "$file" 2>/dev/null; then
       # 处理 +dep 格式 (OpenWrt 标准)
-      sed -i "s/+${dep}\b//g; s/+${dep}$//g" "$file"
+      perl -pi -e "s/\+\Q${dep}\E//g" "$file"
       # 处理空的 DEPENDS 行
-      sed -i '/^[[:space:]]*DEPENDS:=[[:space:]]*$/d' "$file"
+      perl -pi -e '/^\s*DEPENDS:=\s*$/ && $_ = ""' "$file"
       echo "  ✅ $(basename "$(dirname "$file")"): 移除 $dep"
       PATCHED=$((PATCHED + 1))
     fi

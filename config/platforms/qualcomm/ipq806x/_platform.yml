@@ -2,6 +2,7 @@ platform: ipq806x
 vendor: qualcomm
 description: "Qualcomm Atheros IPQ806x (WiFi 5)"
 kernel_patchver: "6.12"
+# main-nss 分支兼容非 NSS 模式，NSS 代码仅在 nss: true 时启用
 source_branch: "main-nss"
 
 subtargets:

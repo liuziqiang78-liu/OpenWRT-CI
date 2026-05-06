@@ -59,6 +59,8 @@ runs:
     - name: ⚙️ Generate .config
       shell: bash
       run: |
+        echo "::add-mask::${{ inputs.root_password }}"
+        echo "::add-mask::${{ inputs.wifi_password }}"
         REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
         cd "${{ inputs.working_dir }}"
         ARGS=(--target "${{ inputs.target }}" --firewall "${{ inputs.firewall }}" --config-dir "${REPO_ROOT}/config")
@@ -73,6 +75,8 @@ runs:
     - name: 🔧 Apply System Config
       shell: bash
       run: |
+        echo "::add-mask::${{ inputs.root_password }}"
+        echo "::add-mask::${{ inputs.wifi_password }}"
         REPO_ROOT="$(cd "${{ github.workspace }}" && pwd)"
         cd "${{ inputs.working_dir }}"
         ARGS=(--work-dir .)

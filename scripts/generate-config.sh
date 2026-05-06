@@ -181,6 +181,12 @@ for pkg in $(yaml_get_list "$PLATFORM_FILE" "packages.default" 2>/dev/null); do
   echo "CONFIG_PACKAGE_${pkg}=y" >> "$OUTPUT"
 done
 
+# ── 子目标特定包 ──
+echo "📦 注入 ${SUBTARGET} 特定包"
+for pkg in $(yaml_get_list "$PLATFORM_FILE" "packages.${SUBTARGET}" 2>/dev/null); do
+  echo "CONFIG_PACKAGE_${pkg}=y" >> "$OUTPUT"
+done
+
 # ═══════════════════════════════════════
 #  Step 6: 防火墙模板
 # ═══════════════════════════════════════

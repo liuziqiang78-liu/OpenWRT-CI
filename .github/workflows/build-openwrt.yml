@@ -106,14 +106,34 @@ env:
   TZ: Asia/Shanghai
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
+concurrency:
+  group: build-${{ inputs.target }}-${{ inputs.subtarget }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 360
+    timeout-minutes: 180
     steps:
       # ── L1: 检出 (含 scripts/ + config/) ──
       - name: 🛎️ Checkout
         uses: actions/checkout@v4
+
+      # ── L1.5: 依赖安装 ──
+      - name: 🛠️ Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libelf-dev libncurses-dev \
+            libssl-dev python3 python3-distutils rsync unzip zlib1g-dev \
+            file wget jq
+
+      # ── L1.6: 磁盘清理 ──
+      - name: 🧹 Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt-get clean
+          df -h
 
       # ── L2: 源码准备 ──
       - name: 📦 Setup Source
@@ -141,11 +161,36 @@ jobs:
         if: always()
         run: bash scripts/config-summary.sh openwrt/.config "${{ inputs.source_branch }}"
 
+      # ── L4.5: ccache 恢复 ──
+      - name: 🗄️ Restore ccache
+        if: inputs.enable_ccache == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-${{ inputs.target }}-${{ inputs.subtarget }}-${{ github.run_number }}
+          restore-keys: |
+            ccache-${{ inputs.target }}-${{ inputs.subtarget }}-
+
+      - name: ⚙️ Configure ccache
+        if: inputs.enable_ccache == 'true'
+        run: |
+          ccache --set-config=max_size=5G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+
       # ── L5: 编译 ──
       - name: 🏗️ Build
         run: |
           date +%s > openwrt/.build_start_time
           bash scripts/build.sh openwrt
+
+      # ── L5.5: 保存 ccache ──
+      - name: 💾 Save ccache
+        if: always() && inputs.enable_ccache == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.ccache
+          key: ccache-${{ inputs.target }}-${{ inputs.subtarget }}-${{ github.run_number }}
 
       # ── L6: 编译后检查 ──
       - name: 🔍 Post-Build Check
@@ -175,5 +220,7 @@ jobs:
             openwrt/bin/targets/**/*.ubi
             openwrt/bin/targets/**/*.tar
             openwrt/manifest.json
+            openwrt/.config
+            openwrt/build.log
           retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: error

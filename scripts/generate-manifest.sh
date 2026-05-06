@@ -33,23 +33,53 @@ COMMIT=$(git -C "$(find . -name '.git' -maxdepth 2 -type d | head -1 | xargs dir
 BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # ── 收集固件文件 ──
-echo '{"firmware":[' > "$OUTPUT"
-FIRST=true
-while IFS= read -r f; do
-  SIZE=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo 0)
-  SHA256=$(sha256sum "$f" 2>/dev/null | awk '{print $1}')
-  # JSON 转义路径中的特殊字符
-  SAFE_PATH=$(echo "$f" | sed 's/\\/\\\\/g; s/"/\\"/g')
-  [ "$FIRST" = true ] || echo ',' >> "$OUTPUT"
-  FIRST=false
-  cat >> "$OUTPUT" <<ENTRY
-{"path":"${SAFE_PATH}","size":${SIZE},"sha256":"${SHA256}"}
-ENTRY
-done < <(find bin/targets/ -type f \( -name "*.bin" -o -name "*.itb" -o -name "*.img" \
+FIRMWARE_LIST=$(find bin/targets/ -type f \( -name "*.bin" -o -name "*.itb" -o -name "*.img" \
   -o -name "*.ubi" -o -name "*.tar" \) 2>/dev/null | sort)
 
-cat >> "$OUTPUT" <<EOF
+if command -v jq &>/dev/null; then
+  # ── 使用 jq 构建 JSON（精确转义，最安全） ──
+  echo "📋 使用 jq 生成清单"
+  FIRMWARE_JSON="[]"
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    SIZE=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo 0)
+    SHA256=$(sha256sum "$f" 2>/dev/null | awk '{print $1}')
+    FIRMWARE_JSON=$(echo "$FIRMWARE_JSON" | jq --arg p "$f" --argjson s "$SIZE" --arg h "$SHA256" \
+      '. + [{"path":$p,"size":$s,"sha256":$h}]')
+  done <<< "$FIRMWARE_LIST"
+
+  jq -n \
+    --argjson firmware "$FIRMWARE_JSON" \
+    --arg target "${TARGET}" \
+    --arg subtarget "${SUBTARGET}" \
+    --arg device "${DEVICE:-all}" \
+    --arg firewall "${FIREWALL}" \
+    --arg branch "${BRANCH}" \
+    --arg commit "${COMMIT}" \
+    --arg build_date "${BUILD_DATE}" \
+    '{"firmware":$firmware,"meta":{"target":$target,"subtarget":$subtarget,"device":$device,"firewall":$firewall,"branch":$branch,"commit":$commit,"build_date":$build_date}}' \
+    > "$OUTPUT"
+else
+  # ── Fallback: 手工拼接 JSON ──
+  echo "📋 使用 bash 手工生成清单 (jq 不可用)"
+  echo '{"firmware":[' > "$OUTPUT"
+  FIRST=true
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    SIZE=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo 0)
+    SHA256=$(sha256sum "$f" 2>/dev/null | awk '{print $1}')
+    # JSON 转义路径中的特殊字符（包括反斜杠、引号、制表符、换行）
+    SAFE_PATH=$(echo "$f" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/\n/\\n/g; s/\r/\\r/g')
+    [ "$FIRST" = true ] || echo ',' >> "$OUTPUT"
+    FIRST=false
+    cat >> "$OUTPUT" <<ENTRY
+{"path":"${SAFE_PATH}","size":${SIZE},"sha256":"${SHA256}"}
+ENTRY
+  done <<< "$FIRMWARE_LIST"
+
+  cat >> "$OUTPUT" <<EOF
 ],"meta":{"target":"${TARGET}","subtarget":"${SUBTARGET}","device":"${DEVICE:-all}","firewall":"${FIREWALL}","branch":"${BRANCH}","commit":"${COMMIT}","build_date":"${BUILD_DATE}"}}
 EOF
+fi
 
 echo "✅ 清单生成: ${OUTPUT}"

@@ -7,6 +7,13 @@
 # ═══════════════════════════════════════════
 set -euo pipefail
 
+# ── 清理临时文件 ──
+FEED_LIST=""
+cleanup() {
+  [ -n "$FEED_LIST" ] && rm -f "$FEED_LIST"
+}
+trap cleanup EXIT
+
 REPO_URL="${1:?用法: setup-source.sh <repo_url> <branch> <work_dir> [config_dir]}"
 BRANCH="${2:?}"
 WORK_DIR="${3:-openwrt}"
