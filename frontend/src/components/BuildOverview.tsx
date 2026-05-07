@@ -17,7 +17,7 @@ export default function BuildOverview() {
   const {
     token, user, branch, platform, subtarget, devices,
     selectedPlugins, externalPlugins,
-    firewall, enableCcache, uploadToReleases, template,
+    firewall, rootfs, enableCcache, uploadToReleases, template,
     rootPassword, wifiSsid, wifiPassword, lanIp,
     buildUrl, buildStatus,
     setBuildUrl, setBuildStatus, prevStep,
@@ -39,6 +39,7 @@ export default function BuildOverview() {
         plugins: selectedPlugins,
         external_plugins: externalPlugins,
         firewall,
+        rootfs,
         enable_ccache: enableCcache,
         upload_to_releases: uploadToReleases,
         template,
@@ -97,7 +98,7 @@ export default function BuildOverview() {
     {
       icon: <Settings size={16} className="text-gray-400" />,
       label: '编译选项',
-      value: `模板: ${template} | ccache: ${enableCcache ? '开' : '关'} | 上传: ${uploadToReleases ? '开' : '关'}`,
+      value: `rootfs: ${rootfs} | 模板: ${template} | ccache: ${enableCcache ? '开' : '关'} | 上传: ${uploadToReleases ? '开' : '关'}`,
     },
     {
       icon: <Wifi size={16} className="text-pink-400" />,

@@ -9,7 +9,7 @@ import Card from './ui/Card'
 
 // Step 3: 硬件平台选择
 export default function PlatformSelect() {
-  const { platform, subtarget, devices, setPlatform, setSubtarget, setDevices, toggleDevice, nextStep, prevStep } = useBuildStore()
+  const { platform, subtarget, devices, setPlatform, setSubtarget, setDevices, toggleDevice, setPlatformCapabilities, nextStep, prevStep } = useBuildStore()
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -90,6 +90,7 @@ export default function PlatformSelect() {
                   setPlatform(p.vendor)
                   if (p.targets.length > 0) {
                     setSubtarget(p.targets[0].name)
+                    setPlatformCapabilities(p.targets[0])
                   }
                 }}
               >
@@ -118,7 +119,10 @@ export default function PlatformSelect() {
                     key={t.name}
                     selected={subtarget === t.name || (!subtarget && t === currentVendor.targets[0])}
                     hoverable
-                    onClick={() => setSubtarget(t.name)}
+                    onClick={() => {
+                      setSubtarget(t.name)
+                      setPlatformCapabilities(t)
+                    }}
                   >
                     <div className="text-center py-2">
                       <div className="font-mono text-sm font-semibold text-gray-100">{t.name}</div>

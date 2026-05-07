@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Shield, Flame, Zap, Upload, Package } from 'lucide-react'
+import { Shield, Flame, Zap, Upload, Package, HardDrive } from 'lucide-react'
 import { useBuildStore } from '../stores/buildStore'
 import Button from './ui/Button'
 import Card from './ui/Card'
@@ -8,8 +8,9 @@ import Toggle from './ui/Toggle'
 // Step 5: 防火墙 & 编译选项
 export default function BuildOptions() {
   const {
-    firewall, enableCcache, uploadToReleases, template,
-    setFirewall, setEnableCcache, setUploadToReleases, setTemplate,
+    firewall, rootfs, enableCcache, uploadToReleases, template,
+    platformFirewallOptions, platformRootfsOptions,
+    setFirewall, setRootfs, setEnableCcache, setUploadToReleases, setTemplate,
     nextStep, prevStep,
   } = useBuildStore()
 
@@ -20,6 +21,21 @@ export default function BuildOptions() {
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
+  }
+
+  const fwOptions = platformFirewallOptions.length > 0 ? platformFirewallOptions : ['iptables', 'nftables']
+  const rootfsOptions = platformRootfsOptions.length > 0 ? platformRootfsOptions : ['squashfs']
+
+  const fwIcons: Record<string, string> = { iptables: '🔥', nftables: '🛡️' }
+  const fwDescs: Record<string, string> = {
+    iptables: '传统防火墙，兼容性好',
+    nftables: '新一代防火墙，性能更优',
+  }
+  const rootfsIcons: Record<string, string> = { squashfs: '📦', ext4: '💾', f2fs: '⚡' }
+  const rootfsDescs: Record<string, string> = {
+    squashfs: '压缩文件系统，体积小，只读',
+    ext4: '标准 Linux 文件系统，读写',
+    f2fs: '闪存优化文件系统，性能好',
   }
 
   return (
@@ -55,24 +71,48 @@ export default function BuildOptions() {
             防火墙类型
           </label>
           <div className="grid grid-cols-2 gap-3">
-            {(['iptables', 'nftables'] as const).map((fw) => (
+            {fwOptions.map((fw) => (
               <Card
                 key={fw}
                 selected={firewall === fw}
                 hoverable
-                onClick={() => setFirewall(fw)}
+                onClick={() => setFirewall(fw as 'iptables' | 'nftables')}
               >
                 <div className="text-center py-3">
-                  <div className="text-lg mb-1">{fw === 'iptables' ? '🔥' : '🛡️'}</div>
+                  <div className="text-lg mb-1">{fwIcons[fw] || '🔥'}</div>
                   <div className="font-semibold text-gray-100 font-mono">{fw}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {fw === 'iptables' ? '传统防火墙，兼容性好' : '新一代防火墙，性能更优'}
-                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{fwDescs[fw] || fw}</div>
                 </div>
               </Card>
             ))}
           </div>
         </motion.div>
+
+        {/* Rootfs 文件系统 */}
+        {rootfsOptions.length > 1 && (
+          <motion.div variants={item}>
+            <label className="block text-sm font-medium text-gray-300 mb-3">
+              <HardDrive size={14} className="inline mr-1.5 text-cyan-400" />
+              文件系统类型
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {rootfsOptions.map((r) => (
+                <Card
+                  key={r}
+                  selected={rootfs === r}
+                  hoverable
+                  onClick={() => setRootfs(r)}
+                >
+                  <div className="text-center py-3">
+                    <div className="text-lg mb-1">{rootfsIcons[r] || '📦'}</div>
+                    <div className="font-semibold text-gray-100 font-mono text-sm">{r}</div>
+                    <div className="text-xs text-gray-500 mt-1">{rootfsDescs[r] || r}</div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* 固件模板 */}
         <motion.div variants={item}>

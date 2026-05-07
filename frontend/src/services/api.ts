@@ -55,6 +55,10 @@ export async function fetchPlatforms() {
       devices: (plat.devices || []).map((d: any) =>
         typeof d === 'string' ? { id: d, name: d } : { id: d.profile || d.id, name: d.name }
       ),
+      firewall_options: plat.firewall_options || ['iptables', 'nftables'],
+      rootfs_options: plat.rootfs_options || [],
+      wifi: plat.wifi ?? false,
+      emmc: plat.emmc ?? false,
     })),
   }));
 }
@@ -102,6 +106,7 @@ export async function triggerBuild(params: {
   plugins: string[];
   external_plugins?: any[];
   firewall: string;
+  rootfs: string;
   enable_ccache: boolean;
   upload_to_releases: boolean;
   template: string;
@@ -116,6 +121,7 @@ export async function triggerBuild(params: {
     target: rest.platform,
     subtarget: rest.subtarget,
     firewall: rest.firewall,
+    rootfs: rest.rootfs || 'squashfs',
     profile: rest.devices.join(' '),
     plugins: rest.plugins.join(' '),
     root_password: rest.root_password,

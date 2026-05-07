@@ -22,6 +22,7 @@ interface BuildState {
 
   // Step 5: 编译选项
   firewall: 'iptables' | 'nftables'
+  rootfs: string
   enableCcache: boolean
   uploadToReleases: boolean
   template: 'base' | 'full'
@@ -31,6 +32,12 @@ interface BuildState {
   wifiSsid: string
   wifiPassword: string
   lanIp: string
+
+  // 平台能力（从平台数据读取）
+  platformWifi: boolean
+  platformEmmc: boolean
+  platformFirewallOptions: string[]
+  platformRootfsOptions: string[]
 
   // 导航
   currentStep: number
@@ -53,6 +60,7 @@ interface BuildState {
   addExternalPlugin: (plugin: ExternalPlugin) => void
   removeExternalPlugin: (index: number) => void
   setFirewall: (fw: 'iptables' | 'nftables') => void
+  setRootfs: (v: string) => void
   setEnableCcache: (v: boolean) => void
   setUploadToReleases: (v: boolean) => void
   setTemplate: (t: 'base' | 'full') => void
@@ -60,6 +68,7 @@ interface BuildState {
   setWifiSsid: (v: string) => void
   setWifiPassword: (v: string) => void
   setLanIp: (v: string) => void
+  setPlatformCapabilities: (caps: { wifi?: boolean; emmc?: boolean; firewall_options?: string[]; rootfs_options?: string[] }) => void
   setCurrentStep: (step: number) => void
   nextStep: () => void
   prevStep: () => void
@@ -79,6 +88,7 @@ const initialState = {
   selectedPlugins: [] as string[],
   externalPlugins: [] as ExternalPlugin[],
   firewall: 'nftables' as const,
+  rootfs: 'squashfs',
   enableCcache: true,
   uploadToReleases: true,
   template: 'base' as const,
@@ -86,6 +96,10 @@ const initialState = {
   wifiSsid: '',
   wifiPassword: '',
   lanIp: '192.168.1.1',
+  platformWifi: false,
+  platformEmmc: false,
+  platformFirewallOptions: [] as string[],
+  platformRootfsOptions: [] as string[],
   currentStep: 0,
   buildUrl: '',
   buildStatus: '',
@@ -125,6 +139,7 @@ export const useBuildStore = create<BuildState>((set, get) => ({
       externalPlugins: s.externalPlugins.filter((_, i) => i !== index),
     })),
   setFirewall: (firewall) => set({ firewall }),
+  setRootfs: (rootfs) => set({ rootfs }),
   setEnableCcache: (enableCcache) => set({ enableCcache }),
   setUploadToReleases: (uploadToReleases) => set({ uploadToReleases }),
   setTemplate: (template) => set({ template }),
@@ -132,6 +147,15 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   setWifiSsid: (wifiSsid) => set({ wifiSsid }),
   setWifiPassword: (wifiPassword) => set({ wifiPassword }),
   setLanIp: (lanIp) => set({ lanIp }),
+  setPlatformCapabilities: (caps) => set({
+    platformWifi: caps.wifi ?? false,
+    platformEmmc: caps.emmc ?? false,
+    platformFirewallOptions: caps.firewall_options || [],
+    platformRootfsOptions: caps.rootfs_options || [],
+    // 自动设置防火墙默认值
+    ...(caps.firewall_options?.length ? { firewall: caps.firewall_options[0] as any } : {}),
+    ...(caps.rootfs_options?.length ? { rootfs: caps.rootfs_options[0] } : {}),
+  }),
   setCurrentStep: (currentStep) => set({ currentStep }),
   nextStep: () => set((s) => ({ currentStep: Math.min(s.currentStep + 1, 6) })),
   prevStep: () => set((s) => ({ currentStep: Math.max(s.currentStep - 1, 0) })),

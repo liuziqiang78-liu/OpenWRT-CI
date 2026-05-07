@@ -29,6 +29,10 @@ export interface PlatformTarget {
   name: string
   subtargets?: string[]
   devices: Device[]
+  firewall_options?: string[]
+  rootfs_options?: string[]
+  wifi?: boolean
+  emmc?: boolean
 }
 
 // 插件信息
