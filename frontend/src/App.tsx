@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useBuildStore } from './stores/buildStore'
 import StepIndicator from './components/StepIndicator'
 import GitHubAuth from './components/GitHubAuth'
@@ -8,6 +8,7 @@ import PluginSelect from './components/PluginSelect'
 import BuildOptions from './components/BuildOptions'
 import CustomOptions from './components/CustomOptions'
 import BuildOverview from './components/BuildOverview'
+import ErrorBoundary from './components/ErrorBoundary'
 import { Router, Cpu, Github } from 'lucide-react'
 
 // 步骤定义
@@ -80,17 +81,9 @@ export default function App() {
         </motion.div>
 
         {/* 步骤内容 */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <CurrentStepComponent />
-          </motion.div>
-        </AnimatePresence>
+        <ErrorBoundary>
+          <CurrentStepComponent />
+        </ErrorBoundary>
 
         {/* 底部 */}
         <footer className="text-center mt-12 pb-6">
