@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Cpu, ChevronDown, CheckSquare, Square, Check } from 'lucide-react'
 import { useBuildStore } from '../stores/buildStore'
 import { fetchPlatforms } from '../services/api'
-import type { Platform, PlatformTarget } from '../types'
+import type { Platform, PlatformTarget, Device } from '../types'
 import Button from './ui/Button'
 import Card from './ui/Card'
 
@@ -26,10 +26,10 @@ export default function PlatformSelect() {
   // 当前目标
   const currentTarget = currentVendor?.targets.find((t) => t.name === subtarget) || currentVendor?.targets[0]
   // 可用设备
-  const availableDevices = currentTarget?.devices || []
+  const availableDevices: Device[] = currentTarget?.devices || []
 
   const handleSelectAll = () => {
-    setDevices([...availableDevices])
+    setDevices(availableDevices.map(d => d.id))
   }
 
   const handleDeselectAll = () => {
@@ -172,13 +172,13 @@ export default function PlatformSelect() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {availableDevices.map((device) => {
-                  const isSelected = devices.includes(device)
+                  const isSelected = devices.includes(device.id)
                   return (
                     <motion.button
-                      key={device}
+                      key={device.id}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
-                      onClick={() => toggleDevice(device)}
+                      onClick={() => toggleDevice(device.id)}
                       className={`
                         flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200
                         ${isSelected
@@ -192,7 +192,7 @@ export default function PlatformSelect() {
                       ) : (
                         <Square size={18} className="text-gray-600 shrink-0" />
                       )}
-                      <span className="text-sm font-medium">{device}</span>
+                      <span className="text-sm font-medium">{device.name}</span>
                       {isSelected && (
                         <motion.div
                           initial={{ scale: 0 }}

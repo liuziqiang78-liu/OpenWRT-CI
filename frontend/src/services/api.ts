@@ -42,22 +42,44 @@ export async function fetchBranches() {
 }
 
 /**
- * 获取平台列表
+ * 获取平台列表 - 转换 JSON 数据结构为组件期望的格式
+ * JSON: platforms[].platforms[].devices[{id,name,profile}]
+ * 组件: platforms[].targets[].devices[{id,name}]
  */
 export async function fetchPlatforms() {
   const config = await loadConfig();
-  return config.platforms;
+  return (config.platforms || []).map((vendor: any) => ({
+    vendor: vendor.vendor,
+    targets: (vendor.platforms || []).map((plat: any) => ({
+      name: plat.name,
+      devices: (plat.devices || []).map((d: any) =>
+        typeof d === 'string' ? { id: d, name: d } : { id: d.profile || d.id, name: d.name }
+      ),
+    })),
+  }));
 }
 
 /**
- * 获取插件列表
+ * 获取插件列表 - 转换 JSON 数据结构
+ * JSON: plugins[].category / plugins[].plugins[].desc
+ * 组件: PluginCategory.id / Plugin.description
  */
 export async function fetchPlugins(category?: string) {
   const config = await loadConfig();
+  const cats = (config.plugins || []).map((c: any) => ({
+    id: c.category,
+    name: c.name,
+    icon: c.icon,
+    plugins: (c.plugins || []).map((p: any) => ({
+      name: p.name,
+      description: p.desc || p.description || '',
+      category: p.category || c.category,
+    })),
+  }));
   if (category) {
-    return config.plugins.filter((c: any) => c.category === category);
+    return cats.filter((c: any) => c.id === category);
   }
-  return config.plugins;
+  return cats;
 }
 
 /**

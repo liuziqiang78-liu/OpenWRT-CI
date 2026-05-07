@@ -20,10 +20,15 @@ export interface Platform {
   targets: PlatformTarget[]
 }
 
+export interface Device {
+  id: string
+  name: string
+}
+
 export interface PlatformTarget {
   name: string
   subtargets?: string[]
-  devices: string[]
+  devices: Device[]
 }
 
 // 插件信息
