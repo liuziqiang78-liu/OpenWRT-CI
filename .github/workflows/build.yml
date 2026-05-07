@@ -1,0 +1,245 @@
+name: 🔧 Build OpenWRT Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: '源码分支'
+        required: true
+        default: 'main-nss'
+        type: choice
+        options:
+          - main-nss
+          - 25.12-nss
+      target:
+        description: '目标平台'
+        required: true
+        default: 'qualcomm'
+        type: choice
+        options:
+          - qualcomm
+      subtarget:
+        description: '子目标'
+        required: true
+        default: 'qualcommax'
+        type: string
+      profile:
+        description: '设备型号（空格分隔多个）'
+        required: true
+        type: string
+      plugins:
+        description: '插件列表（空格分隔）'
+        required: false
+        type: string
+      firewall:
+        description: '防火墙类型'
+        required: true
+        default: 'nftables'
+        type: choice
+        options:
+          - nftables
+          - iptables
+      rootfs:
+        description: '文件系统类型'
+        required: true
+        default: 'squashfs'
+        type: choice
+        options:
+          - squashfs
+          - ext4
+          - f2fs
+      root_password:
+        description: 'Root 密码'
+        required: false
+        default: ''
+        type: string
+      lan_ip:
+        description: 'LAN IP 地址'
+        required: false
+        default: '192.168.1.1'
+        type: string
+      wifi_ssid:
+        description: 'WiFi 名称'
+        required: false
+        type: string
+      wifi_password:
+        description: 'WiFi 密码'
+        required: false
+        type: string
+      enable_ccache:
+        description: '启用 ccache 加速'
+        required: true
+        default: true
+        type: boolean
+      template:
+        description: '固件模板'
+        required: true
+        default: 'base'
+        type: choice
+        options:
+          - base
+          - full
+      upload_artifacts:
+        description: '上传到 Releases'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  REPO_URL: https://github.com/LiBwrt/openwrt-6.x
+  REPO_BRANCH: ${{ github.event.inputs.source_branch }}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id || github.actor == 'liuziqiang78-liu'
+
+    steps:
+      - name: 🛎️ Checkout CI 配置
+        uses: actions/checkout@v4
+        with:
+          path: ci-config
+
+      - name: 📦 安装编译依赖
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ack antlr3 asciidoc autoconf automake autopoint \
+            binutils bison build-essential bzip2 ccache clang cmake cpio curl \
+            device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool jq \
+            lib32gcc-s1 libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev \
+            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
+            libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool \
+            lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf \
+            python3 python3-pip python3-ply python3-pyelftools python3-setuptools \
+            qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+            unzip upx-ucl vim wget xmlto xxd zlib1g-dev
+          sudo timedatectl set-timezone Asia/Shanghai
+
+      - name: 🔧 初始化编译环境
+        run: |
+          df -hT $(pwd)
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -hT $(pwd)
+
+      - name: 📥 拉取源码
+        run: |
+          git clone --depth 1 --branch ${{ env.REPO_BRANCH }} ${{ env.REPO_URL }} openwrt
+          cd openwrt
+          echo "VERSION=$(cat include/version.mk | grep 'PKG_VERSION:' | head -1 | awk '{print $2}')" >> $GITHUB_ENV || true
+
+      - name: 📦 更新 feeds
+        working-directory: openwrt
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: ⚙️ 加载自定义配置
+        working-directory: openwrt
+        run: |
+          # 复制 CI 配置目录中的设备和插件配置
+          CONFIG_DIR="ci-config/config"
+          
+          # 加载 .config 基础配置
+          if [ -f "$CONFIG_DIR/${{ inputs.subtarget }}/.config" ]; then
+            cp "$CONFIG_DIR/${{ inputs.subtarget }}/.config" .config
+          else
+            make defconfig
+          fi
+
+      - name: 🧩 应用插件配置
+        working-directory: openwrt
+        run: |
+          # 启用选择的插件
+          PLUGINS="${{ github.event.inputs.plugins }}"
+          if [ -n "$PLUGINS" ]; then
+            for plugin in $PLUGINS; do
+              # 查找插件的 config symbol
+              SYMBOL=$(grep -r "PACKAGE_${plugin}" package/ Makefile include/ 2>/dev/null | head -1 | grep -oP 'CONFIG_[A-Z0-9_]+' | head -1)
+              if [ -n "$SYMBOL" ]; then
+                echo "${SYMBOL}=y" >> .config
+                echo "✅ 启用: $plugin ($SYMBOL)"
+              else
+                echo "⚠️ 未找到: $plugin"
+              fi
+            done
+          fi
+          
+          # 防火墙类型
+          FW="${{ github.event.inputs.firewall }}"
+          if [ "$FW" = "nftables" ]; then
+            sed -i 's/CONFIG_PACKAGE_iptables=y/# CONFIG_PACKAGE_iptables is not set/' .config 2>/dev/null || true
+            echo "CONFIG_PACKAGE_nftables=y" >> .config
+          fi
+          
+          # Rootfs 类型
+          ROOTFS="${{ github.event.inputs.rootfs }}"
+          if [ "$ROOTFS" = "ext4" ]; then
+            sed -i 's/CONFIG_TARGET_ROOTFS_SQUASHFS=y/# CONFIG_TARGET_ROOTFS_SQUASHFS is not set/' .config 2>/dev/null || true
+            echo "CONFIG_TARGET_ROOTFS_EXT4FS=y" >> .config
+          elif [ "$ROOTFS" = "f2fs" ]; then
+            sed -i 's/CONFIG_TARGET_ROOTFS_SQUASHFS=y/# CONFIG_TARGET_ROOTFS_SQUASHFS is not set/' .config 2>/dev/null || true
+            echo "CONFIG_TARGET_ROOTFS_F2FS=y" >> .config
+          fi
+          
+          # ccache
+          if [ "${{ github.event.inputs.enable_ccache }}" = "true" ]; then
+            echo "CONFIG_CCACHE=y" >> .config
+          fi
+          
+          # Root 密码
+          if [ -n "${{ github.event.inputs.root_password }}" ]; then
+            PASSWORD_HASH=$(python3 -c "import crypt; print(crypt.crypt('${{ github.event.inputs.root_password }}', crypt.mksalt(crypt.METHOD_SHA512)))")
+            echo "CONFIG_DEFAULT_PASSWORD_HASH=\"$PASSWORD_HASH\"" >> .config
+          fi
+          
+          make defconfig
+
+      - name: 📋 下载编译包
+        working-directory: openwrt
+        run: |
+          make download -j$(nproc)
+          find dl -size 1024c -exec ls -l {} \;
+          find dl -size 1024c -delete
+
+      - name: 🏗️ 编译固件
+        working-directory: openwrt
+        run: |
+          echo "开始编译 $(date)"
+          make -j$(nproc) || make -j1 V=s
+          echo "编译完成 $(date)"
+
+      - name: 📤 上传固件
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWRT-${{ inputs.source_branch }}-${{ inputs.subtarget }}-${{ inputs.profile }}
+          path: |
+            openwrt/bin/targets/*/*
+            !openwrt/bin/targets/*/*/packages
+          retention-days: 7
+
+      - name: 🚀 发布到 Releases
+        if: github.event.inputs.upload_artifacts == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "build-${{ inputs.source_branch }}-${{ inputs.subtarget }}-${{ github.run_number }}"
+          name: "OpenWRT ${{ inputs.source_branch }} ${{ inputs.subtarget }} #${{ github.run_number }}"
+          files: |
+            openwrt/bin/targets/*/*
+            !openwrt/bin/targets/*/*/packages
+          body: |
+            ## OpenWRT 固件编译结果
+            
+            - **分支**: ${{ inputs.source_branch }}
+            - **平台**: ${{ inputs.target }} / ${{ inputs.subtarget }}
+            - **设备**: ${{ inputs.profile }}
+            - **防火墙**: ${{ inputs.firewall }}
+            - **文件系统**: ${{ inputs.rootfs }}
+            - **模板**: ${{ inputs.template }}
+            - **插件**: ${{ inputs.plugins }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

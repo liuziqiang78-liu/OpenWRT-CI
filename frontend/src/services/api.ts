@@ -4,7 +4,7 @@
  */
 
 const GITHUB_OWNER = 'liuziqiang78-liu';
-const GITHUB_REPO = 'openwrt-6.x';
+const GITHUB_REPO = 'OpenWRT-CI';
 const GITHUB_API = 'https://api.github.com';
 const WORKFLOW_FILE = 'build.yml';
 
@@ -142,7 +142,7 @@ export async function triggerBuild(params: {
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ref: rest.branch, inputs }),
+      body: JSON.stringify({ ref: 'main', inputs }),
     }
   );
 
