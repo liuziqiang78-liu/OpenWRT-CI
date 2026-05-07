@@ -1,0 +1,1249 @@
+{
+  "branches": [
+    {
+      "name": "main-nss",
+      "description": "主线 NSS 分支（最新特性，适合尝鲜）"
+    },
+    {
+      "name": "25.12-nss",
+      "description": "25.12 稳定 NSS 分支（稳定版，适合日常使用）"
+    }
+  ],
+  "platforms": [
+    {
+      "vendor": "qualcomm",
+      "name": "Qualcomm",
+      "platforms": [
+        {
+          "id": "qualcommax",
+          "name": "Qualcomm AX (IPQ60xx/IPQ807x)",
+          "description": "高通 Atheros WiSoC 平台，支持 IPQ40xx/IPQ50xx/IPQ60xx/IPQ806x/IPQ807x",
+          "subtargets": [
+            {
+              "id": "ipq807x",
+              "soc": "ipq8072",
+              "chips": [
+                "ipq8070",
+                "ipq8071",
+                "ipq8072",
+                "ipq8073",
+                "ipq8074",
+                "ipq8075",
+                "ipq8076",
+                "ipq8078"
+              ],
+              "nss": true
+            },
+            {
+              "id": "ipq60xx",
+              "soc": "ipq6010",
+              "chips": [
+                "ipq6000",
+                "ipq6005",
+                "ipq6010",
+                "ipq6018"
+              ],
+              "nss": true
+            },
+            {
+              "id": "ipq50xx",
+              "soc": "ipq5010",
+              "chips": [
+                "ipq5010",
+                "ipq5018"
+              ],
+              "nss": true
+            }
+          ],
+          "devices": [
+            {
+              "id": "xiaomi_ax1800",
+              "name": "Xiaomi AX1800",
+              "profile": "xiaomi_ax1800",
+              "description": ""
+            },
+            {
+              "id": "xiaomi_ax3600",
+              "name": "Xiaomi AX3600",
+              "profile": "xiaomi_ax3600",
+              "description": ""
+            },
+            {
+              "id": "xiaomi_ax6000",
+              "name": "Xiaomi AX6000",
+              "profile": "xiaomi_ax6000",
+              "description": ""
+            },
+            {
+              "id": "xiaomi_ax9000",
+              "name": "Xiaomi AX9000",
+              "profile": "xiaomi_ax9000",
+              "description": ""
+            },
+            {
+              "id": "glinet_gl-ax1800",
+              "name": "GL.iNet GL-AX1800",
+              "profile": "glinet_gl-ax1800",
+              "description": ""
+            },
+            {
+              "id": "glinet_gl-axt1800",
+              "name": "GL.iNet GL-AXT1800",
+              "profile": "glinet_gl-axt1800",
+              "description": ""
+            },
+            {
+              "id": "glinet_gl-mt3000",
+              "name": "GL.iNet GL-MT3000",
+              "profile": "glinet_gl-mt3000",
+              "description": ""
+            },
+            {
+              "id": "glinet_gl-mt6000",
+              "name": "GL.iNet GL-MT6000",
+              "profile": "glinet_gl-mt6000",
+              "description": ""
+            },
+            {
+              "id": "linksys_mr7350",
+              "name": "Linksys MR7350",
+              "profile": "linksys_mr7350",
+              "description": ""
+            },
+            {
+              "id": "linksys_mx4200",
+              "name": "Linksys MX4200",
+              "profile": "linksys_mx4200",
+              "description": ""
+            },
+            {
+              "id": "linksys_mx5300",
+              "name": "Linksys MX5300",
+              "profile": "linksys_mx5300",
+              "description": ""
+            },
+            {
+              "id": "netgear_wax218",
+              "name": "Netgear WAX218",
+              "profile": "netgear_wax218",
+              "description": ""
+            },
+            {
+              "id": "netgear_sxr80",
+              "name": "Netgear SXR80",
+              "profile": "netgear_sxr80",
+              "description": ""
+            },
+            {
+              "id": "qnap_301w",
+              "name": "QNAP 301W",
+              "profile": "qnap_301w",
+              "description": ""
+            },
+            {
+              "id": "zte_mf289f",
+              "name": "ZTE MF289F",
+              "profile": "zte_mf289f",
+              "description": ""
+            },
+            {
+              "id": "bufflo_wxr-5950ax12",
+              "name": "Buffalo WXR-5950AX12",
+              "profile": "bufflo_wxr-5950ax12",
+              "description": ""
+            },
+            {
+              "id": "asus_rt-ax89x",
+              "name": "Asus RT-AX89X",
+              "profile": "asus_rt-ax89x",
+              "description": ""
+            }
+          ],
+          "firewall_options": [
+            "iptables",
+            "nftables"
+          ],
+          "rootfs_options": [
+            "squashfs",
+            "ext4",
+            "f2fs"
+          ],
+          "wifi": true,
+          "emmc": true
+        }
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "category": "proxy",
+      "name": "🚀 代理工具",
+      "icon": "🚀",
+      "plugins": [
+        {
+          "name": "luci-app-passwall",
+          "display": "PassWall",
+          "desc": "科学上网工具，支持多种代理协议",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-passwall2",
+          "display": "PassWall 2",
+          "desc": "PassWall 第二代，更好的性能和兼容性",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ssr-plus",
+          "display": "SSR Plus+",
+          "desc": "ShadowsocksR Plus+ 科学上网插件",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-vssr",
+          "display": "VSSR",
+          "desc": "V2Ray SSR 混合代理插件",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-openclash",
+          "display": "OpenClash",
+          "desc": "Clash 客户端 OpenWrt 版",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-clash",
+          "display": "Clash",
+          "desc": "Clash 代理客户端",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-bypass",
+          "display": "Bypass",
+          "desc": "绕过防火墙工具",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-homeproxy",
+          "display": "HomeProxy",
+          "desc": "家庭代理管理工具",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-shadowsocks",
+          "display": "Shadowsocks",
+          "desc": "Shadowsocks 代理客户端",
+          "firewall": true,
+          "category": "proxy",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "dns",
+      "name": "🛡️ DNS/广告过滤",
+      "icon": "🛡️",
+      "plugins": [
+        {
+          "name": "luci-app-adguardhome",
+          "display": "AdGuard Home",
+          "desc": "全网广告拦截和隐私保护",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-dnsforwarder",
+          "display": "DNSForwarder",
+          "desc": "DNS 转发器，防止 DNS 污染",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ssr-plus-dns",
+          "display": "SSR DNS",
+          "desc": "SSR Plus DNS 模块",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-unblockneteasemusic",
+          "display": "解锁网易云灰色歌曲",
+          "desc": "解锁网易云音乐灰色歌曲",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-smartdns",
+          "display": "SmartDNS",
+          "desc": "智能 DNS 解析服务",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-dnscrypt-proxy2",
+          "display": "DNSCrypt Proxy 2",
+          "desc": "DNS 加密代理",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ddns",
+          "display": "DDNS",
+          "desc": "动态域名解析",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-turboacc",
+          "display": "Turbo ACC",
+          "desc": "网络加速引擎",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-openvpn-script",
+          "display": "OpenVPN Script",
+          "desc": "OpenVPN 脚本扩展",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ddnsto",
+          "display": "DDNSTO",
+          "desc": "DDNSTO 内网穿透",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-zerotier",
+          "display": "ZeroTier",
+          "desc": "ZeroTier 虚拟网络",
+          "firewall": false,
+          "category": "dns",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "system",
+      "name": "⚙️ 系统工具",
+      "icon": "⚙️",
+      "plugins": [
+        {
+          "name": "luci-app-dockerman",
+          "display": "DockerMan",
+          "desc": "Docker 容器管理界面",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-diskman",
+          "display": "DiskMan",
+          "desc": "磁盘管理工具",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-filetransfer",
+          "display": "文件传输",
+          "desc": "Web 文件传输工具",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ramfree",
+          "display": "内存释放",
+          "desc": "释放系统内存",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ttyd",
+          "display": "ttyd 终端",
+          "desc": "Web 终端",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ssr-plus",
+          "display": "SSR Plus+",
+          "desc": "ShadowsocksR Plus+",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-openvpn-server",
+          "display": "OpenVPN Server",
+          "desc": "OpenVPN 服务端",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-wol",
+          "display": "网络唤醒",
+          "desc": "Wake on LAN",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-upnp",
+          "display": "UPnP",
+          "desc": "通用即插即用协议",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nlbwmon",
+          "display": "带宽监控",
+          "desc": "网络带宽监控",
+          "firewall": false,
+          "category": "system",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "network",
+      "name": "📡 网络管理",
+      "icon": "📡",
+      "plugins": [
+        {
+          "name": "luci-app-openvpn",
+          "display": "OpenVPN",
+          "desc": "OpenVPN 客户端/服务端",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-wireguard",
+          "display": "WireGuard",
+          "desc": "WireGuard VPN",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-samba4",
+          "display": "Samba4",
+          "desc": "SMB 文件共享",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nfs",
+          "display": "NFS",
+          "desc": "网络文件系统",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-transmission",
+          "display": "Transmission",
+          "desc": "BT 下载工具",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-aria2",
+          "display": "Aria2",
+          "desc": "多线程下载工具",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-hd-idle",
+          "display": "硬盘休眠",
+          "desc": "硬盘空闲休眠",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-minidlna",
+          "display": "MiniDLNA",
+          "desc": "DLNA 媒体服务器",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-vlmcsd",
+          "display": "KMS 激活",
+          "desc": "KMS 激活服务器",
+          "firewall": false,
+          "category": "network",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "tunnel",
+      "name": "🌐 内网穿透",
+      "icon": "🌐",
+      "plugins": [
+        {
+          "name": "luci-app-zerotier",
+          "display": "ZeroTier",
+          "desc": "ZeroTier 虚拟局域网",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-tailscale",
+          "display": "Tailscale",
+          "desc": "Tailscale 零配置 VPN",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-frpc",
+          "display": "FRP Client",
+          "desc": "FRP 内网穿透客户端",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-frps",
+          "display": "FRP Server",
+          "desc": "FRP 内网穿透服务端",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nps",
+          "display": "NPS",
+          "desc": "NPS 内网穿透",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ddnsto",
+          "display": "DDNSTO",
+          "desc": "DDNSTO 内网穿透",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-godproxy",
+          "display": "GodProxy",
+          "desc": "GodProxy 代理",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-gost",
+          "display": "GOST",
+          "desc": "GOST 隧道工具",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-udp2raw",
+          "display": "UDP2RAW",
+          "desc": "UDP 转 TCP 隧道",
+          "firewall": false,
+          "category": "tunnel",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "vpn",
+      "name": "🔒 VPN/隧道",
+      "icon": "🔒",
+      "plugins": [
+        {
+          "name": "luci-app-openvpn",
+          "display": "OpenVPN",
+          "desc": "OpenVPN 客户端/服务端",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-wireguard",
+          "display": "WireGuard",
+          "desc": "WireGuard VPN",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-zerotier",
+          "display": "ZeroTier",
+          "desc": "ZeroTier 虚拟网络",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-tailscale",
+          "display": "Tailscale",
+          "desc": "Tailscale VPN",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ipsec-vpn",
+          "display": "IPSec VPN",
+          "desc": "IPSec VPN 服务",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-pptp-vpn",
+          "display": "PPTP VPN",
+          "desc": "PPTP VPN 服务",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-l2tp-vpn",
+          "display": "L2TP VPN",
+          "desc": "L2TP VPN 服务",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-softethervpn",
+          "display": "SoftEther VPN",
+          "desc": "SoftEther VPN",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-v2ray-server",
+          "display": "V2Ray Server",
+          "desc": "V2Ray 服务端",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-ipsec-server",
+          "display": "IPSec Server",
+          "desc": "IPSec 服务端",
+          "firewall": false,
+          "category": "vpn",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "multimedia",
+      "name": "🎬 多媒体/娱乐",
+      "icon": "🎬",
+      "plugins": [
+        {
+          "name": "luci-app-minidlna",
+          "display": "MiniDLNA",
+          "desc": "DLNA 媒体服务器",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-transmission",
+          "display": "Transmission",
+          "desc": "BT 下载",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-aria2",
+          "display": "Aria2",
+          "desc": "多线程下载",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-unblockneteasemusic",
+          "display": "解锁网易云",
+          "desc": "解锁网易云音乐灰色歌曲",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-jellyfin",
+          "display": "Jellyfin",
+          "desc": "开源媒体服务器",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-emby",
+          "display": "Emby",
+          "desc": "Emby 媒体服务器",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-plex",
+          "display": "Plex",
+          "desc": "Plex 媒体服务器",
+          "firewall": false,
+          "category": "multimedia",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "firewall",
+      "name": "🔥 防火墙/安全",
+      "icon": "🔥",
+      "plugins": [
+        {
+          "name": "luci-app-access-control",
+          "display": "访问控制",
+          "desc": "设备访问控制",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-timecontrol",
+          "display": "时间控制",
+          "desc": "按时间段控制网络访问",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-parentcontrol",
+          "display": "家长控制",
+          "desc": "家长控制功能",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-webrestriction",
+          "display": "网站限制",
+          "desc": "限制特定网站访问",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-mwan3",
+          "display": "MWAN3",
+          "desc": "多 WAN 负载均衡",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-sfe",
+          "display": "SFE",
+          "desc": "Shortcut Forwarding Engine",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-qos",
+          "display": "QoS",
+          "desc": "服务质量控制",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nft-qos",
+          "display": "nft QoS",
+          "desc": "nftables QoS",
+          "firewall": false,
+          "category": "firewall",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "monitoring",
+      "name": "📊 监控/统计",
+      "icon": "📊",
+      "plugins": [
+        {
+          "name": "luci-app-nlbwmon",
+          "display": "带宽监控",
+          "desc": "网络带宽监控",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-vnstat",
+          "display": "vnStat",
+          "desc": "网络流量统计",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-statistics",
+          "display": "统计",
+          "desc": "系统统计数据收集",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-netdata",
+          "display": "Netdata",
+          "desc": "实时性能监控",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-wrtbwmon",
+          "display": "带宽监控",
+          "desc": "带宽使用监控",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nft-qos",
+          "display": "nft QoS",
+          "desc": "nftables 流量控制",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-sqm",
+          "display": "SQM",
+          "desc": "Smart Queue Management",
+          "firewall": false,
+          "category": "monitoring",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "docker",
+      "name": "🐳 Docker/容器",
+      "icon": "🐳",
+      "plugins": [
+        {
+          "name": "luci-app-dockerman",
+          "display": "DockerMan",
+          "desc": "Docker 容器管理",
+          "firewall": false,
+          "category": "docker",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-docker",
+          "display": "Docker",
+          "desc": "Docker 引擎",
+          "firewall": false,
+          "category": "docker",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-portainer",
+          "display": "Portainer",
+          "desc": "Docker 可视化管理",
+          "firewall": false,
+          "category": "docker",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "files",
+      "name": "📁 文件共享/下载",
+      "icon": "📁",
+      "plugins": [
+        {
+          "name": "luci-app-samba4",
+          "display": "Samba4",
+          "desc": "SMB 文件共享",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-nfs",
+          "display": "NFS",
+          "desc": "网络文件系统",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-aria2",
+          "display": "Aria2",
+          "desc": "多线程下载",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-transmission",
+          "display": "Transmission",
+          "desc": "BT 下载",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-hd-idle",
+          "display": "硬盘休眠",
+          "desc": "硬盘空闲休眠",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-diskman",
+          "display": "磁盘管理",
+          "desc": "磁盘分区管理",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-filetransfer",
+          "display": "文件传输",
+          "desc": "Web 文件传输",
+          "firewall": false,
+          "category": "files",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "campus",
+      "name": "🎓 校园网/认证",
+      "icon": "🎓",
+      "plugins": [
+        {
+          "name": "luci-app-mentohust",
+          "display": "MentoHUST",
+          "desc": "锐捷认证客户端",
+          "firewall": false,
+          "category": "campus",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-8021xclient",
+          "display": "802.1X Client",
+          "desc": "802.1X 认证客户端",
+          "firewall": false,
+          "category": "campus",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "protocol",
+      "name": "🌐 协议/拨号",
+      "icon": "🌐",
+      "plugins": [
+        {
+          "name": "luci-app-pppoe-relay",
+          "display": "PPPoE Relay",
+          "desc": "PPPoE 中继",
+          "firewall": false,
+          "category": "protocol",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-app-pppoe-server",
+          "display": "PPPoE Server",
+          "desc": "PPPoE 服务端",
+          "firewall": false,
+          "category": "protocol",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    },
+    {
+      "category": "theme",
+      "name": "🎨 主题/外观",
+      "icon": "🎨",
+      "plugins": [
+        {
+          "name": "luci-theme-argon",
+          "display": "Argon 主题",
+          "desc": "Argon 现代化主题",
+          "firewall": false,
+          "category": "theme",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        },
+        {
+          "name": "luci-theme-bootstrap-mod",
+          "display": "Bootstrap Mod",
+          "desc": "修改版 Bootstrap 主题",
+          "firewall": false,
+          "category": "theme",
+          "source": "",
+          "deps_source": "",
+          "deps": []
+        }
+      ]
+    }
+  ],
+  "firewalls": [
+    {
+      "type": "iptables",
+      "name": "iptables",
+      "description": "传统防火墙，兼容性最好"
+    },
+    {
+      "type": "nftables",
+      "name": "nftables",
+      "description": "新一代防火墙，性能更优"
+    }
+  ]
+}

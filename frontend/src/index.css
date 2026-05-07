@@ -1,0 +1,88 @@
+/* TailwindCSS 基础层 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局样式 */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+  }
+
+  body {
+    background: #0a0e1a;
+    min-height: 100vh;
+  }
+
+  /* 选中文本颜色 */
+  ::selection {
+    background: rgba(99, 102, 241, 0.4);
+    color: white;
+  }
+}
+
+@layer components {
+  /* 玻璃态卡片 */
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-white/[0.06] hover:border-white/[0.12] hover:shadow-lg hover:shadow-primary-500/10;
+  }
+
+  /* 渐变文字 */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-300 to-accent-cyan;
+  }
+
+  /* 发光边框 */
+  .glow-border {
+    @apply border border-primary-500/30 shadow-[0_0_15px_rgba(99,102,241,0.15)];
+  }
+
+  /* 科技感网格背景 */
+  .tech-grid {
+    background-image:
+      linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* 脉冲点 */
+  .pulse-dot {
+    @apply relative;
+  }
+  .pulse-dot::after {
+    content: '';
+    @apply absolute w-2 h-2 bg-accent-emerald rounded-full -top-0.5 -right-0.5;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@layer utilities {
+  /* 渐变边框 */
+  .border-gradient {
+    border-image: linear-gradient(135deg, #6366f1, #22d3ee) 1;
+  }
+
+  /* 文字描边 */
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(99, 102, 241, 0.3);
+  }
+}
