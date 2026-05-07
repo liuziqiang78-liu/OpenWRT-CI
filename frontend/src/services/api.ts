@@ -3,7 +3,7 @@
  * 直接调用 GitHub API，配置数据从静态 JSON 加载
  */
 
-const GITHUB_OWNER = 'LiBwrt';
+const GITHUB_OWNER = 'liuziqiang78-liu';
 const GITHUB_REPO = 'openwrt-6.x';
 const GITHUB_API = 'https://api.github.com';
 const WORKFLOW_FILE = 'build.yml';
