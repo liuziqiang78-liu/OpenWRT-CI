@@ -136,6 +136,32 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: 🔧 修复已知编译问题
+        working-directory: openwrt
+        run: |
+          # 修复 hostapd he_mu_edca 补丁冲突
+          PATCH_FILE="package/network/services/hostapd/patches/900-hostapd-update-muedca-params.patch"
+          if [ -f "$PATCH_FILE" ]; then
+            echo "⚠️ 发现有问题的补丁: $PATCH_FILE"
+            echo "正在检查补丁是否能正确应用..."
+            # 检查补丁是否能应用
+            if ! git apply --check "$PATCH_FILE" 2>/dev/null; then
+              echo "补丁无法应用，尝试删除..."
+              rm -f "$PATCH_FILE"
+              echo "✅ 已删除有问题的补丁"
+            else
+              echo "补丁可以应用，保留"
+            fi
+          fi
+          
+          # 删除所有包含 he_mu_edca 的补丁
+          for f in package/network/services/hostapd/patches/*.patch; do
+            if [ -f "$f" ] && grep -q 'he_mu_edca' "$f"; then
+              echo "⚠️ 删除不兼容的补丁: $f"
+              rm -f "$f"
+            fi
+          done
+
       - name: ⚙️ 加载自定义配置
         working-directory: openwrt
         run: |
